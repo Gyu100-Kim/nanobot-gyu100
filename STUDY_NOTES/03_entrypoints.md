@@ -36,6 +36,9 @@
 
 두 경로 모두 결국 **`cli/commands.py`의 Typer `app`** 을 실행합니다.
 
+> 참고: CLI 외에 **Python SDK 진입점**도 있습니다 — `nanobot/nanobot.py`의 `Nanobot` 클래스
+> (AGENTS.md "Entry Points"). 코드에서 nanobot을 라이브러리로 임베드할 때 씁니다([13](13_api_sdk_webui.md) 참고).
+
 ---
 
 ## `nanobot/__main__.py` 라인바이라인

@@ -12,9 +12,10 @@
 1. [세 통로 한눈에](#세-통로-한눈에)
 2. [OpenAI 호환 API 서버: `api/server.py`](#openai-호환-api-서버-apiserverpy)
 3. [인증 미들웨어 라인바이라인](#인증-미들웨어-라인바이라인)
-4. [Python SDK: `sdk/`](#python-sdk-sdk)
-5. [WebUI와 WebSocket 프로토콜](#webui와-websocket-프로토콜)
-6. [`apps/` — 앱 매니페스트](#apps--앱-매니페스트)
+4. [Python SDK 진입점: `nanobot/nanobot.py`의 `Nanobot`](#python-sdk-진입점-nanobotnanobotpy의-nanobot)
+5. [SDK 내부 헬퍼: `sdk/`](#sdk-내부-헬퍼-sdk)
+6. [WebUI와 WebSocket 프로토콜](#webui와-websocket-프로토콜)
+7. [`apps/` — 앱 매니페스트](#apps--앱-매니페스트)
 
 ---
 
@@ -23,7 +24,7 @@
 | 통로 | 위치 | 무엇을 위한 것 |
 | --- | --- | --- |
 | HTTP API | `nanobot/api/server.py` | 다른 프로그램이 OpenAI 호환 `/v1/chat/completions`로 nanobot 호출 |
-| Python SDK | `nanobot/sdk/` | 파이썬 코드에서 세션/메모리/런타임을 직접 제어 |
+| Python SDK | `nanobot/nanobot.py`(진입점) + `nanobot/sdk/`(내부) | 파이썬 코드에서 세션/메모리/런타임을 직접 제어 |
 | WebUI | `nanobot/web/`(번들) + `webui/`(소스) | 브라우저 채팅 UI, WebSocket으로 게이트웨이와 통신 |
 
 세 통로 모두 결국 [04](04_agent_loop.md)의 `AgentLoop`를 재사용합니다 — 입력 형식만 다를 뿐 두뇌는 하나입니다.
@@ -64,9 +65,38 @@
 
 ---
 
-## Python SDK: `sdk/`
+## Python SDK 진입점: `nanobot/nanobot.py`의 `Nanobot`
 
-`nanobot/sdk/`(L1 "Internal helpers for the high-level nanobot Python SDK"). 코드에서 직접 제어하는 클라이언트들:
+SDK의 **공식 진입점**은 `nanobot/nanobot.py`의 `Nanobot` 클래스입니다(AGENTS.md "Entry Points — Python SDK:
+`nanobot/nanobot.py`"). docstring(L64-70)의 사용 예:
+
+```python
+bot = Nanobot.from_config()
+result = await bot.run("Summarize this repo", hooks=[MyHook()])
+print(result.content)
+```
+
+- **`Nanobot.__init__`(L73-79)** — `AgentLoop`를 감싸고, 아래 `sdk/`의 클라이언트들을 속성으로 노출합니다:
+  `self.sessions = SessionClient(loop)`, `self.memory = MemoryClient(loop)`, `self.runtime = RuntimeClient(loop)`.
+- **`from_config(config_path=None, *, workspace=None, model=None, model_preset=None)`(L81-124)** —
+  `~/.nanobot/config.json`(기본)을 로드하고(L99, L108), workspace/model 오버라이드를 적용한 뒤
+  `AgentLoop.from_config(...)`(L120)로 루프를 만들어 감쌉니다. 즉 SDK도 결국 [04](04_agent_loop.md)의
+  동일한 `AgentLoop`를 쓰는 얇은 파사드(facade)입니다.
+- **`run(message, *, session_key="sdk:default", channel="cli", ...)`(L126-)** — 한 턴을 돌리고 `RunResult`를 반환.
+  기본 세션 키가 `"sdk:default"`(L130)인 점이 [06](06_state_and_persistence.md)의 세션 키 규칙과 이어집니다.
+- **`run_streamed`(L174-) / `stream`(L256-)** — 델타 콜백/비동기 이터레이터로 스트리밍 수신.
+- **`aclose`(L291-) / `__aenter__`/`__aexit__`(L295-)** — `async with Nanobot.from_config() as bot:` 형태의
+  컨텍스트 매니저 사용을 지원.
+
+**왜 파샬드인가(설계 의도):** 내부 구조(버스/루프/세션)를 모르는 사용자도 메서드 몇 개로 임베딩할 수 있게,
+복잡한 조립 로직을 한 클래스 뒤로 숨깁니다.
+
+---
+
+## SDK 내부 헬퍼: `sdk/`
+
+`nanobot/sdk/`(L1 "Internal helpers for the high-level nanobot Python SDK") — 위 `Nanobot` 파샬드가 속성으로
+노출하는 클라이언트들입니다:
 
 - `SessionClient`(`clients.py` L21-): 세션 제어.
   - `ingest(...)`(L30-): 메시지를 세션에 투입(에이전트 턴 유발).

@@ -122,6 +122,6 @@ LLM이 실수로/악의적으로 `~/.nanobot/config.json`(API 키 포함 가능)
   한 번 띄워 여러 번 상호작용해야 하는 프로그램을 다루기 위해서입니다.
 
 추가 배경은 [tech_background/06_execution_isolation.md](tech_background/06_execution_isolation.md)에서 다룹니다.
-저장소의 보안 경계 문서(`.agent/security.md`)도 참고하세요.
+저장소의 보안 경계 문서(<a href="../.agent/security.md">.agent/security.md</a>)도 참고하세요.
 
 다음 문서에서는 외부 접근 계층(API/SDK/WebUI)을 봅니다 → [13_api_sdk_webui.md](13_api_sdk_webui.md).

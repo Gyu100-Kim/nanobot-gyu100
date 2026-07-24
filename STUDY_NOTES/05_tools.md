@@ -134,9 +134,18 @@
 | `self.py` | 자기 수정(self-modification) 관련 기능. |
 | `sandbox.py` | 샌드박스 실행(인프라 모듈 — `_SKIP_MODULES`에 포함되어 자동 발견 대상 아님). |
 | `exec_session.py` | 지속적 실행 세션(상태 유지 셸). |
-| `long_task.py` | 장기 실행 작업 / 지속 목표(sustained goal). |
+| `long_task.py` | 지속 목표(sustained goal) 도구: `LongTaskTool`(L111)이 세션 메타데이터에 목표를 등록하고, `CompleteGoalTool`(L193)이 종료를 기록. docstring(L1-15)에 따르면 활성 목표는 매 턴 Runtime Context에 미러링되어(`goal_state_runtime_lines`) **압축(compaction)이 목표를 가리지 못하게** 합니다. 별도 서브에이전트 오케스트레이터는 없음("There is **no** sub-agent orchestrator"). [06](06_state_and_persistence.md)의 `goal_state.py`와 짝. |
 | `message.py` | 진행 중 사용자에게 메시지 전송(`MessageTool`; [04](04_agent_loop.md) L1524에서 사용). |
 | `cli_apps.py` | CLI 앱 연동. |
+
+그 외 나머지 파일은 도구 자체가 아니라 도구들이 공유하는 **인프라 모듈**입니다(각 파일 docstring 근거):
+
+| 파일 | 역할 |
+| --- | --- |
+| `context.py` | "Runtime context for tool construction"(L1) — 도구 생성 시 넘겨줄 실행 컨텍스트. `_SKIP_MODULES` 대상. |
+| `file_state.py` | "Track file-read state for read-before-edit warnings and read deduplication"(L1) — `read_file`의 중복 읽기 감지와 "읽기 전 편집" 경고에 사용. `_SKIP_MODULES` 대상. |
+| `path_utils.py` | "Shared path helpers for workspace-scoped tools"(L1) — 워크스페이스 경계 검사와 연동([12](12_security_and_sandbox.md)). |
+| `runtime_state.py` | "RuntimeState protocol: agent loop state exposed to MyTool"(L1) — 에이전트 루프 상태를 `self.py`의 MyTool에 노출하는 Protocol. `_SKIP_MODULES` 대상. |
 
 > `sandbox.py`, `mcp.py`는 `_SKIP_MODULES`(loader.py L14-17)에 있어 자동 발견에서 제외됩니다. 이들은 다른
 > 도구가 사용하는 **인프라**이거나 별도 경로로 등록됩니다.
