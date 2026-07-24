@@ -1,0 +1,135 @@
+# 11. 스케줄링과 트리거 — 시간이 되면 스스로 움직이기
+
+> **이 문서에서 다루는 큰 맥락**
+>
+> 지금까지는 "사용자가 말을 걸면 응답"하는 흐름이었습니다. 하지만 nanobot은 **정해진 시간/주기**에 스스로
+> 일을 하기도 합니다 — 매일 아침 요약, 주기적 Dream([08](08_memory_and_dream.md)) 등. 이를 담당하는 것이
+> `nanobot/cron/`(스케줄러)와 `nanobot/triggers/`(외부 트리거)입니다. 이 문서는 croniter 기반 스케줄 계산,
+> 타이머 루프, 작업 실행 흐름, 그리고 세션에 결과를 배달하는 방식을 라인 근거로 설명합니다.
+
+## 이 문서의 소목차
+
+1. [cron 서브시스템 구조](#cron-서브시스템-구조)
+2. [자료구조: `cron/types.py`](#자료구조-crontypespy)
+3. [다음 실행 시각 계산 — croniter](#다음-실행-시각-계산--croniter)
+4. [타이머 루프: `start` → `_arm_timer` → `_on_timer`](#타이머-루프-start--_arm_timer--_on_timer)
+5. [작업 실행: `_execute_job`와 `on_job` 콜백](#작업-실행-_execute_job와-on_job-콜백)
+6. [세션 배달과 에이전트 턴](#세션-배달과-에이전트-턴)
+7. [`triggers/` — 외부 트리거](#triggers--외부-트리거)
+
+---
+
+## cron 서브시스템 구조
+
+`nanobot/cron/`의 파일(확인됨)과 역할:
+
+| 파일 | 역할 |
+| --- | --- |
+| `service.py` | `CronService` — 작업 저장/로드, 다음 실행 계산, 타이머 루프, 실행. |
+| `types.py` | `CronSchedule`/`CronPayload`/`CronJob`/`CronStore` 등 자료구조. |
+| `bound_runner.py` | 특정 세션/에이전트에 **바인딩된** cron 작업을 실제로 돌리는 러너. |
+| `session_delivery.py` | cron 결과를 대상 세션/채널로 배달. |
+| `session_turns.py` | cron 작업을 세션 턴으로 변환(`is_bound_cron_job` 등). |
+| `webui_metadata.py` | WebUI에 노출할 cron 메타데이터. |
+
+cron store는 워크스페이스의 `cron/jobs.json`([10](10_gateway_and_channels.md) `_run_gateway` L1360)에 저장됩니다.
+게이트웨이가 `CronService`를 만들어 함께 실행합니다.
+
+---
+
+## 자료구조: `cron/types.py`
+
+- `CronSchedule`(L7-): 스케줄 종류를 담습니다. `kind`가 `"at"`(특정 시각), `"every"`(주기), `"cron"`(cron 식)이며
+  각각 `at_ms`, `every_ms`, `expr`/`tz` 필드를 씁니다.
+- `CronPayload`(L21-): 작업이 실행할 내용(어떤 프롬프트/세션/채널로 배달할지).
+- `CronJobState`(L46-): `next_run_at_ms`(L49) 등 실행 상태(마지막 상태/오류 포함).
+- `CronJob`(L56-): 이름/스케줄/페이로드/상태를 묶은 작업. `from_dict`(L70)로 JSON에서 복원.
+- `CronStore`(L82-): 작업 목록 컨테이너(`jobs.json`의 표현).
+
+**왜 세 종류의 스케줄인가:** 일회성 알림(`at`), 단순 주기(`every`), 복잡한 달력 규칙(`cron`)을 모두 표현하기 위해서입니다.
+
+---
+
+## 다음 실행 시각 계산 — croniter
+
+`_compute_next_run(schedule, now_ms)`(`service.py` L43-69)가 "다음에 언제 실행할지"를 밀리초로 계산합니다.
+
+- **L45-46** `kind == "at"`: 지정 시각(`at_ms`)이 아직 미래면 그 시각, 아니면 `None`(다시 실행 안 함).
+- **L48-52** `kind == "every"`: 지금(`now_ms`)으로부터 `every_ms` 뒤.
+- **L54-65** `kind == "cron"`:
+  - L58 `from croniter import croniter` — croniter 라이브러리([02](02_modules_and_stack.md))를 지연 import.
+  - L61 — `schedule.tz`가 있으면 그 타임존, 없으면 로컬 타임존.
+  - L62-63 `base_dt = datetime.fromtimestamp(base_time, tz=tz)`; `cron = croniter(schedule.expr, base_dt)`
+    — 기준 시각에서 cron 식을 파싱.
+  - L64-65 `next_dt = cron.get_next(datetime)` — 다음 발화 시각을 얻어 ms로 변환.
+  - L66-67 — 파싱 실패 시 `None`(잘못된 cron 식이 서비스를 죽이지 않음).
+
+**왜 croniter인가:** `"0 9 * * 1-5"`(평일 오전 9시) 같은 표준 cron 식을 직접 파싱하는 것은 번거롭고 실수하기 쉽습니다.
+croniter가 이를 정확히 계산해 줍니다.
+
+---
+
+## 타이머 루프: `start` → `_arm_timer` → `_on_timer`
+
+`CronService`(L142-)는 asyncio 타이머로 동작합니다.
+
+- **`start()`**(L489-507): 저장소를 로드(L492). 손상됐으면(`None`) 빈 목록으로 덮어써 데이터를 잃지 않도록
+  **시작을 거부**하고 예외(L493-503) — 방어적 설계. 정상이면 `_recompute_next_runs()`(L504)로 모든 작업의 다음
+  실행을 계산하고, 저장 후 `_arm_timer()`(L506)로 첫 타이머를 건다.
+- **`_recompute_next_runs()`**(L516-525): enabled인 작업마다 `_compute_next_run`으로 `next_run_at_ms`를 갱신.
+- **`_get_next_wake_ms()`**(L527-533): 모든 작업 중 **가장 이른** 다음 실행 시각을 찾음.
+- **`_arm_timer()`**(L535-555): 그 가장 이른 시각까지(또는 `max_sleep_ms`까지) `asyncio.sleep` 후 `_on_timer()`를 호출하는
+  태스크를 만듭니다(L550-555). **왜 max_sleep 상한?** 아주 먼 미래까지 잠들지 않고 주기적으로 깨어 store 재로드/재계산을 하기 위함.
+- **`_on_timer()`**(L557-581): 깨어나면
+  - L559 store를 다시 로드(외부에서 작업이 추가/수정됐을 수 있으므로 hot reload).
+  - L570-573 `now >= next_run_at_ms`인 **due(기한 도래) 작업**을 모음.
+  - L575-576 각 작업을 `_execute_job`으로 실행.
+  - L581 다시 `_arm_timer()`로 다음 타이머를 건다(루프).
+
+---
+
+## 작업 실행: `_execute_job`와 `on_job` 콜백
+
+`_execute_job(job)`(L583-)은 작업 하나를 실행합니다.
+
+- **L589-590** `if self.on_job: await self.on_job(job)` — 실제 동작은 서비스가 직접 하지 않고 **주입된 콜백**
+  `on_job`에 위임합니다. 게이트웨이에서 이 콜백이 [08](08_memory_and_dream.md)에서 본
+  `on_cron_job`(`cli/commands.py` L1431-)입니다. 그 콜백이 작업 이름에 따라 분기합니다:
+  - `"dream"` → 메모리 통합 직접 실행([08](08_memory_and_dream.md)).
+  - `"heartbeat"` → `HEARTBEAT.md`의 활성 작업 점검.
+  - 그 외 → 에이전트 턴으로 실행(아래).
+- **L592-606** — 성공/스킵(`CronJobSkippedError`, L35)/취소/오류를 `job.state.last_status`에 기록. **왜?** 한 작업의
+  실패가 스케줄러 전체를 멈추지 않게 하고, 상태를 남겨 디버깅/WebUI 표시에 씁니다.
+
+---
+
+## 세션 배달과 에이전트 턴
+
+일반 cron 작업(dream/heartbeat가 아닌)은 "특정 세션에서 에이전트가 한 턴을 도는" 형태로 실행됩니다.
+
+- `cron/session_turns.py`의 `is_bound_cron_job`(게이트웨이가 import, [10](10_gateway_and_channels.md) L1318): 작업이
+  특정 세션/에이전트에 바인딩됐는지 판별.
+- `cron/bound_runner.py`의 `run_bound_cron_job`(L1316 import): 바인딩된 작업을 그 세션 컨텍스트로 실행.
+- `cron/session_delivery.py`: 실행 결과(응답)를 대상 채널/세션으로 **배달**(OutboundMessage로 발행).
+- `nanobot/agent/cron_turns.py` / `nanobot/agent/automation_turns.py`: cron/자동화가 만든 턴을 세션 이력에
+  어떻게 기록·표시할지([06](06_state_and_persistence.md)의 `session/automation_turns.py`와 짝).
+
+**설계 요점:** cron 작업이라도 사용자 대화와 같은 에이전트 파이프라인(컨텍스트 구축 → LLM → 도구 → 응답)을
+재사용합니다. 다만 결과는 사용자가 실시간으로 보낸 게 아니므로 `_automation_turn`/`_channel_delivery` 같은
+메타로 구분해 이력·재생 시 오해가 없게 합니다.
+
+---
+
+## `triggers/` — 외부 트리거
+
+`nanobot/triggers/`는 시간 기반이 아닌 **외부 이벤트** 기반 실행을 담당합니다(파일: `local_runner.py`,
+`local_store.py`, `local_types.py`, `local_session_turns.py`, `local_turns.py`).
+
+- `LocalTriggerStore`(게이트웨이 import, [10](10_gateway_and_channels.md) L1325): 로컬 트리거 큐/저장소.
+- `run_local_trigger_queue`(L1324 import): 큐에 쌓인 트리거를 소비해 에이전트 턴으로 실행.
+- cron과 마찬가지로 결과는 세션 턴으로 변환·배달됩니다(`local_session_turns.py`, `local_turns.py`).
+
+**cron vs triggers:** cron은 "**언제**"(시간)로 발화하고, triggers는 "**무엇이 일어났는가**"(외부 이벤트/큐 항목)로
+발화합니다. 둘 다 게이트웨이가 장기 실행하며, 최종적으로는 같은 에이전트 파이프라인으로 수렴합니다.
+
+다음 문서에서는 이 모든 실행을 안전하게 가두는 보안/샌드박스를 봅니다 → [12_security_and_sandbox.md](12_security_and_sandbox.md).

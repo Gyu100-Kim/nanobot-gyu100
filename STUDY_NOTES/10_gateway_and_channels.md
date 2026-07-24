@@ -1,0 +1,153 @@
+# 10. 게이트웨이와 채널 — 오래 실행되며 세상과 연결하기
+
+> **이 문서에서 다루는 큰 맥락**
+>
+> **채널(Channel)** 은 텔레그램/디스코드/슬랙/WebUI 같은 "바깥 세계"와 nanobot을 잇는 어댑터입니다. 들어온
+> 메시지를 MessageBus의 inbound로 넣고, 나가는 메시지를 각 플랫폼 형식으로 보냅니다. **게이트웨이(Gateway)** 는
+> 이 채널들과 에이전트 루프·cron을 한 프로세스에서 **오래 실행**하는 오케스트레이터입니다. 이 문서는
+> 채널 공통 인터페이스(`channels/base.py`), 발견/디스패치(`manager.py`, `registry.py`), 게이트웨이 실행
+> (`_run_gateway`, `gateway/runtime.py`, `gateway/service.py`)을 라인 근거로 설명합니다.
+
+## 이 문서의 소목차
+
+1. [게이트웨이 = 장기 실행 오케스트레이터](#게이트웨이--장기-실행-오케스트레이터)
+2. [`BaseChannel` — 채널 공통 인터페이스](#basechannel--채널-공통-인터페이스)
+3. [인바운드 흐름: `_handle_message` 라인바이라인](#인바운드-흐름-_handle_message-라인바이라인)
+4. [`ChannelManager` — 발견/시작/아웃바운드 디스패치](#channelmanager--발견시작아웃바운드-디스패치)
+5. [`registry.py` — pkgutil + entry_points 발견](#registrypy--pkgutil--entry_points-발견)
+6. [`gateway/runtime.py`, `gateway/service.py`](#gatewayruntimepy-gatewayservicepy)
+7. [실제 채널 목록과 새 채널 추가](#실제-채널-목록과-새-채널-추가)
+
+---
+
+## 게이트웨이 = 장기 실행 오케스트레이터
+
+`nanobot gateway` 명령([03](03_entrypoints.md))은 결국 `cli/commands.py`의 `_run_gateway(...)`(L1301-)를 실행합니다.
+이 함수가 하나의 이벤트 루프에서 다음을 함께 띄웁니다(L1312-1326 import에서 구성요소가 드러남):
+
+- `MessageBus`(L1332), `RuntimeEventBus`(L1333) — 메시지/런타임 이벤트 버스.
+- `build_provider_snapshot(config)`(L1335) — 프로바이더 스냅샷([09](09_providers.md)).
+- `SessionManager`(L1339) — 세션 저장소([06](06_state_and_persistence.md)).
+- `ChannelManager` — 채널들.
+- `CronService` + cron store(L1360) — 스케줄러([11](11_cron_and_triggers.md)).
+- `WebuiTurnCoordinator`, 트리거 러너, 토큰 사용량 훅 등.
+
+또한 `health_server_enabled`(L1309) 옵션으로 **헬스 엔드포인트**를 띄워 "게이트웨이가 살아있는지"를 외부에서 확인할 수 있게 합니다.
+
+**왜 게이트웨이인가(설계 의도):** CLI 한 번 실행(`agent`)은 대화 한 번이면 끝입니다. 하지만 텔레그램 봇처럼
+"항상 켜져 메시지를 기다리는" 서비스는 장기 실행 프로세스가 필요합니다. 게이트웨이는 그 상시 실행 컨테이너로,
+채널·에이전트·cron을 한 곳에 묶어 관리합니다.
+
+---
+
+## `BaseChannel` — 채널 공통 인터페이스
+
+`nanobot/channels/base.py`의 `BaseChannel`(L21-)은 모든 채널의 추상 기반입니다.
+
+클래스 속성(L29-33):
+- `name`/`display_name` — 채널 식별자/표시명.
+- `send_progress`(L31) — 진행상황("생각 중…")을 보낼지.
+- `send_tool_hints`(L32) — 도구 사용 힌트 표시 여부.
+- `show_reasoning`(L33) — reasoning 표시 여부.
+
+생성자(L35-46): `config`, `bus`(MessageBus), `_running` 플래그를 보관.
+
+추상 메서드(각 채널이 반드시 구현):
+- `start()`(L74-84): 플랫폼에 연결하고 **장기 실행**하며 수신 메시지를 `_handle_message()`로 전달(docstring L79-83).
+- `stop()`(L86-89): 정리.
+- `send(msg)`(L91-102): OutboundMessage를 플랫폼으로 전송. **실패 시 예외를 던져야** manager가 재시도 정책을 한 곳에서 적용(docstring L99-101).
+
+선택적 오버라이드(기본 구현 있음):
+- `transcribe_audio`(L48-60): 오디오 → Whisper 전사.
+- `login(force)`(L62-72): QR 스캔 등 대화형 로그인(기본 `True`).
+- `send_delta`/`send_reasoning_delta`/`send_reasoning_end`(L104-)/`send_file_edit_events` 등 스트리밍 전송 훅.
+
+**설계 요점:** 필수(`start`/`stop`/`send`)는 abstractmethod로 강제하고, 스트리밍/전사/로그인 등 플랫폼별 부가기능은
+기본 no-op으로 두어 **최소한만 구현하면 동작**하게 했습니다.
+
+---
+
+## 인바운드 흐름: `_handle_message` 라인바이라인
+
+각 채널이 수신 메시지를 받으면 `_handle_message(...)`(L218-266)를 호출합니다.
+
+- **L229** `if not self.is_allowed(sender_id):` — 권한 확인. 허용되지 않은 발신자면:
+  - DM이면 **페어링 코드**를 생성해 보냅니다(L231-243). **왜?** 아무나 봇에 명령하지 못하도록, 처음 접근하는
+    사용자에게 코드를 발급해 사용자가 이를 승인 절차에 쓰게 합니다(`nanobot/pairing/`).
+  - DM이 아니면 접근 거부 로그만 남기고 무시(L245-250).
+- **L252-254** — 스트리밍 지원 채널이면 메타데이터에 `_wants_stream=True`를 추가.
+- **L256-264** — `InboundMessage`를 구성(채널/발신자/chat_id/내용/미디어/메타/세션키 오버라이드).
+- **L266** `await self.bus.publish_inbound(msg)` — 버스에 발행 → 여기서부터 [04](04_agent_loop.md)의 AgentLoop가 받습니다.
+
+`default_config()`(L268-271)는 온보딩 시 기본 설정(`{"enabled": False}`)을 돌려주며, 플러그인이 오버라이드해 자동 채웁니다.
+
+---
+
+## `ChannelManager` — 발견/시작/아웃바운드 디스패치
+
+`nanobot/channels/manager.py`의 `ChannelManager`(L70-):
+
+- `_init_channels()`(L112-): "pkgutil scan + entry_points plugins"로 채널을 **발견**합니다(docstring L113).
+  설정에서 활성화된 채널만 인스턴스화합니다.
+- `start_all()`(L246-)/`_start_channel`(L239-): 각 채널의 `start()`를 백그라운드 태스크로 실행.
+- `stop_all()`(L284-): 모든 채널 정리.
+- `_dispatch_outbound()`(L333-): **아웃바운드 루프**. `bus.consume_outbound()`(L348)로 나갈 메시지를 받아
+  대상 채널의 `send()`로 보냅니다. 중복 억제(`_should_suppress_outbound` L311, `_fingerprint_content` L307),
+  스트리밍 델타 합치기(`_coalesce_stream_deltas` L524), 재시도(`_send_with_retry` L588)를 여기서 일괄 처리.
+  **왜 한 곳에서:** 재시도/중복 억제 같은 정책을 각 채널이 제각각 구현하지 않고 manager가 공통 적용합니다.
+- `get_status()`(L622-)/`enabled_channels()`(L633-): 상태 조회.
+
+---
+
+## `registry.py` — pkgutil + entry_points 발견
+
+`nanobot/channels/registry.py`:
+- `discover_channel_names()`(L17-): `pkgutil.iter_modules`(L23)로 `channels/` 패키지의 모듈 이름을 **싸게** 나열
+  (import 없이 이름만).
+- `load_channel_class(module_name)`(L28-): 필요한 채널만 실제 import해서 `BaseChannel` 서브클래스를 얻음.
+- `discover_plugins(...)`(L40-): `entry_points(group="nanobot.channels")`(L45)로 **외부 플러그인** 채널 발견.
+- `discover_enabled(...)`(L56-)/`discover_all()`(L95-): 이름을 먼저 나열하고 활성화된 것만 import(docstring L65-66).
+  **왜 지연 import(설계 의도):** 채널마다 무거운 의존성(telegram SDK 등)이 있으므로, 전부 import하면 시작이 느리고
+  설치 안 된 extra 때문에 실패합니다([02](02_modules_and_stack.md)의 lazy deps와 같은 철학).
+
+---
+
+## `gateway/runtime.py`, `gateway/service.py`
+
+이 둘은 게이트웨이 **프로세스 관리** 계층입니다(위 `_run_gateway`가 실제 실행 본체라면, 이쪽은 그것을 띄우고 감독).
+
+- **`gateway/runtime.py`**의 `GatewayRuntime`(L110-):
+  - `build_gateway_command(...)`(L60-): 게이트웨이를 띄울 자식 프로세스 명령 구성.
+  - `start_background(options)`(L149-): 백그라운드로 게이트웨이 프로세스 시작.
+  - `stop(timeout_s=20)`(L189-)/`restart(...)`(L205-): 종료/재시작(POSIX/Windows 각각 `_terminate_posix` L291 / `_terminate_windows` L312).
+  - `status(...)`(L212-): 실행 상태(`GatewayStatus` L38) 조회. `refresh_state_pid`(L131)로 상태 파일의 PID를 현재 프로세스로 자가 치유.
+  - `read_log_tail`/`follow_logs`(L247-, L257-): 로그 확인.
+- **`gateway/service.py`**(L1 "Install and manage OS-level gateway services"): 게이트웨이를 **OS 서비스**로 설치/관리
+  (예: macOS `launchd` plist — `plistlib` import). 부팅 시 자동 실행 등록 등.
+
+**요지:** `runtime.py` = "이 세션에서 게이트웨이 프로세스를 켜고/끄고/상태 보기", `service.py` = "OS 부팅 서비스로 등록".
+
+---
+
+## 실제 채널 목록과 새 채널 추가
+
+`nanobot/channels/`에 실제 존재하는 채널 구현(확인됨):
+
+```text
+dingtalk  discord  email  feishu  matrix  mattermost  mochat  msteams
+napcat  qq  signal  slack  telegram  websocket  wecom  weixin  whatsapp
+```
+
+(`websocket.py`는 WebUI가 붙는 WebSocket 채널 — [13](13_api_sdk_webui.md)의 WebUI 프로토콜과 연결.)
+
+**새 채널 추가 절차(구조에서 도출):**
+1. `channels/`에 새 모듈을 만들어 `BaseChannel`을 상속하고 `name`/`start`/`stop`/`send`를 구현.
+2. `_handle_message`를 통해 수신 메시지를 버스로 넘김.
+3. `registry.discover_channel_names()`(pkgutil)가 자동으로 이름을 잡으므로, 설정에서 `enabled: true`만 하면 동작.
+4. 외부 배포 플러그인이라면 `entry_points`의 `nanobot.channels` 그룹에 등록(코어 수정 불필요).
+
+**채널 생명주기:** `manager._init_channels()` 발견 → `start_all()`이 각 채널 `start()`를 장기 태스크로 실행 →
+채널이 메시지 수신 시 `_handle_message` → `publish_inbound` → AgentLoop 처리 → outbound → `_dispatch_outbound`가
+`send()` 호출 → 종료 시 `stop_all()`.
+
+다음 문서에서는 게이트웨이 안에서 도는 스케줄러/트리거를 봅니다 → [11_cron_and_triggers.md](11_cron_and_triggers.md).
