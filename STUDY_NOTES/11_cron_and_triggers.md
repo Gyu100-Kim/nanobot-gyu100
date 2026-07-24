@@ -96,10 +96,24 @@ croniter가 이를 정확히 계산해 줍니다.
   `on_job`에 위임합니다. 게이트웨이에서 이 콜백이 [08](08_memory_and_dream.md)에서 본
   `on_cron_job`(`cli/commands.py` L1431-)입니다. 그 콜백이 작업 이름에 따라 분기합니다:
   - `"dream"` → 메모리 통합 직접 실행([08](08_memory_and_dream.md)).
-  - `"heartbeat"` → `HEARTBEAT.md`의 활성 작업 점검.
+  - `"heartbeat"` → `HEARTBEAT.md`의 활성 작업 점검(아래 상세).
   - 그 외 → 에이전트 턴으로 실행(아래).
 - **L592-606** — 성공/스킵(`CronJobSkippedError`, L35)/취소/오류를 `job.state.last_status`에 기록. **왜?** 한 작업의
   실패가 스케줄러 전체를 멈추지 않게 하고, 상태를 남겨 디버깅/WebUI 표시에 씁니다.
+
+### Heartbeat — 주기적 "할 일 점검" 시스템 작업
+
+AGENTS.md가 말하듯 Heartbeat는 "cron 작업으로 점검되는 주기적 작업 목록"입니다(전용 서비스는 제거된 레거시).
+`on_cron_job`의 heartbeat 분기(`cli/commands.py` L1501-):
+
+- **L1502-1507** — 작업 이름이 `"heartbeat"`면 워크스페이스의 `HEARTBEAT.md`를 읽음. 파일이 없으면 조용히 종료.
+- **L1509-1511** — `_heartbeat_has_active_tasks(content)`(L216-): 헤더/빈 줄/주석을 제외하고 실제 작업 줄이
+  있는지 검사. 없으면 LLM을 부르지 않고 종료. **왜?** 할 일이 없는데 매번 LLM 턴을 돌리면 토큰 낭비입니다.
+- **L1513-1515** — `_pick_heartbeat_target()`으로 결과를 보낼 채널/chat을 고르되, `cli`뿐이면 보내지 않음.
+- **L1517-1537** — `_HEARTBEAT_PREAMBLE`(L207-) + `HEARTBEAT.md` 내용을 프롬프트로 만들어 전용 세션
+  `"heartbeat"`에서 `process_direct`로 실행. 실행 중에는 `message_tool.set_suppress_delivery(True)`로
+  **직접 전송을 막고** 사후 게이트로만 응답을 내보냅니다(중복/우회 전송 방지).
+- **L1540-1542** — heartbeat 세션은 `retain_recent_legal_suffix`로 꼬리만 유지해 무한히 자라지 않게 합니다.
 
 ---
 

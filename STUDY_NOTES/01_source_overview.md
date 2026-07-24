@@ -31,6 +31,8 @@
 - `tests/` — 테스트. `nanobot/` 패키지 구조를 그대로 미러링(근거: <a href="../AGENTS.md">AGENTS.md</a> "Tests mirror the `nanobot/` package structure").
 - `pyproject.toml` — 프로젝트 메타데이터/의존성/빌드 설정.
 - `AGENTS.md`, `CLAUDE.md` — AI 코딩 에이전트용 가이드(`CLAUDE.md`는 `@AGENTS.md` 한 줄만 포함).
+- `.agent/` — 아키텍처 제약(`design.md`), 보안 경계(`security.md`), 흔한 함정(`gotchas.md`) 문서.
+  AGENTS.md의 "Project-Specific Notes"가 이 세 파일을 가리킵니다. 코드 수정 전 반드시 읽어볼 가치가 있습니다.
 - `Dockerfile`, `docker-compose.yml`, `entrypoint.sh` — 컨테이너 배포용.
 - `hatch_build.py` — hatchling 커스텀 빌드 훅(`pyproject.toml` L162-163에서 참조).
 
@@ -112,7 +114,8 @@
 - **모듈 실행**: `python -m nanobot`은 `nanobot/__main__.py`를 실행하고, 이 파일이 동일한 `app()`을 호출합니다.
 
 즉 **어느 경로로 들어와도 `nanobot/cli/commands.py`의 Typer `app`으로 수렴**합니다. 그 안에서 `agent`,
-`gateway`, `models`, `onboard` 등의 하위 명령이 갈라집니다([03](03_entrypoints.md)에서 상세).
+`gateway`, `onboard`, `serve`, `webui`, `status` 등의 하위 명령이 갈라집니다([03](03_entrypoints.md)에서 상세).
+(참고: `cli/models.py`는 하위 명령이 아니라 온보딩용 헬퍼 스텁입니다 — [03](03_entrypoints.md) 참고.)
 
 ---
 

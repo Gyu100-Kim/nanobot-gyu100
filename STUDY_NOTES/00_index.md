@@ -210,6 +210,14 @@ flowchart TD
 - **Sandbox (샌드박스)** — 셸/코드 실행을 격리해 시스템을 보호하는 장치. `nanobot/agent/tools/sandbox.py`,
   `exec_session.py`, `shell.py`와 `nanobot/security/`가 워크스페이스 스코프·네트워크 체크를 수행한다.
 
+- **Heartbeat (하트비트)** — 워크스페이스의 `HEARTBEAT.md`에 적힌 주기적 작업 목록을 cron 작업으로
+  점검하는 시스템 잡. 활성 작업이 있을 때만 LLM 턴을 돌린다(`cli/commands.py`의 heartbeat 분기;
+  [11_cron_and_triggers.md](11_cron_and_triggers.md)).
+
+- **Sustained goal (지속 목표)** — 한 턴을 넘어 계속 추적되는 목표. `long_task` 도구
+  (`nanobot/agent/tools/long_task.py`)가 세션 메타데이터에 등록하고, 매 턴 Runtime Context에 미러링되어
+  압축 후에도 유지된다(`nanobot/session/goal_state.py`; [05](05_tools.md), [06](06_state_and_persistence.md)).
+
 ---
 
 ## 이 학습 노트를 읽는 방법
