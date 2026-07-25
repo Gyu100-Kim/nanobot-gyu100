@@ -1,0 +1,210 @@
+id:ID,name,category,file,:LABEL
+agent,Agent,core_architecture,dict/01_core_architecture.md,Term
+agentloop,AgentLoop,core_architecture,dict/01_core_architecture.md,Term
+agentrunner,AgentRunner,core_architecture,dict/01_core_architecture.md,Term
+channel,Channel,core_architecture,dict/01_core_architecture.md,Term
+command-router,Command Router,core_architecture,dict/01_core_architecture.md,Term
+config,Config,core_architecture,dict/01_core_architecture.md,Term
+gateway,Gateway,core_architecture,dict/01_core_architecture.md,Term
+hook,Hook,core_architecture,dict/01_core_architecture.md,Term
+inboundmessage,InboundMessage,core_architecture,dict/01_core_architecture.md,Term
+injection,Injection,core_architecture,dict/01_core_architecture.md,Term
+messagebus,MessageBus,core_architecture,dict/01_core_architecture.md,Term
+model-preset,Model Preset,core_architecture,dict/01_core_architecture.md,Term
+nanobot-sdk-facade,Nanobot (SDK Facade),core_architecture,dict/01_core_architecture.md,Term
+outboundmessage,OutboundMessage,core_architecture,dict/01_core_architecture.md,Term
+pairing,Pairing,core_architecture,dict/01_core_architecture.md,Term
+progress-hook,Progress Hook,core_architecture,dict/01_core_architecture.md,Term
+provider,Provider,core_architecture,dict/01_core_architecture.md,Term
+runtime-checkpoint,Runtime Checkpoint,core_architecture,dict/01_core_architecture.md,Term
+session,Session,core_architecture,dict/01_core_architecture.md,Term
+session-key,Session Key,core_architecture,dict/01_core_architecture.md,Term
+skill,Skill,core_architecture,dict/01_core_architecture.md,Term
+slash-command,Slash Command,core_architecture,dict/01_core_architecture.md,Term
+subagent,Subagent,core_architecture,dict/01_core_architecture.md,Term
+tool,Tool,core_architecture,dict/01_core_architecture.md,Term
+turn,Turn,core_architecture,dict/01_core_architecture.md,Term
+turn-continuation,Turn Continuation,core_architecture,dict/01_core_architecture.md,Term
+turnstate,TurnState,core_architecture,dict/01_core_architecture.md,Term
+unified-session,Unified Session,core_architecture,dict/01_core_architecture.md,Term
+workspace,Workspace,core_architecture,dict/01_core_architecture.md,Term
+_skip_modules,_SKIP_MODULES,tools_and_skills,dict/02_tools_and_skills.md,Term
+apply_patch,apply_patch,tools_and_skills,dict/02_tools_and_skills.md,Term
+cron-tool,Cron Tool,tools_and_skills,dict/02_tools_and_skills.md,Term
+entry-point-plugin,Entry-point Plugin,tools_and_skills,dict/02_tools_and_skills.md,Term
+exec-session,Exec Session,tools_and_skills,dict/02_tools_and_skills.md,Term
+exectool,ExecTool,tools_and_skills,dict/02_tools_and_skills.md,Term
+file-state,File State,tools_and_skills,dict/02_tools_and_skills.md,Term
+filesystem-tools,Filesystem Tools,tools_and_skills,dict/02_tools_and_skills.md,Term
+image-generation-tool,Image Generation Tool,tools_and_skills,dict/02_tools_and_skills.md,Term
+long-task-tool,Long Task Tool,tools_and_skills,dict/02_tools_and_skills.md,Term
+mcptoolwrapper,MCPToolWrapper,tools_and_skills,dict/02_tools_and_skills.md,Term
+messagetool,MessageTool,tools_and_skills,dict/02_tools_and_skills.md,Term
+mytool,MyTool,tools_and_skills,dict/02_tools_and_skills.md,Term
+path-utils,Path Utils,tools_and_skills,dict/02_tools_and_skills.md,Term
+progressive-disclosure,Progressive Disclosure,tools_and_skills,dict/02_tools_and_skills.md,Term
+runtime-state-protocol,Runtime State Protocol,tools_and_skills,dict/02_tools_and_skills.md,Term
+skill-creator,skill-creator,tools_and_skills,dict/02_tools_and_skills.md,Term
+skillmd,SKILL.md,tools_and_skills,dict/02_tools_and_skills.md,Term
+skillsloader,SkillsLoader,tools_and_skills,dict/02_tools_and_skills.md,Term
+spawntool,SpawnTool,tools_and_skills,dict/02_tools_and_skills.md,Term
+tool-discovery,Tool Discovery,tools_and_skills,dict/02_tools_and_skills.md,Term
+tool-hint,Tool Hint,tools_and_skills,dict/02_tools_and_skills.md,Term
+tool-schema,Tool Schema,tools_and_skills,dict/02_tools_and_skills.md,Term
+tool-scope,Tool Scope,tools_and_skills,dict/02_tools_and_skills.md,Term
+toolregistry,ToolRegistry,tools_and_skills,dict/02_tools_and_skills.md,Term
+toolresult,ToolResult,tools_and_skills,dict/02_tools_and_skills.md,Term
+web-tools,Web Tools,tools_and_skills,dict/02_tools_and_skills.md,Term
+writestdintool,WriteStdinTool,tools_and_skills,dict/02_tools_and_skills.md,Term
+autocompact,AutoCompact,memory_context_session,dict/03_memory_context_session.md,Term
+bootstrap-templates,Bootstrap Templates,memory_context_session,dict/03_memory_context_session.md,Term
+consolidation,Consolidation,memory_context_session,dict/03_memory_context_session.md,Term
+context,Context,memory_context_session,dict/03_memory_context_session.md,Term
+context-governance,Context Governance,memory_context_session,dict/03_memory_context_session.md,Term
+dream,Dream,memory_context_session,dict/03_memory_context_session.md,Term
+dream-cursor,Dream Cursor,memory_context_session,dict/03_memory_context_session.md,Term
+durable-files,Durable Files,memory_context_session,dict/03_memory_context_session.md,Term
+goal-state,Goal State,memory_context_session,dict/03_memory_context_session.md,Term
+history-visibility,History Visibility,memory_context_session,dict/03_memory_context_session.md,Term
+historyjsonl,history.jsonl,memory_context_session,dict/03_memory_context_session.md,Term
+input-budget,Input Budget,memory_context_session,dict/03_memory_context_session.md,Term
+jsonl,JSONL,memory_context_session,dict/03_memory_context_session.md,Term
+last_consolidated-cursor,last_consolidated Cursor,memory_context_session,dict/03_memory_context_session.md,Term
+memory,Memory,memory_context_session,dict/03_memory_context_session.md,Term
+memorymd,MEMORY.md,memory_context_session,dict/03_memory_context_session.md,Term
+orphan-tool-result,Orphan Tool Result,memory_context_session,dict/03_memory_context_session.md,Term
+runtime-context,Runtime Context,memory_context_session,dict/03_memory_context_session.md,Term
+session-manager,Session Manager,memory_context_session,dict/03_memory_context_session.md,Term
+soulmd,SOUL.md,memory_context_session,dict/03_memory_context_session.md,Term
+sustained-goal,Sustained Goal,memory_context_session,dict/03_memory_context_session.md,Term
+system-prompt,System Prompt,memory_context_session,dict/03_memory_context_session.md,Term
+usermd,USER.md,memory_context_session,dict/03_memory_context_session.md,Term
+webui-turn-coordinator,WebUI Turn Coordinator,memory_context_session,dict/03_memory_context_session.md,Term
+anthropic-provider,Anthropic Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+azure-openai-provider,Azure OpenAI Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+bedrock-provider,Bedrock Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+circuit-breaker,Circuit Breaker,providers_and_llm,dict/04_providers_and_llm.md,Term
+delta,Delta,providers_and_llm,dict/04_providers_and_llm.md,Term
+exponential-backoff,Exponential Backoff,providers_and_llm,dict/04_providers_and_llm.md,Term
+fallbackprovider,FallbackProvider,providers_and_llm,dict/04_providers_and_llm.md,Term
+github-copilot-provider,GitHub Copilot Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+image-generation-provider,Image Generation Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+max_tokens,max_tokens,providers_and_llm,dict/04_providers_and_llm.md,Term
+openai-codex-provider,OpenAI Codex Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+openai-compatible-provider,OpenAI-Compatible Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+openai-responses-provider,OpenAI Responses Provider,providers_and_llm,dict/04_providers_and_llm.md,Term
+prompt-caching,Prompt Caching,providers_and_llm,dict/04_providers_and_llm.md,Term
+provider-base,Provider Base,providers_and_llm,dict/04_providers_and_llm.md,Term
+provider-factory,Provider Factory,providers_and_llm,dict/04_providers_and_llm.md,Term
+provider-registry,Provider Registry,providers_and_llm,dict/04_providers_and_llm.md,Term
+providerspec,ProviderSpec,providers_and_llm,dict/04_providers_and_llm.md,Term
+rate-limit,Rate Limit,providers_and_llm,dict/04_providers_and_llm.md,Term
+reasoning-blocks,Reasoning Blocks,providers_and_llm,dict/04_providers_and_llm.md,Term
+retry,Retry,providers_and_llm,dict/04_providers_and_llm.md,Term
+streaming,Streaming,providers_and_llm,dict/04_providers_and_llm.md,Term
+temperature,Temperature,providers_and_llm,dict/04_providers_and_llm.md,Term
+transcription,Transcription,providers_and_llm,dict/04_providers_and_llm.md,Term
+transient-error,Transient Error,providers_and_llm,dict/04_providers_and_llm.md,Term
+api-server,API Server,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+apps,Apps,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+channel-manager,Channel Manager,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+channel-registry,Channel Registry,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+gateway-service,Gateway Service,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+health-endpoint,Health Endpoint,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+openai-compatible-api,OpenAI-Compatible API,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+platform-channels,Platform Channels,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+sdk-clients,SDK Clients,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+websocket-channel,WebSocket Channel,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+websocket-multiplex-protocol,WebSocket Multiplex Protocol,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+webui,WebUI,channels_gateway_ui,dict/05_channels_gateway_ui.md,Term
+automation-turns,Automation Turns,scheduling_automation,dict/06_scheduling_automation.md,Term
+bound-runner,Bound Runner,scheduling_automation,dict/06_scheduling_automation.md,Term
+cron,Cron,scheduling_automation,dict/06_scheduling_automation.md,Term
+cron-job,Cron Job,scheduling_automation,dict/06_scheduling_automation.md,Term
+cron-store,Cron Store,scheduling_automation,dict/06_scheduling_automation.md,Term
+cron-turns,Cron Turns,scheduling_automation,dict/06_scheduling_automation.md,Term
+croniter,croniter,scheduling_automation,dict/06_scheduling_automation.md,Term
+cronservice,CronService,scheduling_automation,dict/06_scheduling_automation.md,Term
+heartbeat,Heartbeat,scheduling_automation,dict/06_scheduling_automation.md,Term
+heartbeatmd,HEARTBEAT.md,scheduling_automation,dict/06_scheduling_automation.md,Term
+session-delivery,Session Delivery,scheduling_automation,dict/06_scheduling_automation.md,Term
+trigger,Trigger,scheduling_automation,dict/06_scheduling_automation.md,Term
+bubblewrap,bubblewrap,security_isolation,dict/07_security_isolation.md,Term
+container,Container,security_isolation,dict/07_security_isolation.md,Term
+defense-in-depth,Defense in Depth,security_isolation,dict/07_security_isolation.md,Term
+dns-pinning,DNS Pinning,security_isolation,dict/07_security_isolation.md,Term
+dns-rebinding,DNS Rebinding,security_isolation,dict/07_security_isolation.md,Term
+least-privilege,Least Privilege,security_isolation,dict/07_security_isolation.md,Term
+linux-namespaces,Linux Namespaces,security_isolation,dict/07_security_isolation.md,Term
+pinneddnsasynctransport,PinnedDNSAsyncTransport,security_isolation,dict/07_security_isolation.md,Term
+prompt-injection,Prompt Injection,security_isolation,dict/07_security_isolation.md,Term
+pth-file-guard,PTH File Guard,security_isolation,dict/07_security_isolation.md,Term
+sandbox,Sandbox,security_isolation,dict/07_security_isolation.md,Term
+sandbox-backend,Sandbox Backend,security_isolation,dict/07_security_isolation.md,Term
+seccomp,seccomp,security_isolation,dict/07_security_isolation.md,Term
+ssrf,SSRF,security_isolation,dict/07_security_isolation.md,Term
+timeout,Timeout,security_isolation,dict/07_security_isolation.md,Term
+toctou,TOCTOU,security_isolation,dict/07_security_isolation.md,Term
+workspace-access,Workspace Access,security_isolation,dict/07_security_isolation.md,Term
+workspace-policy,Workspace Policy,security_isolation,dict/07_security_isolation.md,Term
+agent-loop-concept,Agent Loop (concept),ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+agent-skills,Agent Skills,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+bpe,BPE,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+context-compression,Context Compression,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+context-window,Context Window,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+fine-tuning,Fine-tuning,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+hallucination,Hallucination,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+hierarchical-memory,Hierarchical Memory,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+in-context-learning,In-Context Learning,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+json-rpc,JSON-RPC,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+json-schema,JSON Schema,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+llm,LLM,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+lost-in-the-middle,Lost in the Middle,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+lsp,LSP,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+mcp,MCP,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+model-routing,Model Routing,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+prompt,Prompt,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+react,ReAct,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+reflection,Reflection,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+skill-library,Skill Library,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+sliding-window,Sliding Window,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+sse,SSE,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+stdio-transport,stdio Transport,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+streamable-http,Streamable HTTP,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+summarization,Summarization,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+tiktoken,tiktoken,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+token,Token,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+tokenizer,Tokenizer,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+tool-calling,Tool Calling,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+voyager,Voyager,ai_llm_concepts,dict/08_ai_llm_concepts.md,Term
+asyncio,asyncio,dev_stack,dict/09_dev_stack.md,Term
+asyncioqueue,asyncio.Queue,dev_stack,dict/09_dev_stack.md,Term
+bun,bun,dev_stack,dict/09_dev_stack.md,Term
+camelcase-alias,camelCase Alias,dev_stack,dict/09_dev_stack.md,Term
+contextvar,ContextVar,dev_stack,dict/09_dev_stack.md,Term
+coroutine,Coroutine,dev_stack,dict/09_dev_stack.md,Term
+ddgs,ddgs,dev_stack,dict/09_dev_stack.md,Term
+dulwich,dulwich,dev_stack,dict/09_dev_stack.md,Term
+entry-points,Entry Points,dev_stack,dict/09_dev_stack.md,Term
+exact-pinning,Exact Pinning,dev_stack,dict/09_dev_stack.md,Term
+filelock,filelock,dev_stack,dict/09_dev_stack.md,Term
+git,Git,dev_stack,dict/09_dev_stack.md,Term
+hatchling,hatchling,dev_stack,dict/09_dev_stack.md,Term
+httpx,httpx,dev_stack,dict/09_dev_stack.md,Term
+jinja2,Jinja2,dev_stack,dict/09_dev_stack.md,Term
+loguru,loguru,dev_stack,dict/09_dev_stack.md,Term
+optional-dependencies,Optional Dependencies,dev_stack,dict/09_dev_stack.md,Term
+pkgutil,pkgutil,dev_stack,dict/09_dev_stack.md,Term
+prompt-toolkit,prompt-toolkit,dev_stack,dict/09_dev_stack.md,Term
+pydantic,Pydantic,dev_stack,dict/09_dev_stack.md,Term
+pydantic-settings,pydantic-settings,dev_stack,dict/09_dev_stack.md,Term
+pytest,pytest,dev_stack,dict/09_dev_stack.md,Term
+python-311,Python 3.11+,dev_stack,dict/09_dev_stack.md,Term
+questionary,questionary,dev_stack,dict/09_dev_stack.md,Term
+react-js,React (JS),dev_stack,dict/09_dev_stack.md,Term
+rich,Rich,dev_stack,dict/09_dev_stack.md,Term
+ruff,ruff,dev_stack,dict/09_dev_stack.md,Term
+typer,Typer,dev_stack,dict/09_dev_stack.md,Term
+typescript,TypeScript,dev_stack,dict/09_dev_stack.md,Term
+vite,Vite,dev_stack,dict/09_dev_stack.md,Term
+websockets,websockets,dev_stack,dict/09_dev_stack.md,Term
