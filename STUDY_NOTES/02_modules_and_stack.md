@@ -28,8 +28,8 @@
 - `openai>=2.8.0` (L45) — OpenAI 및 OpenAI 호환 프로바이더용.
 
 ### HTTP / 네트워크
-- `httpx>=0.28.0,<1.0.0` (L32) — 비동기 HTTP 클라이언트.
-- `websockets>=16.0,<17.0` (L30), `websocket-client>=1.9.0,<2.0.0` (L31) — WebSocket(서버/클라이언트).
+- `httpx>=0.28.0,<1.0.0` (L32) — 비동기 HTTP[(용어사전)](../dict/05_channels_gateway_ui.md#http) 클라이언트.
+- `websockets>=16.0,<17.0` (L30), `websocket-client>=1.9.0,<2.0.0` (L31) — WebSocket[(용어사전)](../dict/05_channels_gateway_ui.md#websocket)(서버/클라이언트).
 - `oauth-cli-kit>=0.1.6,<1.0.0` (L34) — OAuth 기반 프로바이더 로그인 지원.
 
 ### CLI / UI
@@ -58,10 +58,10 @@
 - `jinja2>=3.1.0,<4.0.0` (L47) — 프롬프트 템플릿 렌더링(`utils/prompt_templates.py`).
 
 ### 기타
-- `dulwich>=0.22.0,<1.0.0` (L48) — 순수 파이썬 Git 구현(메모리/스킬 버전 관리, `utils/gitstore.py`).
+- `dulwich>=0.22.0,<1.0.0` (L48) — 순수 파이썬 Git[(용어사전)](../dict/09_dev_stack.md#git) 구현(메모리/스킬 버전 관리, `utils/gitstore.py`).
 - `filelock>=3.25.2` (L50) — 파일 잠금(동시 접근 보호).
 
-> **초보자용 정리:** nanobot은 "LLM SDK(anthropic/openai) + 비동기 통신(httpx/websockets) +
+> **초보자용 정리:** nanobot은 "LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) SDK(anthropic/openai) + 비동기 통신(httpx/websockets) +
 > CLI/UI(typer/rich) + 설정 검증(pydantic) + 부가 기능(croniter/mcp/tiktoken/dulwich)"의 조합입니다.
 > 무거운 채널·클라우드 SDK는 아래의 선택 의존성으로 분리되어 있습니다.
 
@@ -159,10 +159,10 @@ extras로 분리하면 **핵심은 가볍게 유지**하고 **사용자가 쓰�
 
 ## 빌드/린트/테스트 설정
 
-- **빌드**: hatchling(`pyproject.toml` L155-157). wheel/sdist에 `nanobot/templates/**/*.md`, `nanobot/skills/**`,
+- **빌드**: hatchling[(용어사전)](../dict/09_dev_stack.md#hatchling)(`pyproject.toml` L155-157). wheel/sdist에 `nanobot/templates/**/*.md`, `nanobot/skills/**`,
   `nanobot/web/dist/**`를 포함(L166-172). `web/dist`는 git 미추적이라 `artifacts`로 별도 지정(L176-178).
-- **린트**: ruff — line-length 100(L198), 규칙 `E, F, I, N, W`(L202), `E501`(줄 길이) 무시(L203).
+- **린트**: ruff[(용어사전)](../dict/09_dev_stack.md#ruff) — line-length 100(L198), 규칙 `E, F, I, N, W`(L202), `E501`(줄 길이) 무시(L203).
   실행: `ruff check nanobot/`.
-- **테스트**: pytest — `asyncio_mode = "auto"`(L206), `testpaths = ["tests"]`(L207). 커버리지 하한 75%(L214).
+- **테스트**: pytest[(용어사전)](../dict/09_dev_stack.md#pytest) — `asyncio_mode = "auto"`(L206), `testpaths = ["tests"]`(L207). 커버리지 하한 75%(L214).
 
 다음 문서에서는 이 스택 위에서 프로그램이 실제로 어떻게 시작되는지 봅니다 → [03_entrypoints.md](03_entrypoints.md).

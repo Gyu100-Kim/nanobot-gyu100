@@ -3,7 +3,7 @@
 > **이 문서에서 다루는 큰 맥락**
 >
 > 어떤 프로그램이든 "실행하면 제일 먼저 실행되는 코드"가 있습니다. nanobot은 CLI(명령줄 도구)로 시작하며,
-> 모든 실행 경로는 `nanobot/cli/commands.py`의 Typer 앱(`app`)으로 수렴합니다. 이 문서는
+> 모든 실행 경로는 `nanobot/cli/commands.py`의 Typer[(용어사전)](../dict/09_dev_stack.md#typer) 앱(`app`)으로 수렴합니다. 이 문서는
 > `nanobot/__main__.py` → `cli/commands.py`로 이어지는 흐름, Typer `app`과 실제 하위 명령들
 > (`onboard`, `agent`, `serve`, `webui`, `trigger`, `status`, 그리고 sub-typer인 `gateway`/`channels`/
 > `plugins`/`provider`), `[project.scripts]` 연결, 그리고 `cli/` 하위 보조 모듈들의 역할을
@@ -80,7 +80,7 @@ app = typer.Typer(
 
 파일 상단에서는 실행에 필요한 사전 작업도 합니다:
 - **Windows UTF-8 강제**(L14-L20): 콘솔 인코딩이 utf-8이 아니면 재설정. 이모지/다국어 입력 깨짐 방지.
-- **로깅 설정**(L27-L39): 기본 loguru 핸들러를 제거하고 nanobot 통일 포맷으로 재등록.
+- **로깅 설정**(L27-L39): 기본 loguru[(용어사전)](../dict/09_dev_stack.md#loguru) 핸들러를 제거하고 nanobot 통일 포맷으로 재등록.
 - **`@app.callback()` `main`**(L580-L587): 모든 명령 공통 옵션. `--version`/`-v`(L582-584)를 주면
   `version_callback`(L574-577)이 버전을 찍고 종료합니다.
 
@@ -95,7 +95,7 @@ app = typer.Typer(
 | `onboard` | L595-596 | 대화형 설정 마법사. 워크스페이스/설정 파일을 초기화(`--workspace`, `--config`). 실제 질문 흐름은 `cli/onboard.py`. |
 | `trigger` | L1070-1071 | "로컬 트리거" 메시지를 그 트리거에 묶인 채팅 세션으로 전달("Deliver a local trigger message to its bound chat session", L1077). `triggers/local_store.py` 사용. |
 | `serve` | L1104-1105 | **OpenAI 호환 API 서버** 시작("/v1/chat/completions", L1113). `aiohttp` 필요(없으면 `nanobot plugins enable api` 안내, L1117). `nanobot/api/server.py`의 `create_app` 사용(L1120). |
-| `webui` | L1187-1188 | 로컬 WebUI 준비 + 게이트웨이 시작 + 브라우저 열기("Prepare the local WebUI, start the gateway, and open the browser workbench", L1206). |
+| `webui` | L1187-1188 | 로컬 WebUI[(용어사전)](../dict/05_channels_gateway_ui.md#webui) 준비 + 게이트웨이 시작 + 브라우저 열기("Prepare the local WebUI, start the gateway, and open the browser workbench", L1206). |
 | `agent` | L1829-1830 | 에이전트와 **직접 대화**("Interact with the agent directly", L1838). `--message/-m`로 단발 질의, 없으면 대화형 REPL. 기본 세션 `cli:direct`(L1832). |
 | `status` | L2252-2253 | 현재 설정/프로바이더 상태 표시. |
 
@@ -166,7 +166,7 @@ All public function signatures are preserved so callers continue to work without
 **설계 의도:** 외부 라이브러리(litellm) 교체 중에도 호출부가 깨지지 않도록 시그니처만 유지한 것입니다.
 
 ### `cli/stream.py` — CLI 스트리밍 렌더러
-파일 docstring(L1-8): Rich `Live`(`transient=True`)로 스트리밍 중 마크다운을 제자리 갱신하고,
+파일 docstring(L1-8): Rich[(용어사전)](../dict/09_dev_stack.md#rich) `Live`(`transient=True`)로 스트리밍 중 마크다운을 제자리 갱신하고,
 스트리밍 종료 후 최종본을 다시 렌더해 화면에 남깁니다. `StreamRenderer`, `ThinkingSpinner`를 제공하며
 `commands.py`가 대화형 출력에 사용합니다(L74에서 import).
 

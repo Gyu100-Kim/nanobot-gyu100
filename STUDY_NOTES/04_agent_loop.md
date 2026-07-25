@@ -4,7 +4,7 @@
 >
 > nanobot의 심장은 두 개의 루프입니다. **바깥 루프 `AgentLoop`**(`nanobot/agent/loop.py`)는 메시지를
 > 하나씩 받아 "한 턴(turn)"을 상태머신으로 처리합니다. **안쪽 루프 `AgentRunner`**(`nanobot/agent/runner.py`)는
-> 한 턴 안에서 LLM 호출 ↔ 도구 실행을 여러 번 반복합니다. 그 사이를 잇는 것이 `MessageBus`(`nanobot/bus/`)의
+> 한 턴 안에서 LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 호출 ↔ 도구 실행을 여러 번 반복합니다. 그 사이를 잇는 것이 `MessageBus`(`nanobot/bus/`)의
 > inbound/outbound 큐입니다. 이 문서는 메시지 하나가 도착해서 응답이 나가기까지의 전 과정을
 > **큰 흐름 → 상태머신 → 반복 루프 → 핵심 함수 라인바이라인** 순으로 분해합니다.
 
@@ -56,7 +56,7 @@ class InboundMessage:
 내부 UI/런타임 의미를 담는 `event`(L57)를 가집니다.
 
 또한 파일 상단(L13-L19)에는 특수 메타데이터 키 상수들이 있습니다. 예: `INBOUND_META_RUNTIME_CONTROL`은
-사용자 세션을 거치지 않고 런타임 상태(예: MCP 재로딩)를 갱신하라는 내부 신호입니다.
+사용자 세션을 거치지 않고 런타임 상태(예: MCP[(용어사전)](../dict/08_ai_llm_concepts.md#mcp) 재로딩)를 갱신하라는 내부 신호입니다.
 
 ---
 
@@ -92,7 +92,7 @@ class MessageBus:
   1초 타임아웃으로 메시지를 기다립니다.
 - **L940-L945 `except asyncio.TimeoutError:`** — 1초 동안 메시지가 없으면 `auto_compact.check_expired(...)`를
   호출해 **유휴 세션 압축**을 점검하고 다시 루프로. **왜 타임아웃을 두나:** 메시지가 없을 때도 주기적으로
-  유지보수(idle 세션 압축)를 할 기회를 얻기 위함입니다([07](07_prompt_and_context.md)의 AutoCompact).
+  유지보수(idle 세션 압축)를 할 기회를 얻기 위함입니다([07](07_prompt_and_context.md)의 AutoCompact[(용어사전)](../dict/03_memory_context_session.md#autocompact)).
 - **L956-L957** — `raw`(공백 제거한 내용)와 `effective_key`(실효 세션 키)를 계산.
 - **L958-L959** — `handle_runtime_control(...)`이 True면(런타임 제어 메시지) 세션 처리 없이 continue.
 - **L960-L965** — 우선순위 명령(예: `/stop`)은 태스크를 만들지 않고 **즉시** 인라인 처리(`_dispatch_command_inline`).
@@ -170,7 +170,7 @@ _TRANSITIONS = {
 ### COMMAND — `_state_command` (L1486-L1509)
 - L1491 `result = await self.commands.dispatch(cmd_ctx)` — 슬래시 명령이면 처리 결과를 받음.
 - 결과가 있으면(명령이었음) L1493 `ctx.outbound = result` 후 L1508 `return "shortcut"` → BUILD/RUN을 건너뛰고 DONE.
-  다만 `/new`가 아니면 사용자/어시스턴트 메시지를 `_command=True` 표시와 함께 저장(L1499-L1507)해 WebUI 이력에 남깁니다.
+  다만 `/new`가 아니면 사용자/어시스턴트 메시지를 `_command=True` 표시와 함께 저장(L1499-L1507)해 WebUI[(용어사전)](../dict/05_channels_gateway_ui.md#webui) 이력에 남깁니다.
 - 명령이 아니면 L1509 `return "dispatch"` → BUILD로 진행.
 
 ### BUILD — `_state_build` (L1511-L1555)
@@ -194,7 +194,7 @@ _TRANSITIONS = {
 - L1602-L1608 — 턴 지연시간(latency) 계산.
 - L1609-L1612 `self._save_turn(...)` — **이번 턴에서 새로 생긴 메시지만** 세션에 저장.
 - L1617-L1626 — ephemeral이 아니면 파일 상한 적용 후, 백그라운드로 토큰 기준 통합을 예약.
-- L1629 `self.sessions.save(ctx.session)` — 세션을 디스크(JSONL)에 기록([06](06_state_and_persistence.md)).
+- L1629 `self.sessions.save(ctx.session)` — 세션을 디스크(JSONL[(용어사전)](../dict/03_memory_context_session.md#jsonl))에 기록([06](06_state_and_persistence.md)).
 
 ### RESPOND — `_state_respond` (L1632-L1644+)
 - 응답 억제면 `outbound = None`.

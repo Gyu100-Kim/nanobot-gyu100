@@ -48,7 +48,7 @@
 - **L96-98** — 나머지 스킬은 **요약(summary)만** 넣습니다(`build_skills_summary`, `templates/agent/skills_section.md`).
   **왜 요약만?** 모든 스킬 본문을 다 넣으면 토큰이 폭발합니다. "이런 스킬이 있다"는 목록만 주고, LLM이 필요할 때
   해당 스킬 파일을 읽게 하는 **점진적 로딩(progressive loading)** 설계입니다.
-- **L100-112** — `include_memory_recent_history`면 Dream 커서 이후의 최근 history를 읽어(`read_recent_history_for_prompt`)
+- **L100-112** — `include_memory_recent_history`면 Dream[(용어사전)](../dict/03_memory_context_session.md#dream) 커서 이후의 최근 history를 읽어(`read_recent_history_for_prompt`)
   최근 50개로 자르고(L107), 8000토큰으로 절단(L111) 후 `# Recent History`로 삽입.
 - **L114-115** — 아카이브된 컨텍스트 요약(`session_summary`)이 있으면 `[Archived Context Summary]`로 붙임.
 - **L117** `return "\n\n---\n\n".join(parts)` — 모든 조각을 `---`로 구분해 하나의 시스템 프롬프트로 결합.
@@ -57,7 +57,7 @@
 
 ## `build_messages()` — 최종 메시지 배열
 
-`context.py` L187-L255. LLM 호출용 완전한 메시지 리스트를 만듭니다.
+`context.py` L187-L255. LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 호출용 완전한 메시지 리스트를 만듭니다.
 
 - **L210-216** — 런타임 부가 라인(`extra`)을 모읍니다: 지속 목표 상태(`goal_state_runtime_lines`), MCP/CLI 런타임
   라인(`runtime_lines`), 그리고 호출자가 준 `current_runtime_lines`.
@@ -77,7 +77,7 @@
 
 ## 프롬프트 템플릿: `templates/`
 
-프롬프트 문구를 코드에 하드코딩하지 않고 `nanobot/templates/`의 마크다운으로 관리합니다(Jinja2 렌더링; [02](02_modules_and_stack.md)).
+프롬프트 문구를 코드에 하드코딩하지 않고 `nanobot/templates/`의 마크다운으로 관리합니다(Jinja2[(용어사전)](../dict/09_dev_stack.md#jinja2) 렌더링; [02](02_modules_and_stack.md)).
 
 - 워크스페이스 부트스트랩 원본: `templates/AGENTS.md`, `SOUL.md`, `USER.md`, `HEARTBEAT.md`.
 - 에이전트 프롬프트 조각: `templates/agent/` — `identity.md`, `tool_contract.md`, `platform_policy.md`,
@@ -102,7 +102,7 @@
     **왜?** 대부분의 프로바이더는 tool_call과 그 결과가 짝이 맞아야 하며, 고아가 있으면 요청이 거부됩니다.
   - `apply_tool_result_budget`(L298): 도구 결과 길이를 제한.
   - `snip_history`(L380): 입력 예산(`input_budget`, L92-105 = context_window − max_output − 안전버퍼)에 맞게
-    오래된 히스토리를 잘라냄. 토큰 추정은 `estimate_prompt_tokens_chain`(tiktoken 기반).
+    오래된 히스토리를 잘라냄. 토큰 추정은 `estimate_prompt_tokens_chain`(tiktoken[(용어사전)](../dict/08_ai_llm_concepts.md#tiktoken) 기반).
 - **핵심 원칙:** 디스크의 원문 세션은 그대로 두고, **이번 요청에 보낼 사본**만 압축/수선합니다.
 
 ---
@@ -113,7 +113,7 @@
 
 - `_RECENT_SUFFIX_MESSAGES = 8`(L18): 압축해도 최근 8개 메시지는 원문 유지.
 - `_INTERNAL_SESSION_PREFIXES = ("dream:",)`(L19): 내부 세션(Dream)은 압축 대상에서 제외(`_is_internal_session`, L62-63).
-- `_is_expired`(L29-): 마지막 활동 시각이 TTL(분)을 넘었는지 판단.
+- `_is_expired`(L29-): 마지막 활동 시각이 TTL[(용어사전)](../dict/03_memory_context_session.md#ttl)(분)을 넘었는지 판단.
 - `_has_compactable_idle_tail`(L37-): 압축 가능한 유휴 꼬리가 있는지 `retain_recent_legal_suffix`로 확인.
 - `check_expired(schedule_background, ...)`(L65-): [04](04_agent_loop.md)의 `run()`이 1초 유휴마다 호출.
   만료·비내부·비진행 세션에 대해 `_archive`를 **백그라운드**로 예약.
@@ -133,7 +133,7 @@
 - **`hook.py`**(L1 "Shared lifecycle hook primitives for agent runs"): `AgentHook`/`AgentHookContext` —
   실행 수명주기(`before_run`/`on_error`/`after_run`/`on_finally` 등)에 개입하는 지점. [04](04_agent_loop.md)의
   `AgentRunner.run`이 이 훅을 호출합니다.
-- **`progress_hook.py`**(L1 "Agent hook that adapts runner events into channel progress UI"): 러너 이벤트(스트리밍
+- **`progress_hook.py`**(L1 "Agent[(용어사전)](../dict/01_core_architecture.md#agent) hook that adapts runner events into channel progress UI"): 러너 이벤트(스트리밍
   델타, 도구 힌트, reasoning)를 채널 진행상황 UI로 변환하는 훅. CLI/WebUI의 "생각 중…" 표시가 여기서 나옵니다.
 
 다음 문서에서는 장기 기억과 자기개선(Dream/Skills)을 봅니다 → [08_memory_and_dream.md](08_memory_and_dream.md).

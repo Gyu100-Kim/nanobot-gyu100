@@ -4,7 +4,7 @@
 >
 > 에이전트가 셸/코드를 실행한다는 것은 곧 "임의 코드 실행"을 허용한다는 뜻입니다. 이를 안전하게 하려면
 > **격리(isolation)** 가 필수입니다. 이 문서는 격리의 정의와 위협 모델, 하위 개념들(최소 권한, Linux 네임스페이스,
-> bubblewrap, seccomp, 컨테이너/마이크로VM, SSRF, DNS rebinding, 다층 방어)과 그 근간 기술/문서,
+> bubblewrap[(용어사전)](../../dict/07_security_isolation.md#bubblewrap), seccomp[(용어사전)](../../dict/07_security_isolation.md#seccomp), 컨테이너/마이크로VM, SSRF[(용어사전)](../../dict/07_security_isolation.md#ssrf), DNS rebinding, 다층 방어)과 그 근간 기술/문서,
 > 그리고 nanobot의 `agent/tools/sandbox.py`, `exec_session.py`, `nanobot/security/`로의 연결을 다룹니다.
 
 ## 소목차
@@ -21,7 +21,7 @@
 
 **실행 격리**: 신뢰할 수 없는 코드가 접근할 수 있는 파일/네트워크/프로세스 범위를 제한하는 것.
 
-**왜 필요한가 — LLM 에이전트의 위협 모델:** 에이전트에게 셸을 주면 두 경로로 사고가 납니다.
+**왜 필요한가 — LLM[(용어사전)](../../dict/08_ai_llm_concepts.md#llm) 에이전트의 위협 모델:** 에이전트에게 셸을 주면 두 경로로 사고가 납니다.
 1. **모델의 실수** — 잘못된 `rm -rf`, 의도치 않은 설정 파일 덮어쓰기. 악의가 없어도 파괴적일 수 있습니다.
 2. **프롬프트 인젝션(prompt injection)** — 에이전트가 읽는 외부 콘텐츠(웹페이지, 이메일, 도구 결과)에
    "이 명령을 실행해라" 같은 지시문이 숨어 있으면, 모델이 공격자의 대리인이 될 수 있습니다.
@@ -81,7 +81,7 @@ Chrome 렌더러 샌드박스, Docker의 기본 seccomp 프로파일이 대표 �
 방어: URL의 호스트명을 **실제 IP로 해석한 뒤** 사설/내부 대역이면 차단.
 
 ### (f) DNS rebinding — SSRF 검사의 우회로
-검사 시점에는 공인 IP로 응답하고, **실제 연결 시점에는 내부 IP로** DNS 응답을 바꾸는 공격(TOCTOU —
+검사 시점에는 공인 IP로 응답하고, **실제 연결 시점에는 내부 IP로** DNS 응답을 바꾸는 공격(TOCTOU[(용어사전)](../../dict/07_security_isolation.md#toctou) —
 검사와 사용 사이의 시간차 악용). 방어는 **DNS 고정(pinning)**: 검사할 때 해석한 IP로만 실제 연결을 맺고,
 재해석을 허용하지 않는 것입니다.
 
@@ -141,7 +141,7 @@ OS 샌드박스(파일/프로세스) + 타임아웃(자원) + 애플리케이션
 ## 최신 동향
 
 - 코딩 에이전트들이 **컨테이너/마이크로VM**에서 코드를 실행하는 방향으로 이동.
-- Linux **bubblewrap**(bwrap), **seccomp-bpf**, macOS **App Sandbox** 등 OS 수준 격리 활용.
+- Linux **bubblewrap**(bwrap), **seccomp-bpf**, macOS **App Sandbox[(용어사전)](../../dict/07_security_isolation.md#sandbox)** 등 OS 수준 격리 활용.
 - 네트워크 측 **SSRF 방어**와 비밀 마스킹이 표준 관행화.
 - 프롬프트 인젝션을 전제로 한 설계(권한 분리, 승인 게이트, 읽기 전용 기본값)가 에이전트 프레임워크의 기본기로 정착.
 

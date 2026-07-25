@@ -2,8 +2,8 @@
 
 > **이 문서에서 다루는 큰 맥락**
 >
-> MCP는 "LLM 애플리케이션이 외부 도구/데이터 소스를 표준 프로토콜로 연결"하기 위한 규격입니다.
-> 이 문서는 (1) MCP의 정의와 해결하는 문제(N×M 통합), (2) 하위 개념들(JSON-RPC, 호스트/클라이언트/서버,
+> MCP는 "LLM[(용어사전)](../../dict/08_ai_llm_concepts.md#llm) 애플리케이션이 외부 도구/데이터 소스를 표준 프로토콜로 연결"하기 위한 규격입니다.
+> 이 문서는 (1) MCP의 정의와 해결하는 문제(N×M 통합), (2) 하위 개념들(JSON-RPC[(용어사전)](../../dict/08_ai_llm_concepts.md#json-rpc), 호스트/클라이언트/서버,
 > 도구·리소스·프롬프트 프리미티브, stdio/HTTP 전송, LSP와의 유사성), (3) 개념 간 관계, (4) 규격과 히스토리,
 > (5) nanobot의 `agent/tools/mcp.py` 구현으로의 연결을 다룹니다.
 
@@ -19,7 +19,7 @@
 
 ## 정의와 핵심 아이디어
 
-**MCP(Model Context Protocol)**: Anthropic이 2024년 11월 공개한, LLM 앱(호스트)과 도구/리소스 제공자(서버) 사이의
+**MCP[(용어사전)](../../dict/08_ai_llm_concepts.md#mcp)(Model Context Protocol)**: Anthropic이 2024년 11월 공개한, LLM 앱(호스트)과 도구/리소스 제공자(서버) 사이의
 **표준 통신 프로토콜**(JSON-RPC 기반). 서버가 "이런 도구가 있다"를 노출하면, 어떤 MCP 호환 호스트든 그 도구를 쓸 수 있습니다.
 
 **왜 등장했나 — N×M 통합 문제:** tool-calling(→ [01](01_tool_calling_agents.md))이 표준화되면서 도구 수요가 폭발했지만,
@@ -27,7 +27,7 @@
 **N+M**으로 줄입니다 — 앱은 MCP 클라이언트 하나만, 도구는 MCP 서버 하나만 구현하면 됩니다.
 "AI의 USB-C"라는 비유가 여기서 나옵니다.
 
-이 발상 자체는 새롭지 않습니다. 에디터(N)와 언어(M)의 통합 폭발을 해결한 **LSP(Language Server Protocol,
+이 발상 자체는 새롭지 않습니다. 에디터(N)와 언어(M)의 통합 폭발을 해결한 **LSP[(용어사전)](../../dict/08_ai_llm_concepts.md#lsp)(Language Server Protocol,
 Microsoft 2016)** 가 같은 구조였고, MCP는 명시적으로 LSP에서 영감을 받았습니다(둘 다 JSON-RPC 기반).
 
 ---
@@ -49,7 +49,7 @@ MCP처럼 여러 전송을 지원하는 프로토콜의 기반으로 적합합�
 클라이언트가 `tools/list`로 도구 목록을 받아 LLM에게 제시하고, 모델이 도구를 고르면 `tools/call`로 실행을 위임합니다.
 
 ### (c) 서버가 노출하는 3가지 프리미티브
-1. **Tools(도구)** — 모델이 호출하는 함수(부작용 가능). tool-calling의 JSON Schema 계약과 동일한 방식으로 선언.
+1. **Tools(도구)** — 모델이 호출하는 함수(부작용 가능). tool-calling의 JSON Schema[(용어사전)](../../dict/08_ai_llm_concepts.md#json-schema) 계약과 동일한 방식으로 선언.
 2. **Resources(리소스)** — URI로 식별되는 읽기 전용 데이터(파일, DB 레코드). 컨텍스트 주입용.
 3. **Prompts(프롬프트)** — 서버가 제공하는 재사용 가능한 프롬프트 템플릿.
 
@@ -58,8 +58,8 @@ MCP처럼 여러 전송을 지원하는 프로토콜의 기반으로 적합합�
 ### (d) 전송(transport): stdio vs HTTP
 - **stdio**: 호스트가 서버를 **자식 프로세스로 실행**하고 표준입출력으로 JSON-RPC를 주고받음.
   로컬 도구에 적합 — 설치만 하면 되고 네트워크 노출이 없습니다.
-- **HTTP 계열**: 원격 서버용. 초기 규격은 **HTTP+SSE**(Server-Sent Events로 서버→클라이언트 스트림),
-  2025-03-26 규격부터 **Streamable HTTP**로 개편(단일 엔드포인트, 세션 관리 개선). 인증(OAuth 2.1)도 이때 정비.
+- **HTTP[(용어사전)](../../dict/05_channels_gateway_ui.md#http) 계열**: 원격 서버용. 초기 규격은 **HTTP+SSE[(용어사전)](../../dict/08_ai_llm_concepts.md#sse)**(Server-Sent Events로 서버→클라이언트 스트림),
+  2025-03-26 규격부터 **Streamable HTTP[(용어사전)](../../dict/08_ai_llm_concepts.md#streamable-http)**로 개편(단일 엔드포인트, 세션 관리 개선). 인증(OAuth 2.1)도 이때 정비.
 
 ### (e) 원격 MCP의 보안 이슈
 원격 서버 연결은 새로운 공격면을 만듭니다:
@@ -144,7 +144,7 @@ MCP (런타임 ↔ 외부 도구 서버의 프로토콜)
   `_filter_malformed_mcp_progress_notifications` L121) — 위 (f)의 방어적 구현(Postel's law) 사례.
 
 ### 발견/등록
-MCP 도구는 [05](../05_tools.md)의 로더에서 특별 취급됩니다(`_SKIP_MODULES`에 `mcp` 포함 — 일반 pkgutil 자동발견
+MCP 도구는 [05](../05_tools.md)의 로더에서 특별 취급됩니다(`_SKIP_MODULES`에 `mcp` 포함 — 일반 pkgutil[(용어사전)](../../dict/09_dev_stack.md#pkgutil) 자동발견
 대상이 아니라 연결 후 동적으로 등록). 설정에 MCP 서버를 추가하면 런타임에 연결되어 도구 목록에 합류합니다.
 
 **정리:** nanobot은 MCP를 1급 시민으로 취급해, 코어 코드 수정 없이 외부 도구 생태계를 편입합니다

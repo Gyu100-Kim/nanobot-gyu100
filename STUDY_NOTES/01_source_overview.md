@@ -26,7 +26,7 @@
 저장소 루트에는 다음이 있습니다(핵심만 발췌).
 
 - `nanobot/` — 파이썬 패키지 본체(이 학습 노트의 주 대상).
-- `webui/` — React/TypeScript 기반 WebUI 소스(빌드하면 `nanobot/web/dist/`로 번들됨).
+- `webui/` — React/TypeScript 기반 WebUI[(용어사전)](../dict/05_channels_gateway_ui.md#webui) 소스(빌드하면 `nanobot/web/dist/`로 번들됨).
 - `docs/` — 공식 문서(architecture, concepts, providers, channels 등).
 - `tests/` — 테스트. `nanobot/` 패키지 구조를 그대로 미러링(근거: <a href="../AGENTS.md">AGENTS.md</a> "Tests mirror the `nanobot/` package structure").
 - `pyproject.toml` — 프로젝트 메타데이터/의존성/빌드 설정.
@@ -34,7 +34,7 @@
 - `.agent/` — 아키텍처 제약(`design.md`), 보안 경계(`security.md`), 흔한 함정(`gotchas.md`) 문서.
   AGENTS.md의 "Project-Specific Notes"가 이 세 파일을 가리킵니다. 코드 수정 전 반드시 읽어볼 가치가 있습니다.
 - `Dockerfile`, `docker-compose.yml`, `entrypoint.sh` — 컨테이너 배포용.
-- `hatch_build.py` — hatchling 커스텀 빌드 훅(`pyproject.toml` L162-163에서 참조).
+- `hatch_build.py` — hatchling[(용어사전)](../dict/09_dev_stack.md#hatchling) 커스텀 빌드 훅(`pyproject.toml` L162-163에서 참조).
 
 > 참고: `nanobot`의 배포 패키지 이름은 `nanobot-ai`이고(`pyproject.toml` L2), import 이름은 `nanobot`입니다.
 
@@ -48,26 +48,26 @@
 | --- | --- | --- |
 | `agent/` | 에이전트 두뇌. 턴 상태머신(`loop.py`), LLM/도구 루프(`runner.py`), 컨텍스트/메모리/스킬/서브에이전트 | [04](04_agent_loop.md), [07](07_prompt_and_context.md), [08](08_memory_and_dream.md) |
 | `agent/tools/` | LLM이 호출하는 도구들(filesystem, shell, web, mcp, spawn, cron ...)과 등록/발견 인프라 | [05](05_tools.md) |
-| `api/` | OpenAI 호환 HTTP API 서버(`server.py`) | [13](13_api_sdk_webui.md) |
+| `api/` | OpenAI 호환 HTTP[(용어사전)](../dict/05_channels_gateway_ui.md#http) API 서버(`server.py`) | [13](13_api_sdk_webui.md) |
 | `apps/` | CLI 앱 프로토콜/유틸(`apps/cli`, `protocol.py`) — 채널로서의 CLI 표현 | [10](10_gateway_and_channels.md), [13](13_api_sdk_webui.md) |
 | `audio/` | 음성 전사(transcription) 추상화와 레지스트리 | [09](09_providers.md) |
 | `bus/` | `MessageBus`(inbound/outbound 큐)와 이벤트 정의(`events.py`, `queue.py`) | [04](04_agent_loop.md) |
 | `channels/` | 외부 채팅 플랫폼 연동(telegram, discord, slack, feishu, matrix, whatsapp, qq, wecom, weixin, dingtalk, email, mochat, msteams, mattermost, napcat, signal, websocket) | [10](10_gateway_and_channels.md) |
-| `cli/` | Typer 기반 CLI(`commands.py`)와 하위 명령 모듈(`gateway.py`, `models.py`, `onboard.py`, `stream.py`) | [03](03_entrypoints.md) |
+| `cli/` | Typer[(용어사전)](../dict/09_dev_stack.md#typer) 기반 CLI(`commands.py`)와 하위 명령 모듈(`gateway.py`, `models.py`, `onboard.py`, `stream.py`) | [03](03_entrypoints.md) |
 | `command/` | 슬래시 명령 라우팅(`router.py`)과 내장 명령(`builtin.py`) | [03](03_entrypoints.md) |
-| `config/` | Pydantic 기반 설정 스키마(`schema.py`), 로더(`loader.py`), 경로(`paths.py`) | [02](02_modules_and_stack.md), [06](06_state_and_persistence.md) |
+| `config/` | Pydantic[(용어사전)](../dict/09_dev_stack.md#pydantic) 기반 설정 스키마(`schema.py`), 로더(`loader.py`), 경로(`paths.py`) | [02](02_modules_and_stack.md), [06](06_state_and_persistence.md) |
 | `cron/` | 스케줄링 서비스(`service.py`), 타입(`types.py`), 실행 연결(`bound_runner.py`, `session_delivery.py` ...) | [11](11_cron_and_triggers.md) |
 | `gateway/` | 장기 실행 오케스트레이터(`runtime.py`, `service.py`) | [10](10_gateway_and_channels.md) |
 | `pairing/` | DM 발신자 승인(pairing) 저장소(`store.py`) | [10](10_gateway_and_channels.md), [12](12_security_and_sandbox.md) |
-| `providers/` | LLM 프로바이더: base/registry/factory/fallback과 구현체(anthropic, openai_compat, azure, bedrock, github_copilot, openai_codex, openai_responses ...) | [09](09_providers.md) |
+| `providers/` | LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 프로바이더: base/registry/factory/fallback과 구현체(anthropic, openai_compat, azure, bedrock, github_copilot, openai_codex, openai_responses ...) | [09](09_providers.md) |
 | `sdk/` | Python SDK 내부(clients, runtime, streaming, types) | [13](13_api_sdk_webui.md) |
 | `security/` | 워크스페이스 접근/정책(`workspace_access.py`, `workspace_policy.py`), 네트워크/SSRF(`network.py`) | [12](12_security_and_sandbox.md) |
 | `session/` | 세션 관리(`manager.py`), 세션 키(`keys.py`), 턴 연속성/가시성/목표 상태 | [06](06_state_and_persistence.md) |
-| `skills/` | 내장 스킬 마크다운(skill-creator, memory, summarize, long-goal, cron, github, image-generation ...) | [08](08_memory_and_dream.md) |
-| `templates/` | 부트스트랩/시스템 프롬프트 자료(AGENTS.md, SOUL.md, USER.md, HEARTBEAT.md, `agent/`, `memory/`, `prompts/`) | [07](07_prompt_and_context.md) |
+| `skills/` | 내장 스킬 마크다운(skill-creator[(용어사전)](../dict/02_tools_and_skills.md#skill-creator), memory, summarize, long-goal, cron, github, image-generation ...) | [08](08_memory_and_dream.md) |
+| `templates/` | 부트스트랩/시스템 프롬프트 자료(AGENTS.md, SOUL.md[(용어사전)](../dict/03_memory_context_session.md#soulmd), USER.md[(용어사전)](../dict/03_memory_context_session.md#usermd), HEARTBEAT.md[(용어사전)](../dict/06_scheduling_automation.md#heartbeatmd), `agent/`, `memory/`, `prompts/`) | [07](07_prompt_and_context.md) |
 | `triggers/` | 로컬 트리거(`local_runner.py`, `local_store.py`, `local_types.py` ...) | [11](11_cron_and_triggers.md) |
 | `utils/` | 공통 유틸(helpers, gitstore, prompt_templates, file_edit_events, runtime ...) | 여러 문서에서 참조 |
-| `web/` | 번들된 WebUI 산출물이 놓이는 자리(`web/dist/`는 bun 빌드 산출물) | [13](13_api_sdk_webui.md) |
+| `web/` | 번들된 WebUI 산출물이 놓이는 자리(`web/dist/`는 bun[(용어사전)](../dict/09_dev_stack.md#bun) 빌드 산출물) | [13](13_api_sdk_webui.md) |
 | `webui/` | WebUI를 게이트웨이에 붙이는 파이썬 측 API/WS 어댑터(settings_api, media_api, websocket_logging ...) | [13](13_api_sdk_webui.md) |
 
 > **주의(추측 금지 원칙):** 위 표의 디렉토리·파일 이름은 모두 실제 `ls` 결과에 근거합니다.
@@ -127,7 +127,7 @@
   (근거: <a href="../AGENTS.md">AGENTS.md</a> "Build outputs to ../nanobot/web/dist", `pyproject.toml` L171-L178).
 - **빌드 백엔드는 hatchling** — `pyproject.toml` L155-L157. `nanobot/web/dist/`는 git이 추적하지 않지만
   `artifacts`로 지정해 wheel/sdist에 포함시킵니다(L176-L178).
-- **린트/테스트** — ruff(line-length 100, 규칙 E/F/I/N/W, E501 무시; L197-L203), pytest(`asyncio_mode = "auto"`; L205-L207).
+- **린트/테스트** — ruff[(용어사전)](../dict/09_dev_stack.md#ruff)(line-length 100, 규칙 E/F/I/N/W, E501 무시; L197-L203), pytest[(용어사전)](../dict/09_dev_stack.md#pytest)(`asyncio_mode = "auto"`; L205-L207).
 
 ---
 
