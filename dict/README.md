@@ -1,252 +1,341 @@
 # nanobot 용어·개념 사전 (Glossary & Concept Dictionary)
 
-nanobot 저장소를 이해하는 데 필요한 **모든 주요·세부 용어**를 모은 사전입니다.
-각 용어 설명 안의 파란 링크를 클릭하면 해당 용어의 정의로 이동합니다(브라우저/에디터의
-"뒤로 가기"로 원래 위치로 돌아올 수 있습니다).
+이 디렉토리는 `nanobot-gyu100` 저장소를 이해하기 위한 **용어·개념 사전**입니다.
+모든 용어는 서로 링크로 연결된 하나의 **지식 그래프**를 이룹니다 — 설명 속 용어를 클릭하면 해당
+항목으로 이동하고, 브라우저/에디터의 "뒤로 가기"로 원래 위치로 돌아올 수 있습니다.
 
-## 사용법
+## 설계 이념 (지식 그래프 모델)
 
-- **용어 찾기**: 아래 [전체 색인](#전체-색인-가나다순--알파벳순)에서 클릭하거나, 주제별 파일을 훑어보세요.
-- **계층 관계**: 각 항목의 `상위 개념`(이 용어가 속한 더 큰 개념)과 `하위 개념`(이 용어를 이해하는 데
-  필요한/이 용어를 구성하는 더 작은 개념), `관련 용어`(계층은 아니지만 연결된 개념)를 따라가며
-  지식 그래프처럼 탐색할 수 있습니다.
-- **그래프 데이터**: 용어 간 관계 전체는 [graph/](graph/README.md)에 Neo4j·Memgraph로 바로
-  임포트 가능한 형식(CSV + Cypher)으로 저장되어 있습니다.
-- 더 깊은 배경 설명은 [STUDY_NOTES/](../STUDY_NOTES/00_index.md)를 참고하세요.
+### 1. 상위/하위 방향 규약
 
-## 주제별 파일
+각 용어(개념)는 다른 용어와 상위 또는 하위 엣지로 직접 연결됩니다.
 
-| 파일 | 주제 | 용어 수 |
+> **상위 개념 = 더 특수한(구체적인) 개념. 하위 개념 = 더 일반적인 개념.**
+> 하위로 갈수록 일반화되고, 상위로 갈수록 특수화됩니다.
+
+```text
+(더 특수 = 상위)                       (더 특수 = 상위)
+   System Prompt                          LoRA
+        │                                  │
+        ▼                                  ▼
+     Prompt                              PEFT
+(더 일반 = 하위)                           │
+                                           ▼
+                                       Fine-tuning
+                                    (더 일반 = 하위)
+```
+
+- 각 항목의 `**상위 개념(더 특수):**` = 이 개념을 특수화한 것들 (예시·구현·세부 기법).
+- 각 항목의 `**하위 개념(더 일반):**` = 이 개념이 일반화되는 것들.
+- 한 용어는 여러 용어와 동시에 연결될 수 있습니다(엣지 여러 개 허용).
+- 설명에 드는 **구체적 예시가 곧 상위 개념**이 되는 경우가 많습니다 — 예시로 든 항목이 사전에
+  있으면 상위 개념으로도 연결합니다.
+- 그래프 데이터에서는 이 관계를 `(특수)-[:SPECIALIZES]->(일반)` 한 방향으로만 저장합니다.
+
+### 2. 노드 정의 (노드 명 / label)
+
+노드는 역할에 따라 두 종류로 나뉩니다.
+
+| 노드 명 | 역할 |
+|---|---|
+| **Content** | 사전을 구성하는 용어·개념 노드 (`01`~`09` 파일의 모든 항목) |
+| **Content Class** | Content의 정체(역할) 분류를 규정하는 노드 ([00_content_classes.md](00_content_classes.md)) |
+
+모든 Content 노드는 **최소 1개의 Content Class**와 `BELONGS_TO` 엣지로 연결됩니다 —
+상위/하위가 아닌 "이 클래스에 속한다"는 별도의 엣지입니다. 각 항목의 `**클래스:**` 필드가 이
+연결입니다. 클래스 목록(9종: Component, Artifact, Mechanism, Concept, Principle, Protocol,
+Threat, Research, Technology)과 정의는 [00_content_classes.md](00_content_classes.md)를 보세요.
+
+### 3. 관계(엣지) 종류
+
+| 엣지 | 의미 | 방향 |
 |---|---|---|
-| [01_core_architecture.md](01_core_architecture.md) | 코어 아키텍처 (AgentLoop, MessageBus, Session, Channel…) | 29 |
-| [02_tools_and_skills.md](02_tools_and_skills.md) | 도구와 스킬 (ToolRegistry, ExecTool, SkillsLoader…) | 28 |
-| [03_memory_context_session.md](03_memory_context_session.md) | 메모리·컨텍스트·세션 (Context, Dream, AutoCompact…) | 24 |
-| [04_providers_and_llm.md](04_providers_and_llm.md) | 프로바이더와 LLM 호출 (FallbackProvider, Streaming…) | 25 |
-| [05_channels_gateway_ui.md](05_channels_gateway_ui.md) | 채널·게이트웨이·UI·API (WebUI, WebSocket, API Server…) | 12 |
-| [06_scheduling_automation.md](06_scheduling_automation.md) | 스케줄링과 자동화 (Cron, Heartbeat, Trigger…) | 12 |
-| [07_security_isolation.md](07_security_isolation.md) | 보안과 격리 (Sandbox, bubblewrap, SSRF, DNS Pinning…) | 18 |
-| [08_ai_llm_concepts.md](08_ai_llm_concepts.md) | AI/LLM 일반 개념 (Token, Tool Calling, MCP, ReAct…) | 30 |
-| [09_dev_stack.md](09_dev_stack.md) | 개발 스택 (asyncio, Pydantic, Typer, bun, Vite…) | 31 |
+| `SPECIALIZES` | 출발 노드가 도착 노드의 더 특수한(상위) 개념 | Content(특수) → Content(일반) |
+| `BELONGS_TO` | 이 클래스에 속함 | Content → Content Class |
+| `RELATED_TO` | 계층은 아니지만 밀접히 관련 | Content ↔ Content (무방향적) |
+| `MENTIONS` | 설명 본문에서 언급 | Content → Content |
 
 ## 항목 형식
 
 ```markdown
-### 용어명 (영문 유지)
-**한글:** 한글명 · **분류:** 카테고리 · **코드:** 관련 소스 경로
+### 용어명
+**클래스:** [Component](00_content_classes.md#component) · **한글:** 한글명 · **코드:** `소스 경로`
 
-쉬운 정의와 이 코드베이스에서의 구체적 의미. 설명 속 다른 용어는 링크.
+쉬운 정의와 이 코드베이스에서의 구체적 의미.
 
-- **상위 개념:** …  ·  **하위 개념:** …  ·  **관련 용어:** …
+**예시:** 구체적인 사용 예 (예시가 사전 항목이면 상위 개념으로도 연결).
+
+- **상위 개념(더 특수):** [...]
+- **하위 개념(더 일반):** [...]
+- **관련 용어:** [...]
 ```
 
-## 전체 색인 (가나다순 → 알파벳순)
+설명 중 등장하는 용어가 사전에 없으면 새 항목으로 추가하는 방식으로 재귀 확장합니다.
 
-- [_SKIP_MODULES](02_tools_and_skills.md#_skip_modules)
-- [Agent](01_core_architecture.md#agent)
-- [Agent Loop (concept)](08_ai_llm_concepts.md#agent-loop-concept)
-- [Agent Skills](08_ai_llm_concepts.md#agent-skills)
-- [AgentLoop](01_core_architecture.md#agentloop)
-- [AgentRunner](01_core_architecture.md#agentrunner)
-- [Anthropic Provider](04_providers_and_llm.md#anthropic-provider)
-- [API Server](05_channels_gateway_ui.md#api-server)
-- [apply_patch](02_tools_and_skills.md#apply_patch)
-- [Apps](05_channels_gateway_ui.md#apps)
-- [asyncio](09_dev_stack.md#asyncio)
-- [asyncio.Queue](09_dev_stack.md#asyncioqueue)
-- [AutoCompact](03_memory_context_session.md#autocompact)
-- [Automation Turns](06_scheduling_automation.md#automation-turns)
-- [Azure OpenAI Provider](04_providers_and_llm.md#azure-openai-provider)
-- [Bedrock Provider](04_providers_and_llm.md#bedrock-provider)
-- [Bootstrap Templates](03_memory_context_session.md#bootstrap-templates)
-- [Bound Runner](06_scheduling_automation.md#bound-runner)
-- [BPE](08_ai_llm_concepts.md#bpe)
-- [bubblewrap](07_security_isolation.md#bubblewrap)
-- [bun](09_dev_stack.md#bun)
-- [camelCase Alias](09_dev_stack.md#camelcase-alias)
-- [Channel](01_core_architecture.md#channel)
-- [Channel Manager](05_channels_gateway_ui.md#channel-manager)
-- [Channel Registry](05_channels_gateway_ui.md#channel-registry)
-- [Circuit Breaker](04_providers_and_llm.md#circuit-breaker)
-- [Command Router](01_core_architecture.md#command-router)
-- [Config](01_core_architecture.md#config)
-- [Consolidation](03_memory_context_session.md#consolidation)
-- [Container](07_security_isolation.md#container)
-- [Context](03_memory_context_session.md#context)
-- [Context Compression](08_ai_llm_concepts.md#context-compression)
-- [Context Governance](03_memory_context_session.md#context-governance)
-- [Context Window](08_ai_llm_concepts.md#context-window)
-- [ContextVar](09_dev_stack.md#contextvar)
-- [Coroutine](09_dev_stack.md#coroutine)
-- [Cron](06_scheduling_automation.md#cron)
-- [Cron Job](06_scheduling_automation.md#cron-job)
-- [Cron Store](06_scheduling_automation.md#cron-store)
-- [Cron Tool](02_tools_and_skills.md#cron-tool)
-- [Cron Turns](06_scheduling_automation.md#cron-turns)
-- [croniter](06_scheduling_automation.md#croniter)
-- [CronService](06_scheduling_automation.md#cronservice)
-- [ddgs](09_dev_stack.md#ddgs)
-- [Defense in Depth](07_security_isolation.md#defense-in-depth)
-- [Delta](04_providers_and_llm.md#delta)
-- [DNS Pinning](07_security_isolation.md#dns-pinning)
-- [DNS Rebinding](07_security_isolation.md#dns-rebinding)
-- [Dream](03_memory_context_session.md#dream)
-- [Dream Cursor](03_memory_context_session.md#dream-cursor)
-- [dulwich](09_dev_stack.md#dulwich)
-- [Durable Files](03_memory_context_session.md#durable-files)
-- [Entry Points](09_dev_stack.md#entry-points)
-- [Entry-point Plugin](02_tools_and_skills.md#entry-point-plugin)
-- [Exact Pinning](09_dev_stack.md#exact-pinning)
-- [Exec Session](02_tools_and_skills.md#exec-session)
-- [ExecTool](02_tools_and_skills.md#exectool)
-- [Exponential Backoff](04_providers_and_llm.md#exponential-backoff)
-- [FallbackProvider](04_providers_and_llm.md#fallbackprovider)
-- [File State](02_tools_and_skills.md#file-state)
-- [filelock](09_dev_stack.md#filelock)
-- [Filesystem Tools](02_tools_and_skills.md#filesystem-tools)
-- [Fine-tuning](08_ai_llm_concepts.md#fine-tuning)
-- [Gateway](01_core_architecture.md#gateway)
-- [Gateway Service](05_channels_gateway_ui.md#gateway-service)
-- [Git](09_dev_stack.md#git)
-- [GitHub Copilot Provider](04_providers_and_llm.md#github-copilot-provider)
-- [Goal State](03_memory_context_session.md#goal-state)
-- [Hallucination](08_ai_llm_concepts.md#hallucination)
-- [hatchling](09_dev_stack.md#hatchling)
-- [Health Endpoint](05_channels_gateway_ui.md#health-endpoint)
-- [Heartbeat](06_scheduling_automation.md#heartbeat)
-- [HEARTBEAT.md](06_scheduling_automation.md#heartbeatmd)
-- [Hierarchical Memory](08_ai_llm_concepts.md#hierarchical-memory)
-- [History Visibility](03_memory_context_session.md#history-visibility)
-- [history.jsonl](03_memory_context_session.md#historyjsonl)
-- [Hook](01_core_architecture.md#hook)
-- [httpx](09_dev_stack.md#httpx)
-- [Image Generation Provider](04_providers_and_llm.md#image-generation-provider)
-- [Image Generation Tool](02_tools_and_skills.md#image-generation-tool)
-- [In-Context Learning](08_ai_llm_concepts.md#in-context-learning)
-- [InboundMessage](01_core_architecture.md#inboundmessage)
-- [Injection](01_core_architecture.md#injection)
-- [Input Budget](03_memory_context_session.md#input-budget)
-- [Jinja2](09_dev_stack.md#jinja2)
-- [JSON Schema](08_ai_llm_concepts.md#json-schema)
-- [JSON-RPC](08_ai_llm_concepts.md#json-rpc)
-- [JSONL](03_memory_context_session.md#jsonl)
-- [last_consolidated Cursor](03_memory_context_session.md#last_consolidated-cursor)
-- [Least Privilege](07_security_isolation.md#least-privilege)
-- [Linux Namespaces](07_security_isolation.md#linux-namespaces)
-- [LLM](08_ai_llm_concepts.md#llm)
-- [loguru](09_dev_stack.md#loguru)
-- [Long Task Tool](02_tools_and_skills.md#long-task-tool)
-- [Lost in the Middle](08_ai_llm_concepts.md#lost-in-the-middle)
-- [LSP](08_ai_llm_concepts.md#lsp)
-- [max_tokens](04_providers_and_llm.md#max_tokens)
-- [MCP](08_ai_llm_concepts.md#mcp)
-- [MCPToolWrapper](02_tools_and_skills.md#mcptoolwrapper)
-- [Memory](03_memory_context_session.md#memory)
-- [MEMORY.md](03_memory_context_session.md#memorymd)
-- [MessageBus](01_core_architecture.md#messagebus)
-- [MessageTool](02_tools_and_skills.md#messagetool)
-- [Model Preset](01_core_architecture.md#model-preset)
-- [Model Routing](08_ai_llm_concepts.md#model-routing)
-- [MyTool](02_tools_and_skills.md#mytool)
-- [Nanobot (SDK Facade)](01_core_architecture.md#nanobot-sdk-facade)
-- [OpenAI Codex Provider](04_providers_and_llm.md#openai-codex-provider)
-- [OpenAI Responses Provider](04_providers_and_llm.md#openai-responses-provider)
-- [OpenAI-Compatible API](05_channels_gateway_ui.md#openai-compatible-api)
-- [OpenAI-Compatible Provider](04_providers_and_llm.md#openai-compatible-provider)
-- [Optional Dependencies](09_dev_stack.md#optional-dependencies)
-- [Orphan Tool Result](03_memory_context_session.md#orphan-tool-result)
-- [OutboundMessage](01_core_architecture.md#outboundmessage)
-- [Pairing](01_core_architecture.md#pairing)
-- [Path Utils](02_tools_and_skills.md#path-utils)
-- [PinnedDNSAsyncTransport](07_security_isolation.md#pinneddnsasynctransport)
-- [pkgutil](09_dev_stack.md#pkgutil)
-- [Platform Channels](05_channels_gateway_ui.md#platform-channels)
-- [Progress Hook](01_core_architecture.md#progress-hook)
-- [Progressive Disclosure](02_tools_and_skills.md#progressive-disclosure)
-- [Prompt](08_ai_llm_concepts.md#prompt)
-- [Prompt Caching](04_providers_and_llm.md#prompt-caching)
-- [Prompt Injection](07_security_isolation.md#prompt-injection)
-- [prompt-toolkit](09_dev_stack.md#prompt-toolkit)
-- [Provider](01_core_architecture.md#provider)
-- [Provider Base](04_providers_and_llm.md#provider-base)
-- [Provider Factory](04_providers_and_llm.md#provider-factory)
-- [Provider Registry](04_providers_and_llm.md#provider-registry)
-- [ProviderSpec](04_providers_and_llm.md#providerspec)
-- [PTH File Guard](07_security_isolation.md#pth-file-guard)
-- [Pydantic](09_dev_stack.md#pydantic)
-- [pydantic-settings](09_dev_stack.md#pydantic-settings)
-- [pytest](09_dev_stack.md#pytest)
-- [Python 3.11+](09_dev_stack.md#python-311)
-- [questionary](09_dev_stack.md#questionary)
-- [Rate Limit](04_providers_and_llm.md#rate-limit)
-- [ReAct](08_ai_llm_concepts.md#react)
-- [React (JS)](09_dev_stack.md#react-js)
-- [Reasoning Blocks](04_providers_and_llm.md#reasoning-blocks)
-- [Reflection](08_ai_llm_concepts.md#reflection)
-- [Retry](04_providers_and_llm.md#retry)
-- [Rich](09_dev_stack.md#rich)
-- [ruff](09_dev_stack.md#ruff)
-- [Runtime Checkpoint](01_core_architecture.md#runtime-checkpoint)
-- [Runtime Context](03_memory_context_session.md#runtime-context)
-- [Runtime State Protocol](02_tools_and_skills.md#runtime-state-protocol)
-- [Sandbox](07_security_isolation.md#sandbox)
-- [Sandbox Backend](07_security_isolation.md#sandbox-backend)
-- [SDK Clients](05_channels_gateway_ui.md#sdk-clients)
-- [seccomp](07_security_isolation.md#seccomp)
-- [Session](01_core_architecture.md#session)
-- [Session Delivery](06_scheduling_automation.md#session-delivery)
-- [Session Key](01_core_architecture.md#session-key)
-- [Session Manager](03_memory_context_session.md#session-manager)
-- [Skill](01_core_architecture.md#skill)
-- [Skill Library](08_ai_llm_concepts.md#skill-library)
-- [skill-creator](02_tools_and_skills.md#skill-creator)
-- [SKILL.md](02_tools_and_skills.md#skillmd)
-- [SkillsLoader](02_tools_and_skills.md#skillsloader)
-- [Slash Command](01_core_architecture.md#slash-command)
-- [Sliding Window](08_ai_llm_concepts.md#sliding-window)
-- [SOUL.md](03_memory_context_session.md#soulmd)
-- [SpawnTool](02_tools_and_skills.md#spawntool)
-- [SSE](08_ai_llm_concepts.md#sse)
-- [SSRF](07_security_isolation.md#ssrf)
-- [stdio Transport](08_ai_llm_concepts.md#stdio-transport)
-- [Streamable HTTP](08_ai_llm_concepts.md#streamable-http)
-- [Streaming](04_providers_and_llm.md#streaming)
-- [Subagent](01_core_architecture.md#subagent)
-- [Summarization](08_ai_llm_concepts.md#summarization)
-- [Sustained Goal](03_memory_context_session.md#sustained-goal)
-- [System Prompt](03_memory_context_session.md#system-prompt)
-- [Temperature](04_providers_and_llm.md#temperature)
-- [tiktoken](08_ai_llm_concepts.md#tiktoken)
-- [Timeout](07_security_isolation.md#timeout)
-- [TOCTOU](07_security_isolation.md#toctou)
-- [Token](08_ai_llm_concepts.md#token)
-- [Tokenizer](08_ai_llm_concepts.md#tokenizer)
-- [Tool](01_core_architecture.md#tool)
-- [Tool Calling](08_ai_llm_concepts.md#tool-calling)
-- [Tool Discovery](02_tools_and_skills.md#tool-discovery)
-- [Tool Hint](02_tools_and_skills.md#tool-hint)
-- [Tool Schema](02_tools_and_skills.md#tool-schema)
-- [Tool Scope](02_tools_and_skills.md#tool-scope)
-- [ToolRegistry](02_tools_and_skills.md#toolregistry)
-- [ToolResult](02_tools_and_skills.md#toolresult)
-- [Transcription](04_providers_and_llm.md#transcription)
-- [Transient Error](04_providers_and_llm.md#transient-error)
-- [Trigger](06_scheduling_automation.md#trigger)
-- [Turn](01_core_architecture.md#turn)
-- [Turn Continuation](01_core_architecture.md#turn-continuation)
-- [TurnState](01_core_architecture.md#turnstate)
-- [Typer](09_dev_stack.md#typer)
-- [TypeScript](09_dev_stack.md#typescript)
-- [Unified Session](01_core_architecture.md#unified-session)
-- [USER.md](03_memory_context_session.md#usermd)
-- [Vite](09_dev_stack.md#vite)
-- [Voyager](08_ai_llm_concepts.md#voyager)
-- [Web Tools](02_tools_and_skills.md#web-tools)
-- [WebSocket Channel](05_channels_gateway_ui.md#websocket-channel)
-- [WebSocket Multiplex Protocol](05_channels_gateway_ui.md#websocket-multiplex-protocol)
-- [websockets](09_dev_stack.md#websockets)
-- [WebUI](05_channels_gateway_ui.md#webui)
-- [WebUI Turn Coordinator](03_memory_context_session.md#webui-turn-coordinator)
-- [Workspace](01_core_architecture.md#workspace)
-- [Workspace Access](07_security_isolation.md#workspace-access)
-- [Workspace Policy](07_security_isolation.md#workspace-policy)
-- [WriteStdinTool](02_tools_and_skills.md#writestdintool)
+## 주제별 파일
+
+| 파일 | 주제 | 대표 항목 |
+|---|---|---|
+| [00_content_classes.md](00_content_classes.md) | 노드 클래스 정의 | Component, Concept, Principle, Threat … |
+| [01_core_architecture.md](01_core_architecture.md) | 코어 아키텍처·설계 패턴 | AgentLoop, MessageBus, Adapter Pattern |
+| [02_tools_and_skills.md](02_tools_and_skills.md) | 도구와 스킬 | ToolRegistry, ExecTool, SKILL.md |
+| [03_memory_context_session.md](03_memory_context_session.md) | 메모리·컨텍스트·세션 | Context, Dream, AutoCompact, JSONL |
+| [04_providers_and_llm.md](04_providers_and_llm.md) | 프로바이더와 LLM 호출 | FallbackProvider, Circuit Breaker |
+| [05_channels_gateway_ui.md](05_channels_gateway_ui.md) | 채널·게이트웨이·UI | WebSocket, WebUI, OpenAI-Compatible API |
+| [06_scheduling_automation.md](06_scheduling_automation.md) | 스케줄링과 자동화 | Cron, Heartbeat, Trigger |
+| [07_security_isolation.md](07_security_isolation.md) | 보안과 격리 | Sandbox, SSRF, Least Privilege |
+| [08_ai_llm_concepts.md](08_ai_llm_concepts.md) | AI/LLM 일반 개념 | LLM, Prompt, PEFT, LoRA, MCP, ReAct |
+| [09_dev_stack.md](09_dev_stack.md) | 개발 스택 | asyncio, Pydantic, bun, Vite |
+
+## 그래프 데이터
+
+용어 간 계층·연결 관계는 [graph/](graph/) 디렉토리에 그래프 DB(Neo4j / Memgraph)로 바로 임포트
+가능한 형식(`nodes.csv`, `edges.csv`, `import.cypher`)으로 저장되어 있습니다.
+자세한 사용법은 [graph/README.md](graph/README.md)를 보세요.
+
+## 전체 색인 (알파벳순, 244개)
+
+[_SKIP_MODULES](02_tools_and_skills.md#_skip_modules) ·
+[Adapter Pattern](01_core_architecture.md#adapter-pattern) ·
+[Agent](01_core_architecture.md#agent) ·
+[Agent Loop (concept)](08_ai_llm_concepts.md#agent-loop-concept) ·
+[Agent Skills](08_ai_llm_concepts.md#agent-skills) ·
+[AgentLoop](01_core_architecture.md#agentloop) ·
+[AgentRunner](01_core_architecture.md#agentrunner) ·
+[Anthropic Provider](04_providers_and_llm.md#anthropic-provider) ·
+[API Server](05_channels_gateway_ui.md#api-server) ·
+[Append-only Log](03_memory_context_session.md#append-only-log) ·
+[apply_patch](02_tools_and_skills.md#apply_patch) ·
+[Apps](05_channels_gateway_ui.md#apps) ·
+[asyncio](09_dev_stack.md#asyncio) ·
+[asyncio.Queue](09_dev_stack.md#asyncioqueue) ·
+[Atomic Write](03_memory_context_session.md#atomic-write) ·
+[AutoCompact](03_memory_context_session.md#autocompact) ·
+[Automation Turns](06_scheduling_automation.md#automation-turns) ·
+[Azure OpenAI Provider](04_providers_and_llm.md#azure-openai-provider) ·
+[Bedrock Provider](04_providers_and_llm.md#bedrock-provider) ·
+[Bootstrap Templates](03_memory_context_session.md#bootstrap-templates) ·
+[Bound Runner](06_scheduling_automation.md#bound-runner) ·
+[BPE](08_ai_llm_concepts.md#bpe) ·
+[bubblewrap](07_security_isolation.md#bubblewrap) ·
+[bun](09_dev_stack.md#bun) ·
+[camelCase Alias](09_dev_stack.md#camelcase-alias) ·
+[Chain-of-Thought](08_ai_llm_concepts.md#chain-of-thought) ·
+[Channel](01_core_architecture.md#channel) ·
+[Channel Manager](05_channels_gateway_ui.md#channel-manager) ·
+[Channel Registry](05_channels_gateway_ui.md#channel-registry) ·
+[Circuit Breaker](04_providers_and_llm.md#circuit-breaker) ·
+[Command Router](01_core_architecture.md#command-router) ·
+[Config](01_core_architecture.md#config) ·
+[Consolidation](03_memory_context_session.md#consolidation) ·
+[Container](07_security_isolation.md#container) ·
+[Context](03_memory_context_session.md#context) ·
+[Context Compression](08_ai_llm_concepts.md#context-compression) ·
+[Context Governance](03_memory_context_session.md#context-governance) ·
+[Context Window](08_ai_llm_concepts.md#context-window) ·
+[ContextVar](09_dev_stack.md#contextvar) ·
+[Coroutine](09_dev_stack.md#coroutine) ·
+[Cron](06_scheduling_automation.md#cron) ·
+[Cron Expression](06_scheduling_automation.md#cron-expression) ·
+[Cron Job](06_scheduling_automation.md#cron-job) ·
+[Cron Store](06_scheduling_automation.md#cron-store) ·
+[Cron Tool](02_tools_and_skills.md#cron-tool) ·
+[Cron Turns](06_scheduling_automation.md#cron-turns) ·
+[croniter](06_scheduling_automation.md#croniter) ·
+[CronService](06_scheduling_automation.md#cronservice) ·
+[Cursor](03_memory_context_session.md#cursor) ·
+[ddgs](09_dev_stack.md#ddgs) ·
+[Decoupling](01_core_architecture.md#decoupling) ·
+[Defense in Depth](07_security_isolation.md#defense-in-depth) ·
+[Delta](04_providers_and_llm.md#delta) ·
+[DNS Pinning](07_security_isolation.md#dns-pinning) ·
+[DNS Rebinding](07_security_isolation.md#dns-rebinding) ·
+[Dream](03_memory_context_session.md#dream) ·
+[Dream Cursor](03_memory_context_session.md#dream-cursor) ·
+[dulwich](09_dev_stack.md#dulwich) ·
+[Durable Files](03_memory_context_session.md#durable-files) ·
+[Embedding](08_ai_llm_concepts.md#embedding) ·
+[Entry Points](09_dev_stack.md#entry-points) ·
+[Entry-point Plugin](02_tools_and_skills.md#entry-point-plugin) ·
+[Event Loop](09_dev_stack.md#event-loop) ·
+[Exact Pinning](09_dev_stack.md#exact-pinning) ·
+[Exec Session](02_tools_and_skills.md#exec-session) ·
+[ExecTool](02_tools_and_skills.md#exectool) ·
+[Exponential Backoff](04_providers_and_llm.md#exponential-backoff) ·
+[Facade Pattern](01_core_architecture.md#facade-pattern) ·
+[FallbackProvider](04_providers_and_llm.md#fallbackprovider) ·
+[Few-shot Learning](08_ai_llm_concepts.md#few-shot-learning) ·
+[File State](02_tools_and_skills.md#file-state) ·
+[filelock](09_dev_stack.md#filelock) ·
+[Filesystem Tools](02_tools_and_skills.md#filesystem-tools) ·
+[Fine-tuning](08_ai_llm_concepts.md#fine-tuning) ·
+[Frontmatter](02_tools_and_skills.md#frontmatter) ·
+[fsync](03_memory_context_session.md#fsync) ·
+[Gateway](01_core_architecture.md#gateway) ·
+[Gateway Service](05_channels_gateway_ui.md#gateway-service) ·
+[Git](09_dev_stack.md#git) ·
+[GitHub Copilot Provider](04_providers_and_llm.md#github-copilot-provider) ·
+[Goal State](03_memory_context_session.md#goal-state) ·
+[Graceful Degradation](04_providers_and_llm.md#graceful-degradation) ·
+[Grounding](08_ai_llm_concepts.md#grounding) ·
+[Hallucination](08_ai_llm_concepts.md#hallucination) ·
+[hatchling](09_dev_stack.md#hatchling) ·
+[Health Endpoint](05_channels_gateway_ui.md#health-endpoint) ·
+[Heartbeat](06_scheduling_automation.md#heartbeat) ·
+[HEARTBEAT.md](06_scheduling_automation.md#heartbeatmd) ·
+[Hierarchical Memory](08_ai_llm_concepts.md#hierarchical-memory) ·
+[History Visibility](03_memory_context_session.md#history-visibility) ·
+[history.jsonl](03_memory_context_session.md#historyjsonl) ·
+[Hook](01_core_architecture.md#hook) ·
+[HTTP](05_channels_gateway_ui.md#http) ·
+[httpx](09_dev_stack.md#httpx) ·
+[Image Generation Provider](04_providers_and_llm.md#image-generation-provider) ·
+[Image Generation Tool](02_tools_and_skills.md#image-generation-tool) ·
+[In-Context Learning](08_ai_llm_concepts.md#in-context-learning) ·
+[InboundMessage](01_core_architecture.md#inboundmessage) ·
+[Injection](01_core_architecture.md#injection) ·
+[Input Budget](03_memory_context_session.md#input-budget) ·
+[Jinja2](09_dev_stack.md#jinja2) ·
+[JSON Schema](08_ai_llm_concepts.md#json-schema) ·
+[JSON-RPC](08_ai_llm_concepts.md#json-rpc) ·
+[JSONL](03_memory_context_session.md#jsonl) ·
+[last_consolidated Cursor](03_memory_context_session.md#last_consolidated-cursor) ·
+[Least Privilege](07_security_isolation.md#least-privilege) ·
+[Linux Namespaces](07_security_isolation.md#linux-namespaces) ·
+[LLM](08_ai_llm_concepts.md#llm) ·
+[loguru](09_dev_stack.md#loguru) ·
+[Long Task Tool](02_tools_and_skills.md#long-task-tool) ·
+[LoRA](08_ai_llm_concepts.md#lora) ·
+[Lost in the Middle](08_ai_llm_concepts.md#lost-in-the-middle) ·
+[LSP](08_ai_llm_concepts.md#lsp) ·
+[Markdown](02_tools_and_skills.md#markdown) ·
+[max_tokens](04_providers_and_llm.md#max_tokens) ·
+[MCP](08_ai_llm_concepts.md#mcp) ·
+[MCPToolWrapper](02_tools_and_skills.md#mcptoolwrapper) ·
+[Memory](03_memory_context_session.md#memory) ·
+[MEMORY.md](03_memory_context_session.md#memorymd) ·
+[MessageBus](01_core_architecture.md#messagebus) ·
+[MessageTool](02_tools_and_skills.md#messagetool) ·
+[Model Preset](01_core_architecture.md#model-preset) ·
+[Model Routing](08_ai_llm_concepts.md#model-routing) ·
+[MyTool](02_tools_and_skills.md#mytool) ·
+[Nanobot (SDK Facade)](01_core_architecture.md#nanobot-sdk-facade) ·
+[OpenAI Codex Provider](04_providers_and_llm.md#openai-codex-provider) ·
+[OpenAI Responses Provider](04_providers_and_llm.md#openai-responses-provider) ·
+[OpenAI-Compatible API](05_channels_gateway_ui.md#openai-compatible-api) ·
+[OpenAI-Compatible Provider](04_providers_and_llm.md#openai-compatible-provider) ·
+[Optional Dependencies](09_dev_stack.md#optional-dependencies) ·
+[Orphan Tool Result](03_memory_context_session.md#orphan-tool-result) ·
+[OutboundMessage](01_core_architecture.md#outboundmessage) ·
+[Pairing](01_core_architecture.md#pairing) ·
+[Path Utils](02_tools_and_skills.md#path-utils) ·
+[PEFT](08_ai_llm_concepts.md#peft) ·
+[PinnedDNSAsyncTransport](07_security_isolation.md#pinneddnsasynctransport) ·
+[pkgutil](09_dev_stack.md#pkgutil) ·
+[Platform Channels](05_channels_gateway_ui.md#platform-channels) ·
+[Plugin Architecture](02_tools_and_skills.md#plugin-architecture) ·
+[Producer-Consumer](01_core_architecture.md#producer-consumer) ·
+[Progress Hook](01_core_architecture.md#progress-hook) ·
+[Progressive Disclosure](02_tools_and_skills.md#progressive-disclosure) ·
+[Prompt](08_ai_llm_concepts.md#prompt) ·
+[Prompt Caching](04_providers_and_llm.md#prompt-caching) ·
+[Prompt Engineering](08_ai_llm_concepts.md#prompt-engineering) ·
+[Prompt Injection](07_security_isolation.md#prompt-injection) ·
+[prompt-toolkit](09_dev_stack.md#prompt-toolkit) ·
+[Provider](01_core_architecture.md#provider) ·
+[Provider Base](04_providers_and_llm.md#provider-base) ·
+[Provider Factory](04_providers_and_llm.md#provider-factory) ·
+[Provider Registry](04_providers_and_llm.md#provider-registry) ·
+[ProviderSpec](04_providers_and_llm.md#providerspec) ·
+[PTH File Guard](07_security_isolation.md#pth-file-guard) ·
+[Pydantic](09_dev_stack.md#pydantic) ·
+[pydantic-settings](09_dev_stack.md#pydantic-settings) ·
+[PyPI](09_dev_stack.md#pypi) ·
+[pytest](09_dev_stack.md#pytest) ·
+[Python 3.11+](09_dev_stack.md#python-311) ·
+[questionary](09_dev_stack.md#questionary) ·
+[RAG](08_ai_llm_concepts.md#rag) ·
+[Rate Limit](04_providers_and_llm.md#rate-limit) ·
+[ReAct](08_ai_llm_concepts.md#react) ·
+[React (JS)](09_dev_stack.md#react-js) ·
+[Reasoning Blocks](04_providers_and_llm.md#reasoning-blocks) ·
+[Reflection](08_ai_llm_concepts.md#reflection) ·
+[Registry Pattern](02_tools_and_skills.md#registry-pattern) ·
+[Retry](04_providers_and_llm.md#retry) ·
+[Rich](09_dev_stack.md#rich) ·
+[ruff](09_dev_stack.md#ruff) ·
+[Runtime Checkpoint](01_core_architecture.md#runtime-checkpoint) ·
+[Runtime Context](03_memory_context_session.md#runtime-context) ·
+[Runtime State Protocol](02_tools_and_skills.md#runtime-state-protocol) ·
+[Sampling](04_providers_and_llm.md#sampling) ·
+[Sandbox](07_security_isolation.md#sandbox) ·
+[Sandbox Backend](07_security_isolation.md#sandbox-backend) ·
+[SDK Clients](05_channels_gateway_ui.md#sdk-clients) ·
+[seccomp](07_security_isolation.md#seccomp) ·
+[Self-Attention](08_ai_llm_concepts.md#self-attention) ·
+[Session](01_core_architecture.md#session) ·
+[Session Delivery](06_scheduling_automation.md#session-delivery) ·
+[Session Key](01_core_architecture.md#session-key) ·
+[Session Manager](03_memory_context_session.md#session-manager) ·
+[Skill](01_core_architecture.md#skill) ·
+[Skill Library](08_ai_llm_concepts.md#skill-library) ·
+[skill-creator](02_tools_and_skills.md#skill-creator) ·
+[SKILL.md](02_tools_and_skills.md#skillmd) ·
+[SkillsLoader](02_tools_and_skills.md#skillsloader) ·
+[Slash Command](01_core_architecture.md#slash-command) ·
+[Sliding Window](08_ai_llm_concepts.md#sliding-window) ·
+[SOUL.md](03_memory_context_session.md#soulmd) ·
+[SPA](05_channels_gateway_ui.md#spa) ·
+[SpawnTool](02_tools_and_skills.md#spawntool) ·
+[SSE](08_ai_llm_concepts.md#sse) ·
+[SSRF](07_security_isolation.md#ssrf) ·
+[State Machine](01_core_architecture.md#state-machine) ·
+[stdio Transport](08_ai_llm_concepts.md#stdio-transport) ·
+[Streamable HTTP](08_ai_llm_concepts.md#streamable-http) ·
+[Streaming](04_providers_and_llm.md#streaming) ·
+[Subagent](01_core_architecture.md#subagent) ·
+[Summarization](08_ai_llm_concepts.md#summarization) ·
+[Sustained Goal](03_memory_context_session.md#sustained-goal) ·
+[System Prompt](03_memory_context_session.md#system-prompt) ·
+[Temperature](04_providers_and_llm.md#temperature) ·
+[tiktoken](08_ai_llm_concepts.md#tiktoken) ·
+[Timeout](07_security_isolation.md#timeout) ·
+[TOCTOU](07_security_isolation.md#toctou) ·
+[Token](08_ai_llm_concepts.md#token) ·
+[Tokenizer](08_ai_llm_concepts.md#tokenizer) ·
+[Tool](01_core_architecture.md#tool) ·
+[Tool Calling](08_ai_llm_concepts.md#tool-calling) ·
+[Tool Discovery](02_tools_and_skills.md#tool-discovery) ·
+[Tool Hint](02_tools_and_skills.md#tool-hint) ·
+[Tool Schema](02_tools_and_skills.md#tool-schema) ·
+[Tool Scope](02_tools_and_skills.md#tool-scope) ·
+[ToolRegistry](02_tools_and_skills.md#toolregistry) ·
+[ToolResult](02_tools_and_skills.md#toolresult) ·
+[Transcription](04_providers_and_llm.md#transcription) ·
+[Transformer](08_ai_llm_concepts.md#transformer) ·
+[Transient Error](04_providers_and_llm.md#transient-error) ·
+[Trigger](06_scheduling_automation.md#trigger) ·
+[TTL](03_memory_context_session.md#ttl) ·
+[Turn](01_core_architecture.md#turn) ·
+[Turn Continuation](01_core_architecture.md#turn-continuation) ·
+[TurnState](01_core_architecture.md#turnstate) ·
+[Type Hint](09_dev_stack.md#type-hint) ·
+[Typer](09_dev_stack.md#typer) ·
+[TypeScript](09_dev_stack.md#typescript) ·
+[Unified Session](01_core_architecture.md#unified-session) ·
+[USER.md](03_memory_context_session.md#usermd) ·
+[Vector Database](08_ai_llm_concepts.md#vector-database) ·
+[Vite](09_dev_stack.md#vite) ·
+[Voyager](08_ai_llm_concepts.md#voyager) ·
+[Web Tools](02_tools_and_skills.md#web-tools) ·
+[WebSocket](05_channels_gateway_ui.md#websocket) ·
+[WebSocket Channel](05_channels_gateway_ui.md#websocket-channel) ·
+[WebSocket Multiplex Protocol](05_channels_gateway_ui.md#websocket-multiplex-protocol) ·
+[websockets](09_dev_stack.md#websockets) ·
+[WebUI](05_channels_gateway_ui.md#webui) ·
+[WebUI Turn Coordinator](03_memory_context_session.md#webui-turn-coordinator) ·
+[Workspace](01_core_architecture.md#workspace) ·
+[Workspace Access](07_security_isolation.md#workspace-access) ·
+[Workspace Policy](07_security_isolation.md#workspace-policy) ·
+[WriteStdinTool](02_tools_and_skills.md#writestdintool) ·
+[Zero-shot](08_ai_llm_concepts.md#zero-shot)

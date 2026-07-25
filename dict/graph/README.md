@@ -1,68 +1,107 @@
-# 용어집 그래프 데이터 (Glossary Graph Export)
+# dict/ 지식 그래프 데이터 (Graph Export)
 
-[dict/](../README.md)의 모든 용어와 용어 간 관계를 그래프 DB로 옮기기 위한 데이터입니다.
-대상 DB는 **Neo4j**와, 대표적인 오픈소스(소스 공개) 그래프 DB로 **Memgraph** 를 지정합니다 —
-Memgraph는 Cypher 쿼리 언어와 Bolt 프로토콜이 Neo4j와 호환되어 **동일한 임포트 파일을 그대로 사용**할 수
-있습니다. (CSV는 범용 형식이므로 ArangoDB, NebulaGraph 등 다른 그래프 DB로도 변환이 쉽습니다.)
+[../](../README.md)의 용어·개념 사전을 그래프 DB로 임포트하기 위한 데이터입니다.
+대상 DB: **Neo4j**와 오픈소스 대표 호환 DB인 **Memgraph** (둘 다 Cypher/Bolt 호환이라 같은
+파일을 그대로 사용할 수 있습니다).
+
+## 데이터 모델
+
+### 노드 (2종)
+
+| Label | 의미 | 개수 |
+|---|---|---|
+| `Content` | 용어·개념 사전을 구성하는 용어/개념 노드 | 244 |
+| `ContentClass` | Content의 정체(역할) 분류 노드 ([../00_content_classes.md](../00_content_classes.md)) | 9 |
+
+Content 노드 속성: `id`(예: `content:system-prompt`), `name`, `file`(출처 마크다운), `description`.
+ContentClass 노드 속성: `id`(예: `class:component`), `name`, `file`.
+
+ID는 `content:` / `class:` 접두로 네임스페이스를 분리해 전역 고유성을 보장합니다.
+
+### 관계 (4종)
+
+| Type | 의미 | 방향 |
+|---|---|---|
+| `SPECIALIZES` | 출발이 도착보다 **더 특수한(상위)** 개념 | `(:Content 특수)-[:SPECIALIZES]->(:Content 일반)` |
+| `BELONGS_TO` | 해당 클래스에 속함 (계층 아님) | `(:Content)-[:BELONGS_TO]->(:ContentClass)` |
+| `RELATED_TO` | 계층은 아니지만 밀접히 관련 | Content → Content (정렬된 한 방향만 저장) |
+| `MENTIONS` | 설명 본문에서 언급 | Content → Content |
+
+방향 규약 예시 (사전의 상위=특수 / 하위=일반 규약):
+
+```text
+(System Prompt)-[:SPECIALIZES]->(Prompt)
+(LoRA)-[:SPECIALIZES]->(PEFT)-[:SPECIALIZES]->(Fine-tuning)
+```
+
+불변 조건:
+
+- 모든 `Content` 노드는 최소 1개의 `ContentClass`와 `BELONGS_TO`로 연결됩니다.
+- `SPECIALIZES`는 Content → Content, `BELONGS_TO`는 Content → ContentClass만 허용됩니다.
 
 ## 파일
 
 | 파일 | 내용 |
 |---|---|
-| `nodes.csv` | 용어 노드. 열: `id:ID`(전역 고유 앵커), `name`, `category`(주제 파일), `file`(정의 위치), `:LABEL`(`Term`) — Neo4j `neo4j-admin import` 헤더 규격 |
-| `edges.csv` | 관계. 열: `:START_ID`, `:END_ID`, `:TYPE` |
-| `import.cypher` | `MERGE` 기반 Cypher 스크립트 — Neo4j·Memgraph 어느 쪽에서든 그대로 실행 가능(멱등) |
-
-## 관계 타입
-
-| 타입 | 의미 |
-|---|---|
-| `HAS_SUBCONCEPT` | 계층 관계: A → B 는 "B가 A의 하위 개념"(항목의 `상위/하위 개념` 필드에서 추출, 방향 정규화) |
-| `RELATED_TO` | 계층은 아니지만 밀접한 관련(항목의 `관련 용어` 필드) |
-| `MENTIONS` | 설명 본문에서 다른 용어를 언급(본문 링크에서 추출; 위 두 관계와 중복되면 제외) |
+| `nodes.csv` | 노드 253개 (Content 244 + ContentClass 9), neo4j-admin import 헤더 형식 |
+| `edges.csv` | 관계 828개 (SPECIALIZES 219, BELONGS_TO 244, RELATED_TO 144, MENTIONS 221) |
+| `import.cypher` | 제약 + MERGE 기반 임포트 스크립트 (Neo4j/Memgraph 공용, 재실행 안전) |
 
 ## 임포트 방법
 
-### Neo4j / Memgraph — Cypher 스크립트 (권장, 멱등)
+### Neo4j / Memgraph — Cypher 스크립트 (권장)
 
 ```bash
 # Neo4j
 cypher-shell -u neo4j -p <password> -f import.cypher
-# Memgraph (mgconsole)
+# Memgraph
 mgconsole < import.cypher
 ```
 
-### Neo4j — 대량 CSV 임포트 (빈 DB 초기 적재)
+### Neo4j — 대량 CSV 임포트
 
 ```bash
-neo4j-admin database import full --nodes=nodes.csv --relationships=edges.csv neo4j
+neo4j-admin database import full \
+  --nodes=graph/nodes.csv \
+  --relationships=graph/edges.csv \
+  neo4j
 ```
 
-### Memgraph — CSV 적재 (LOAD CSV)
+(`:LABEL` 컬럼이 Content/ContentClass를 구분합니다.)
+
+### Memgraph — LOAD CSV
 
 ```cypher
-LOAD CSV FROM "/path/to/nodes.csv" WITH HEADER AS row
-CREATE (:Term {id: row["id:ID"], name: row.name, category: row.category, file: row.file});
-
-LOAD CSV FROM "/path/to/edges.csv" WITH HEADER AS row
-MATCH (a:Term {id: row[":START_ID"]}), (b:Term {id: row[":END_ID"]})
-CREATE (a)-[:RELATES {type: row[":TYPE"]}]->(b);
+LOAD CSV FROM "/data/nodes.csv" WITH HEADER AS row
+CREATE (n {id: row.`id:ID`, name: row.name, file: row.file, description: row.description});
 ```
+
+이후 `row.:LABEL` 값에 따라 `SET n:Content` / `SET n:ContentClass`를 적용하거나,
+간단히 `import.cypher`를 사용하세요.
 
 ## 예시 쿼리
 
 ```cypher
-// Sandbox의 하위 개념 트리 (3단계)
-MATCH p = (t:Term {id: "sandbox"})-[:HAS_SUBCONCEPT*1..3]->(sub) RETURN p;
+// Prompt의 상위(더 특수한) 개념들
+MATCH (s:Content)-[:SPECIALIZES]->(g:Content {name: "Prompt"}) RETURN s.name;
 
-// 가장 많이 연결된 허브 용어 상위 10개
-MATCH (t:Term)-[r]-() RETURN t.name, count(r) AS degree ORDER BY degree DESC LIMIT 10;
+// LoRA에서 가장 일반적인 개념까지의 일반화 사슬
+MATCH p = (c:Content {name: "LoRA"})-[:SPECIALIZES*]->(g:Content)
+WHERE NOT (g)-[:SPECIALIZES]->() RETURN [n IN nodes(p) | n.name];
 
-// 두 용어 사이의 최단 연결 경로
-MATCH p = shortestPath((a:Term {id: "dream"})-[*]-(b:Term {id: "cron"})) RETURN p;
+// 클래스별 용어 수
+MATCH (c:Content)-[:BELONGS_TO]->(k:ContentClass)
+RETURN k.name, count(c) ORDER BY count(c) DESC;
+
+// Sandbox와 2단계 이내로 연결된 모든 개념
+MATCH (a:Content {name: "Sandbox"})-[:SPECIALIZES|RELATED_TO*1..2]-(b:Content)
+RETURN DISTINCT b.name;
 ```
 
 ## 재생성
 
-이 데이터는 `dict/*.md`의 항목 구조(제목·`상위/하위 개념`·`관련 용어`·본문 링크)에서 기계적으로
-추출한 것입니다. 마크다운을 수정한 뒤에는 같은 규칙으로 재추출하면 항상 문서와 동기화됩니다.
+이 데이터는 `../*.md`의 항목·필드(`클래스`, `상위 개념(더 특수)`, `하위 개념(더 일반)`,
+`관련 용어`, 본문 링크)에서 기계적으로 추출한 것입니다. 마크다운이 바뀌면 같은 규칙으로
+재추출하면 됩니다: `### 제목` = Content 노드, `**클래스:**` 링크 = `BELONGS_TO`,
+상위/하위 목록 = `SPECIALIZES`(특수 → 일반 방향으로 정규화), 관련 용어 = `RELATED_TO`,
+그 외 본문 링크 = `MENTIONS`.
