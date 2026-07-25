@@ -3,7 +3,7 @@
 > 사용자가 말을 걸지 않아도 에이전트가 움직이게 하는 장치들.
 > 전체 색인은 [README](README.md), 노드 클래스 정의는 [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
@@ -15,7 +15,7 @@
 [CronService](#cronservice)를 [Gateway](01_core_architecture.md#gateway) 안에서 돌립니다 —
 설치 환경(Windows 포함)과 무관하게 동작하기 위해서입니다.
 
-- **상위 개념(더 특수):** [CronService](#cronservice), [Cron Job](#cron-job),
+- **상위 개념(이를 기반으로 파생):** [CronService](#cronservice), [Cron Job](#cron-job),
   [Cron Expression](#cron-expression), [Heartbeat](#heartbeat)
 - **관련 용어:** [croniter](#croniter)
 
@@ -26,7 +26,7 @@
 
 **예시:** `0 9 * * *` = 매일 09:00, `*/15 * * * *` = 15분마다, `0 9 * * 1` = 매주 월요일 09:00.
 
-- **하위 개념(더 일반):** [Cron](#cron)
+- **하위 개념(기반·전제):** [Cron](#cron)
 - **관련 용어:** [croniter](#croniter)
 
 ### croniter
@@ -44,8 +44,8 @@
 [Gateway](01_core_architecture.md#gateway)와 함께 뜨며, 실행은
 [Bound Runner](#bound-runner)를 통해 에이전트 턴으로 변환됩니다.
 
-- **하위 개념(더 일반):** [Cron](#cron)
-- **상위 개념(더 특수):** [Bound Runner](#bound-runner)
+- **하위 개념(기반·전제):** [Cron](#cron)
+- **상위 개념(이를 기반으로 파생):** [Bound Runner](#bound-runner)
 - **관련 용어:** [Cron Store](#cron-store)
 
 ### Cron Job
@@ -57,7 +57,7 @@
 
 **예시:** `{ schedule: "0 9 * * *", message: "오늘 일정 요약해줘", channel: "telegram" }`.
 
-- **하위 개념(더 일반):** [Cron](#cron)
+- **하위 개념(기반·전제):** [Cron](#cron)
 - **관련 용어:** [Trigger](#trigger)
 
 ### Cron Store
@@ -66,7 +66,7 @@
 [Cron Job](#cron-job) 목록이 저장되는 JSON 파일. 재시작해도 예약이 유지되고, 사람이 직접 열어
 확인/수정할 수 있습니다.
 
-- **하위 개념(더 일반):** [CronService](#cronservice)
+- **하위 개념(기반·전제):** [CronService](#cronservice)
 
 ### Bound Runner
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/cron/bound_runner.py`
@@ -75,7 +75,7 @@
 "예약 작업도 결국 하나의 [Turn](01_core_architecture.md#turn)"으로 수렴시켜, 크론용 별도 실행
 경로를 만들지 않습니다.
 
-- **하위 개념(더 일반):** [CronService](#cronservice)
+- **하위 개념(기반·전제):** [CronService](#cronservice)
 - **관련 용어:** [Cron Turns](#cron-turns)
 
 ### Session Delivery
@@ -85,7 +85,7 @@
 
 **예시:** "매일 9시 일정 알림"의 결과를 Telegram 대화방으로 보낼지, 조용히 세션에만 기록할지의 결정.
 
-- **하위 개념(더 일반):** [CronService](#cronservice)
+- **하위 개념(기반·전제):** [CronService](#cronservice)
 
 ### Cron Turns
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/agent/cron_turns.py`
@@ -93,14 +93,14 @@
 크론 발 턴의 이력 기록 방식을 다루는 모듈 — 시스템이 만든 턴을 사용자 대화와 구분해
 [History Visibility](03_memory_context_session.md#history-visibility) 규칙을 적용합니다.
 
-- **하위 개념(더 일반):** [Turn](01_core_architecture.md#turn), [Bound Runner](#bound-runner)
+- **하위 개념(기반·전제):** [Turn](01_core_architecture.md#turn), [Bound Runner](#bound-runner)
 
 ### Automation Turns
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/agent/automation_turns.py`
 
 크론 외 자동화(트리거 등)로 시작된 턴의 공통 처리 — 표시 이름, 이력 규칙 등.
 
-- **하위 개념(더 일반):** [Turn](01_core_architecture.md#turn)
+- **하위 개념(기반·전제):** [Turn](01_core_architecture.md#turn)
 - **관련 용어:** [Trigger](#trigger)
 
 ### Trigger
@@ -124,8 +124,8 @@
 **예시:** 30분마다 "HEARTBEAT.md를 읽고 지금 할 일이 있으면 하라"는 턴이 조용히 돌고, 실제로
 할 일이 있을 때만 사용자에게 알림이 갑니다.
 
-- **하위 개념(더 일반):** [Cron](#cron)
-- **상위 개념(더 특수):** [HEARTBEAT.md](#heartbeatmd)
+- **하위 개념(기반·전제):** [Cron](#cron)
+- **상위 개념(이를 기반으로 파생):** [HEARTBEAT.md](#heartbeatmd)
 - **관련 용어:** [Sustained Goal](03_memory_context_session.md#sustained-goal)
 
 ### HEARTBEAT.md
@@ -134,5 +134,5 @@
 [Heartbeat](#heartbeat)가 점검하는 할 일 목록 파일. 사용자와 에이전트 모두 편집할 수 있는
 [Markdown](02_tools_and_skills.md#markdown) — "에이전트의 상비 체크리스트".
 
-- **하위 개념(더 일반):** [Heartbeat](#heartbeat),
+- **하위 개념(기반·전제):** [Heartbeat](#heartbeat),
   [Bootstrap Templates](03_memory_context_session.md#bootstrap-templates)

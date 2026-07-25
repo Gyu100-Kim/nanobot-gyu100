@@ -3,7 +3,7 @@
 > 외부 세계와의 접점: 채팅 플랫폼 연동, 장기 실행 프로세스, 웹 UI와 API.
 > 전체 색인은 [README](README.md), 노드 클래스 정의는 [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
@@ -13,7 +13,7 @@
 설정에 활성화된 [Channel](01_core_architecture.md#channel)들을 찾아 생성·시작·정지시키는 조율자.
 채널 하나가 죽어도 다른 채널은 계속 돌게 오류를 격리합니다.
 
-- **하위 개념(더 일반):** [Channel](01_core_architecture.md#channel)
+- **하위 개념(기반·전제):** [Channel](01_core_architecture.md#channel)
 - **관련 용어:** [Gateway](01_core_architecture.md#gateway)
 
 ### Channel Registry
@@ -24,7 +24,7 @@
 [Entry-point Plugin](02_tools_and_skills.md#entry-point-plugin)으로 자동 채워집니다 —
 [Tool Discovery](02_tools_and_skills.md#tool-discovery)와 같은 방식의 채널판입니다.
 
-- **하위 개념(더 일반):** [Channel](01_core_architecture.md#channel),
+- **하위 개념(기반·전제):** [Channel](01_core_architecture.md#channel),
   [Registry Pattern](02_tools_and_skills.md#registry-pattern)
 
 ### Platform Channels
@@ -35,7 +35,7 @@ Telegram, Discord, Slack, Feishu, Matrix, WhatsApp, Email 등 실제 메시징 �
 [Optional Dependencies](09_dev_stack.md#optional-dependencies)라서 쓰는 것만 설치합니다
 (`pip install nanobot-ai[telegram]`).
 
-- **하위 개념(더 일반):** [Channel](01_core_architecture.md#channel)
+- **하위 개념(기반·전제):** [Channel](01_core_architecture.md#channel)
 
 ### WebSocket Channel
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/channels/websocket.py`
@@ -44,11 +44,11 @@ Telegram, Discord, Slack, Feishu, Matrix, WhatsApp, Email 등 실제 메시징 �
 nanobot 자신이 서버가 되며, [WebSocket Multiplex Protocol](#websocket-multiplex-protocol)로
 대화·이벤트·제어를 한 연결에 싣습니다.
 
-- **하위 개념(더 일반):** [Channel](01_core_architecture.md#channel), [WebSocket](#websocket)
-- **상위 개념(더 특수):** [WebSocket Multiplex Protocol](#websocket-multiplex-protocol)
+- **하위 개념(기반·전제):** [Channel](01_core_architecture.md#channel), [WebSocket](#websocket)
+- **상위 개념(이를 기반으로 파생):** [WebSocket Multiplex Protocol](#websocket-multiplex-protocol)
 
 ### WebSocket
-**클래스:** [Protocol](00_content_classes.md#protocol) · **한글:** 웹소켓
+**클래스:** [Protocol](00_content_classes.md#protocol) · **한글:** 웹소켓 · **등장:** 2011-12 (RFC 6455)
 
 [HTTP](#http)로 시작해 업그레이드되는 **양방향 상시 연결** 프로토콜(RFC 6455). 요청-응답만 가능한
 HTTP와 달리 서버가 먼저 말을 걸 수 있어, 실시간 채팅·알림에 적합합니다.
@@ -56,18 +56,18 @@ HTTP와 달리 서버가 먼저 말을 걸 수 있어, 실시간 채팅·알림�
 **예시:** [WebUI](#webui)에서 에이전트의 [Streaming](04_providers_and_llm.md#streaming) 응답이
 타이핑되듯 나타나는 것 — 서버가 [Delta](04_providers_and_llm.md#delta)를 밀어 넣는(push) 것입니다.
 
-- **상위 개념(더 특수):** [WebSocket Channel](#websocket-channel)
-- **하위 개념(더 일반):** [HTTP](#http)
+- **상위 개념(이를 기반으로 파생):** [WebSocket Channel](#websocket-channel)
+- **하위 개념(기반·전제):** [HTTP](#http)
 - **관련 용어:** [websockets](09_dev_stack.md#websockets)
 
 ### HTTP
-**클래스:** [Protocol](00_content_classes.md#protocol)
+**클래스:** [Protocol](00_content_classes.md#protocol) · **등장:** 1991 (HTTP/0.9)
 
 웹의 기본 요청-응답 프로토콜. 클라이언트가 요청(메서드 + URL + 헤더 + 본문)을 보내면 서버가
 응답(상태 코드 + 본문)을 돌려줍니다. nanobot에서는 [API Server](#api-server), 웹 fetch 도구,
 모든 LLM API 호출([httpx](09_dev_stack.md#httpx))의 토대입니다.
 
-- **상위 개념(더 특수):** [WebSocket](#websocket), [SSE](08_ai_llm_concepts.md#sse),
+- **상위 개념(이를 기반으로 파생):** [WebSocket](#websocket), [SSE](08_ai_llm_concepts.md#sse),
   [OpenAI-Compatible API](#openai-compatible-api)
 
 ### WebSocket Multiplex Protocol
@@ -76,7 +76,7 @@ HTTP와 달리 서버가 먼저 말을 걸 수 있어, 실시간 채팅·알림�
 하나의 [WebSocket](#websocket) 연결 위에 여러 논리 스트림(대화 메시지, 진행 이벤트, 세션 제어)을
 태그 붙여 싣는 nanobot의 자체 규약. 연결을 스트림마다 따로 여는 비용을 아낍니다.
 
-- **하위 개념(더 일반):** [WebSocket Channel](#websocket-channel)
+- **하위 개념(기반·전제):** [WebSocket Channel](#websocket-channel)
 - **관련 용어:** [Tool Hint](02_tools_and_skills.md#tool-hint)
 
 ### WebUI
@@ -86,7 +86,7 @@ HTTP와 달리 서버가 먼저 말을 걸 수 있어, 실시간 채팅·알림�
 [Vite](09_dev_stack.md#vite)로 만든 [SPA](#spa) 웹 클라이언트. [bun](09_dev_stack.md#bun)으로 빌드해
 파이썬 휠에 **번들로 포함**되므로, 사용자는 Node 없이도 `nanobot gateway` 후 브라우저만 열면 됩니다.
 
-- **하위 개념(더 일반):** [SPA](#spa)
+- **하위 개념(기반·전제):** [SPA](#spa)
 - **관련 용어:** [WebSocket Channel](#websocket-channel),
   [WebUI Turn Coordinator](03_memory_context_session.md#webui-turn-coordinator)
 
@@ -97,7 +97,7 @@ HTTP와 달리 서버가 먼저 말을 걸 수 있어, 실시간 채팅·알림�
 주고받아 네이티브 앱 같은 사용감을 줍니다. [React (JS)](09_dev_stack.md#react-js) 같은 UI
 라이브러리가 이 방식의 표준 도구입니다.
 
-- **상위 개념(더 특수):** [WebUI](#webui)
+- **상위 개념(이를 기반으로 파생):** [WebUI](#webui)
 
 ### Gateway Service
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/gateway/service.py`, `runtime.py`
@@ -106,8 +106,8 @@ HTTP와 달리 서버가 먼저 말을 걸 수 있어, 실시간 채팅·알림�
 [CronService](06_scheduling_automation.md#cronservice), [AutoCompact](03_memory_context_session.md#autocompact)를
 기동/정지하는 생명주기 관리자입니다.
 
-- **하위 개념(더 일반):** [Gateway](01_core_architecture.md#gateway)
-- **상위 개념(더 특수):** [Health Endpoint](#health-endpoint)
+- **하위 개념(기반·전제):** [Gateway](01_core_architecture.md#gateway)
+- **상위 개념(이를 기반으로 파생):** [Health Endpoint](#health-endpoint)
 
 ### Health Endpoint
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 헬스 엔드포인트
@@ -115,7 +115,7 @@ HTTP와 달리 서버가 먼저 말을 걸 수 있어, 실시간 채팅·알림�
 프로세스 생존/상태를 [HTTP](#http)로 알려주는 점검 창구. 컨테이너 오케스트레이터나 모니터링이
 "살아 있나?"를 기계적으로 확인하는 데 씁니다.
 
-- **하위 개념(더 일반):** [Gateway Service](#gateway-service)
+- **하위 개념(기반·전제):** [Gateway Service](#gateway-service)
 
 ### API Server
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/api/server.py`
@@ -126,8 +126,8 @@ HTTP 서버. 외부 프로그램이 nanobot 에이전트를 "그냥 OpenAI 모�
 **예시:** OpenAI SDK의 `base_url`을 nanobot 게이트웨이로 바꾸면, 기존 코드가 그대로
 nanobot 에이전트와 대화합니다.
 
-- **상위 개념(더 특수):** [OpenAI-Compatible API](#openai-compatible-api)
-- **하위 개념(더 일반):** [HTTP](#http)
+- **상위 개념(이를 기반으로 파생):** [OpenAI-Compatible API](#openai-compatible-api)
+- **하위 개념(기반·전제):** [HTTP](#http)
 
 ### OpenAI-Compatible API
 **클래스:** [Protocol](00_content_classes.md#protocol)
@@ -137,7 +137,7 @@ OpenAI Chat Completions API의 요청/응답 형식(JSON 스키마, 엔드포인
 nanobot은 서버로서 이를 제공하고([API Server](#api-server)), 클라이언트로서도 이를 사용합니다
 ([OpenAI-Compatible Provider](04_providers_and_llm.md#openai-compatible-provider)).
 
-- **하위 개념(더 일반):** [HTTP](#http)
+- **하위 개념(기반·전제):** [HTTP](#http)
 
 ### SDK Clients
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/sdk/`

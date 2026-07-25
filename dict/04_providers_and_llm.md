@@ -3,7 +3,7 @@
 > [Provider](01_core_architecture.md#provider) 계층과 LLM API 호출의 신뢰성에 관한 용어.
 > 전체 색인은 [README](README.md), 노드 클래스 정의는 [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
@@ -13,8 +13,8 @@
 모든 프로바이더가 상속하는 추상 클래스 — "메시지 + 도구 목록 → 응답/도구 호출"이라는 공통 계약을
 정의합니다. 이 계약 덕에 상위 코드는 어느 벤더인지 신경 쓰지 않습니다.
 
-- **하위 개념(더 일반):** [Provider](01_core_architecture.md#provider)
-- **상위 개념(더 특수):** [Anthropic Provider](#anthropic-provider),
+- **하위 개념(기반·전제):** [Provider](01_core_architecture.md#provider)
+- **상위 개념(이를 기반으로 파생):** [Anthropic Provider](#anthropic-provider),
   [OpenAI-Compatible Provider](#openai-compatible-provider), [FallbackProvider](#fallbackprovider)
 
 ### Provider Registry
@@ -26,9 +26,9 @@
 **예시:** 모델명이 `claude-`로 시작하면 Anthropic, `gpt-`면 OpenAI 계열 — 이 매칭 규칙이
 레지스트리의 spec에 들어 있습니다.
 
-- **하위 개념(더 일반):** [Provider](01_core_architecture.md#provider),
+- **하위 개념(기반·전제):** [Provider](01_core_architecture.md#provider),
   [Registry Pattern](02_tools_and_skills.md#registry-pattern)
-- **상위 개념(더 특수):** [ProviderSpec](#providerspec)
+- **상위 개념(이를 기반으로 파생):** [ProviderSpec](#providerspec)
 - **관련 용어:** [Model Routing](08_ai_llm_concepts.md#model-routing)
 
 ### ProviderSpec
@@ -37,7 +37,7 @@
 프로바이더 하나의 명세(이름, 모델 접두 패턴, 팩토리, 필요 [Optional Dependencies](09_dev_stack.md#optional-dependencies)).
 선언적 데이터로 두어, 새 프로바이더 추가가 "spec 하나 추가"로 끝나게 합니다.
 
-- **하위 개념(더 일반):** [Provider Registry](#provider-registry)
+- **하위 개념(기반·전제):** [Provider Registry](#provider-registry)
 
 ### Provider Factory
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/factory.py`
@@ -46,7 +46,7 @@
 폴백 설정이 있으면 [FallbackProvider](#fallbackprovider)로 감쌉니다 — "무엇을 만들지"를 설정이
 결정하고 코드는 조립만 하는 구조입니다.
 
-- **하위 개념(더 일반):** [Provider](01_core_architecture.md#provider)
+- **하위 개념(기반·전제):** [Provider](01_core_architecture.md#provider)
 
 ### FallbackProvider
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 폴백 프로바이더 · **코드:** `nanobot/providers/fallback_provider.py`
@@ -59,9 +59,9 @@
 **예시:** Anthropic 장애 시: claude 호출 실패 → [Exponential Backoff](#exponential-backoff) 재시도 →
 계속 실패하면 서킷 열고 다음 순번인 OpenAI로 폴백 → 사용자는 답을 계속 받습니다.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base),
+- **하위 개념(기반·전제):** [Provider Base](#provider-base),
   [Model Routing](08_ai_llm_concepts.md#model-routing), [Graceful Degradation](#graceful-degradation)
-- **상위 개념(더 특수):** [Circuit Breaker](#circuit-breaker), [Retry](#retry)
+- **상위 개념(이를 기반으로 파생):** [Circuit Breaker](#circuit-breaker), [Retry](#retry)
 
 ### Graceful Degradation
 **클래스:** [Principle](00_content_classes.md#principle) · **한글:** 우아한 성능 저하
@@ -71,7 +71,7 @@
 
 **예시:** [FallbackProvider](#fallbackprovider)가 1순위 모델 장애 시 2순위 모델로 답하는 것.
 
-- **상위 개념(더 특수):** [FallbackProvider](#fallbackprovider)
+- **상위 개념(이를 기반으로 파생):** [FallbackProvider](#fallbackprovider)
 - **관련 용어:** [Defense in Depth](07_security_isolation.md#defense-in-depth)
 
 ### Circuit Breaker
@@ -84,7 +84,7 @@ Half-open(시험 복귀)으로 도는 [State Machine](01_core_architecture.md#st
 **예시:** 어떤 프로바이더가 5번 연속 실패하면 60초간 아예 호출하지 않고 다음 후보로 직행 —
 죽은 서버를 계속 두드리며 시간을 낭비하지 않습니다.
 
-- **하위 개념(더 일반):** [FallbackProvider](#fallbackprovider),
+- **하위 개념(기반·전제):** [FallbackProvider](#fallbackprovider),
   [State Machine](01_core_architecture.md#state-machine)
 - **관련 용어:** [Transient Error](#transient-error)
 
@@ -94,8 +94,8 @@ Half-open(시험 복귀)으로 도는 [State Machine](01_core_architecture.md#st
 [Transient Error](#transient-error)에 한해 같은 요청을 다시 보내는 것. 4xx 같은 영구 오류를
 재시도하는 것은 낭비이므로, "무엇이 일시적인가"의 판별이 핵심입니다.
 
-- **하위 개념(더 일반):** [FallbackProvider](#fallbackprovider)
-- **상위 개념(더 특수):** [Exponential Backoff](#exponential-backoff)
+- **하위 개념(기반·전제):** [FallbackProvider](#fallbackprovider)
+- **상위 개념(이를 기반으로 파생):** [Exponential Backoff](#exponential-backoff)
 - **관련 용어:** [Rate Limit](#rate-limit)
 
 ### Exponential Backoff
@@ -105,7 +105,7 @@ Half-open(시험 복귀)으로 도는 [State Machine](01_core_architecture.md#st
 일제히 재돌진해 장애를 악화시키는 "재시도 폭풍(retry storm)"을 막습니다. 실제 구현은 여기에 무작위
 지터(jitter)를 더해 클라이언트들의 재시도 시점을 흩뜨립니다.
 
-- **하위 개념(더 일반):** [Retry](#retry)
+- **하위 개념(기반·전제):** [Retry](#retry)
 
 ### Transient Error
 **클래스:** [Concept](00_content_classes.md#concept) · **한글:** 일시적 오류
@@ -133,7 +133,7 @@ API 제공자가 정한 시간당 요청/토큰 상한. 초과 시 HTTP 429가 �
 크게 줄입니다 — 30초 걸릴 답변도 1초 만에 "쓰기 시작"하는 것처럼 보입니다. 전송 계층으로는 주로
 [SSE](08_ai_llm_concepts.md#sse)가 쓰입니다.
 
-- **상위 개념(더 특수):** [Delta](#delta)
+- **상위 개념(이를 기반으로 파생):** [Delta](#delta)
 - **관련 용어:** [WebSocket Channel](05_channels_gateway_ui.md#websocket-channel)
 
 ### Delta
@@ -142,7 +142,7 @@ API 제공자가 정한 시간당 요청/토큰 상한. 초과 시 HTTP 429가 �
 [Streaming](#streaming)에서 도착하는 응답의 증분 조각. 텍스트 델타, 도구 호출 인자 델타 등이 있고,
 [AgentRunner](01_core_architecture.md#agentrunner)가 이들을 모아 완전한 메시지로 조립합니다.
 
-- **하위 개념(더 일반):** [Streaming](#streaming)
+- **하위 개념(기반·전제):** [Streaming](#streaming)
 
 ### Reasoning Blocks
 **클래스:** [Concept](00_content_classes.md#concept) · **한글:** 추론 블록
@@ -160,7 +160,7 @@ API 제공자가 정한 시간당 요청/토큰 상한. 초과 시 HTTP 429가 �
 **추첨하는** 과정. 같은 질문에 다른 답이 나오는 이유가 이것입니다. 추첨의 성격을 조절하는 손잡이가
 [Temperature](#temperature), top-p(누적 확률 상위만 후보로 남김) 등입니다.
 
-- **상위 개념(더 특수):** [Temperature](#temperature)
+- **상위 개념(이를 기반으로 파생):** [Temperature](#temperature)
 
 ### Temperature
 **클래스:** [Concept](00_content_classes.md#concept) · **한글:** 온도
@@ -171,7 +171,7 @@ API 제공자가 정한 시간당 요청/토큰 상한. 초과 시 HTTP 429가 �
 **예시:** 코드 생성·사실 답변은 0~0.3, 브레인스토밍·창작은 0.8~1.2가 관례적 선택입니다.
 nanobot에서는 [Model Preset](01_core_architecture.md#model-preset)으로 용도별 지정이 가능합니다.
 
-- **하위 개념(더 일반):** [Sampling](#sampling)
+- **하위 개념(기반·전제):** [Sampling](#sampling)
 
 ### max_tokens
 **클래스:** [Concept](00_content_classes.md#concept)
@@ -198,7 +198,7 @@ nanobot에서는 [Model Preset](01_core_architecture.md#model-preset)으로 용�
 Claude 모델용 프로바이더. Anthropic Messages API 특유의 형식(별도 system 파라미터, content block
 배열)을 공통 인터페이스로 변환합니다.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base)
+- **하위 개념(기반·전제):** [Provider Base](#provider-base)
 
 ### OpenAI-Compatible Provider
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/openai_compat_provider.py`
@@ -207,14 +207,14 @@ Claude 모델용 프로바이더. Anthropic Messages API 특유의 형식(별도
 말하는 모든 백엔드용 프로바이더 — OpenAI 본가는 물론 OpenRouter, Ollama(로컬), vLLM 등
 "사실상 표준"을 따르는 서버 전부에 재사용됩니다. base URL만 바꾸면 됩니다.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base)
+- **하위 개념(기반·전제):** [Provider Base](#provider-base)
 
 ### OpenAI Responses Provider
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/openai_responses/`
 
 OpenAI의 신형 Responses API(Chat Completions의 후속 규격)용 프로바이더.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base)
+- **하위 개념(기반·전제):** [Provider Base](#provider-base)
 
 ### Azure OpenAI Provider
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/azure_openai_provider.py`
@@ -222,28 +222,28 @@ OpenAI의 신형 Responses API(Chat Completions의 후속 규격)용 프로바�
 Azure에 배포된 OpenAI 모델용 프로바이더(배포 이름, API 버전 등 Azure 특유 설정 처리).
 `azure` [Optional Dependencies](09_dev_stack.md#optional-dependencies)로 설치됩니다.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base)
+- **하위 개념(기반·전제):** [Provider Base](#provider-base)
 
 ### Bedrock Provider
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/bedrock_provider.py`
 
 AWS Bedrock을 통해 모델을 호출하는 프로바이더 — API 키 대신 AWS 자격증명(IAM) 체계를 씁니다.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base)
+- **하위 개념(기반·전제):** [Provider Base](#provider-base)
 
 ### GitHub Copilot Provider
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/github_copilot_provider.py`
 
 GitHub Copilot 구독의 모델 접근권을 사용하는 프로바이더. 디바이스 플로우 OAuth 로그인을 지원합니다.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base)
+- **하위 개념(기반·전제):** [Provider Base](#provider-base)
 
 ### OpenAI Codex Provider
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/openai_codex_provider.py`
 
 ChatGPT 구독(Codex) 백엔드를 사용하는 프로바이더.
 
-- **하위 개념(더 일반):** [Provider Base](#provider-base)
+- **하위 개념(기반·전제):** [Provider Base](#provider-base)
 
 ### Image Generation Provider
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/providers/image_generation.py`
@@ -251,7 +251,7 @@ ChatGPT 구독(Codex) 백엔드를 사용하는 프로바이더.
 텍스트→이미지 생성 백엔드의 추상화.
 [Image Generation Tool](02_tools_and_skills.md#image-generation-tool)이 사용합니다.
 
-- **하위 개념(더 일반):** [Provider](01_core_architecture.md#provider)
+- **하위 개념(기반·전제):** [Provider](01_core_architecture.md#provider)
 
 ### Transcription
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 음성 전사 · **코드:** `nanobot/providers/transcription.py`, `nanobot/audio/`
@@ -259,4 +259,4 @@ ChatGPT 구독(Codex) 백엔드를 사용하는 프로바이더.
 음성 메시지를 텍스트로 변환(STT)하는 계층. 음성 채널 메시지가 텍스트 파이프라인에 합류할 수 있게
 합니다.
 
-- **하위 개념(더 일반):** [Provider](01_core_architecture.md#provider)
+- **하위 개념(기반·전제):** [Provider](01_core_architecture.md#provider)

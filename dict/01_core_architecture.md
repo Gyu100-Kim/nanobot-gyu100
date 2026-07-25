@@ -4,7 +4,7 @@
 > 그 바탕이 되는 설계 패턴. 전체 색인은 [README](README.md), 노드 클래스 정의는
 > [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
@@ -21,7 +21,7 @@
 nanobot 자체가 하나의 에이전트 프레임워크이고, [Subagent](#subagent)나
 [Nanobot 파사드](#nanobot-sdk-facade)로 감싼 인스턴스는 에이전트의 더 특수한 형태입니다.
 
-- **상위 개념(더 특수):** [AgentLoop](#agentloop), [Subagent](#subagent),
+- **상위 개념(이를 기반으로 파생):** [AgentLoop](#agentloop), [Subagent](#subagent),
   [Nanobot (SDK Facade)](#nanobot-sdk-facade)
 - **관련 용어:** [Tool Calling](08_ai_llm_concepts.md#tool-calling), [ReAct](08_ai_llm_concepts.md#react),
   [Session](#session)
@@ -38,8 +38,8 @@ nanobot 자체가 하나의 에이전트 프레임워크이고, [Subagent](#suba
 컨텍스트 구축 → 러너 실행 → 응답을 Telegram 채널로 발행 — 이 한 바퀴가 AgentLoop의 한 [Turn](#turn)입니다.
 `.agent/design.md`의 제약상 이 파일과 `runner.py`는 "핵심 경로"로, 변경을 최소화해야 합니다.
 
-- **상위 개념(더 특수):** [TurnState](#turnstate), [Hook](#hook)
-- **하위 개념(더 일반):** [Agent](#agent), [State Machine](#state-machine),
+- **상위 개념(이를 기반으로 파생):** [TurnState](#turnstate), [Hook](#hook)
+- **하위 개념(기반·전제):** [Agent](#agent), [State Machine](#state-machine),
   [Agent Loop (concept)](08_ai_llm_concepts.md#agent-loop-concept)
 - **관련 용어:** [AgentRunner](#agentrunner), [MessageBus](#messagebus),
   [Runtime Checkpoint](#runtime-checkpoint)
@@ -55,8 +55,8 @@ nanobot 자체가 하나의 에이전트 프레임워크이고, [Subagent](#suba
 **예시:** 모델이 `read_file` 호출을 요청 → 러너가 [ToolRegistry](02_tools_and_skills.md#toolregistry)로
 실행 → 파일 내용을 tool result 메시지로 추가 → 모델 재호출 → 모델이 최종 답 생성 → 턴 종료.
 
-- **하위 개념(더 일반):** [Agent Loop (concept)](08_ai_llm_concepts.md#agent-loop-concept)
-- **상위 개념(더 특수):** [Injection](#injection)
+- **하위 개념(기반·전제):** [Agent Loop (concept)](08_ai_llm_concepts.md#agent-loop-concept)
+- **상위 개념(이를 기반으로 파생):** [Injection](#injection)
 - **관련 용어:** [Tool Calling](08_ai_llm_concepts.md#tool-calling), [Delta](04_providers_and_llm.md#delta)
 
 ### State Machine
@@ -70,7 +70,7 @@ nanobot 자체가 하나의 에이전트 프레임워크이고, [Subagent](#suba
 [Circuit Breaker](04_providers_and_llm.md#circuit-breaker)(Closed → Open → Half-open)가
 이 사전에 등장하는 대표적 상태머신입니다.
 
-- **상위 개념(더 특수):** [TurnState](#turnstate), [Circuit Breaker](04_providers_and_llm.md#circuit-breaker)
+- **상위 개념(이를 기반으로 파생):** [TurnState](#turnstate), [Circuit Breaker](04_providers_and_llm.md#circuit-breaker)
 
 ### MessageBus
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 메시지 버스 · **코드:** `nanobot/bus/queue.py`
@@ -83,8 +83,8 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 **예시:** Telegram 채널과 Discord 채널이 동시에 메시지를 발행해도, 에이전트 코어는 "어느 플랫폼에서
 왔는지"와 무관하게 [InboundMessage](#inboundmessage)라는 동일한 형태로 하나씩 꺼내 처리합니다.
 
-- **상위 개념(더 특수):** [InboundMessage](#inboundmessage), [OutboundMessage](#outboundmessage)
-- **하위 개념(더 일반):** [Producer-Consumer](#producer-consumer), [Decoupling](#decoupling)
+- **상위 개념(이를 기반으로 파생):** [InboundMessage](#inboundmessage), [OutboundMessage](#outboundmessage)
+- **하위 개념(기반·전제):** [Producer-Consumer](#producer-consumer), [Decoupling](#decoupling)
 - **관련 용어:** [asyncio](09_dev_stack.md#asyncio)
 
 ### Producer-Consumer
@@ -95,7 +95,7 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 
 **예시:** [MessageBus](#messagebus)에서 채널(생산자)과 [AgentLoop](#agentloop)(소비자)의 관계.
 
-- **상위 개념(더 특수):** [MessageBus](#messagebus)
+- **상위 개념(이를 기반으로 파생):** [MessageBus](#messagebus)
 - **관련 용어:** [asyncio.Queue](09_dev_stack.md#asyncioqueue), [Decoupling](#decoupling)
 
 ### Decoupling
@@ -107,7 +107,7 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 **예시:** nanobot에서 새 채팅 플랫폼을 추가할 때 에이전트 코어를 한 줄도 고치지 않아도 되는 이유 —
 [MessageBus](#messagebus)와 [Channel](#channel) 추상화가 코어와 플랫폼을 분리하기 때문입니다.
 
-- **상위 개념(더 특수):** [MessageBus](#messagebus), [Adapter Pattern](#adapter-pattern),
+- **상위 개념(이를 기반으로 파생):** [MessageBus](#messagebus), [Adapter Pattern](#adapter-pattern),
   [Provider](#provider)
 
 ### Adapter Pattern
@@ -119,8 +119,8 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 **예시:** [Channel](#channel)은 "Telegram API ↔ [InboundMessage](#inboundmessage)" 변환 어댑터이고,
 [Provider](#provider)는 "각 벤더 SDK ↔ 공통 채팅 인터페이스" 변환 어댑터입니다.
 
-- **상위 개념(더 특수):** [Channel](#channel), [Provider](#provider)
-- **하위 개념(더 일반):** [Decoupling](#decoupling)
+- **상위 개념(이를 기반으로 파생):** [Channel](#channel), [Provider](#provider)
+- **하위 개념(기반·전제):** [Decoupling](#decoupling)
 
 ### Facade Pattern
 **클래스:** [Principle](00_content_classes.md#principle) · **한글:** 파사드 패턴
@@ -131,7 +131,7 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 **예시:** [Nanobot (SDK Facade)](#nanobot-sdk-facade) — `Nanobot.from_config()` 한 줄이 내부적으로
 설정 로드, [Provider](#provider) 생성, [AgentLoop](#agentloop) 구성을 모두 수행합니다.
 
-- **상위 개념(더 특수):** [Nanobot (SDK Facade)](#nanobot-sdk-facade)
+- **상위 개념(이를 기반으로 파생):** [Nanobot (SDK Facade)](#nanobot-sdk-facade)
 
 ### InboundMessage
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 인바운드 메시지 · **코드:** `nanobot/bus/events.py`
@@ -141,7 +141,7 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 발행하므로, 코어는 플랫폼 차이를 모릅니다. [Pydantic](09_dev_stack.md#pydantic) 모델이라
 필드 누락/타입 오류가 생성 시점에 잡힙니다.
 
-- **하위 개념(더 일반):** [MessageBus](#messagebus)
+- **하위 개념(기반·전제):** [MessageBus](#messagebus)
 - **관련 용어:** [OutboundMessage](#outboundmessage), [Session Key](#session-key)
 
 ### OutboundMessage
@@ -150,7 +150,7 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 에이전트의 응답을 표준화한 이벤트 객체. [MessageBus](#messagebus)를 거쳐 원래 [Channel](#channel)이
 플랫폼별 형식(Telegram 마크다운, Slack 블록 등)으로 변환해 전송합니다.
 
-- **하위 개념(더 일반):** [MessageBus](#messagebus)
+- **하위 개념(기반·전제):** [MessageBus](#messagebus)
 - **관련 용어:** [InboundMessage](#inboundmessage)
 
 ### Turn
@@ -163,7 +163,7 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 **예시:** "이 저장소 요약해줘" 한 마디(1턴)에 대해 내부적으로는 `list_dir` → `read_file` × 3 →
 최종 요약 생성으로 LLM 호출이 5번 일어날 수 있습니다.
 
-- **상위 개념(더 특수):** [TurnState](#turnstate), [Turn Continuation](#turn-continuation),
+- **상위 개념(이를 기반으로 파생):** [TurnState](#turnstate), [Turn Continuation](#turn-continuation),
   [Cron Turns](06_scheduling_automation.md#cron-turns)
 - **관련 용어:** [Session](#session)
 
@@ -174,7 +174,7 @@ inbound/outbound 두 개의 [asyncio.Queue](09_dev_stack.md#asyncioqueue)를 갖
 RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실행) → SAVE(저장).
 크래시 시 어느 단계까지 갔는지 알 수 있어 [Runtime Checkpoint](#runtime-checkpoint) 복구의 기준이 됩니다.
 
-- **하위 개념(더 일반):** [Turn](#turn), [State Machine](#state-machine)
+- **하위 개념(기반·전제):** [Turn](#turn), [State Machine](#state-machine)
 - **관련 용어:** [Runtime Checkpoint](#runtime-checkpoint)
 
 ### Session
@@ -185,7 +185,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 (`<workspace>/sessions/*.jsonl`)로 저장합니다 — SQLite 같은 DB가 아니라 사람이 열어 볼 수 있는
 텍스트 파일입니다.
 
-- **상위 개념(더 특수):** [Session Key](#session-key), [Unified Session](#unified-session),
+- **상위 개념(이를 기반으로 파생):** [Session Key](#session-key), [Unified Session](#unified-session),
   [Session Manager](03_memory_context_session.md#session-manager)
 - **관련 용어:** [Workspace](#workspace), [AutoCompact](03_memory_context_session.md#autocompact)
 
@@ -197,7 +197,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 **예시:** Telegram 개인 대화는 `telegram:12345`, SDK 기본 세션은 `sdk:default`,
 [Heartbeat](06_scheduling_automation.md#heartbeat)는 전용 키 `heartbeat`를 씁니다.
 
-- **하위 개념(더 일반):** [Session](#session)
+- **하위 개념(기반·전제):** [Session](#session)
 - **관련 용어:** [Unified Session](#unified-session), [InboundMessage](#inboundmessage)
 
 ### Unified Session
@@ -208,7 +208,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 **예시:** 출근길에 Telegram으로 시킨 일을 사무실에서 [WebUI](05_channels_gateway_ui.md#webui)로 열면
 같은 대화가 이어집니다 — "어디서 말 걸어도 같은 비서"를 만드는 장치입니다.
 
-- **하위 개념(더 일반):** [Session](#session)
+- **하위 개념(기반·전제):** [Session](#session)
 - **관련 용어:** [Session Key](#session-key), [Channel](#channel)
 
 ### Workspace
@@ -230,10 +230,10 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 [Tool Discovery](02_tools_and_skills.md#tool-discovery)와 같은 방식([pkgutil](09_dev_stack.md#pkgutil)
 스캔 + [Entry-point Plugin](02_tools_and_skills.md#entry-point-plugin))으로 자동 등록됩니다.
 
-- **상위 개념(더 특수):** [Platform Channels](05_channels_gateway_ui.md#platform-channels),
+- **상위 개념(이를 기반으로 파생):** [Platform Channels](05_channels_gateway_ui.md#platform-channels),
   [WebSocket Channel](05_channels_gateway_ui.md#websocket-channel),
   [Channel Manager](05_channels_gateway_ui.md#channel-manager)
-- **하위 개념(더 일반):** [Adapter Pattern](#adapter-pattern)
+- **하위 개념(기반·전제):** [Adapter Pattern](#adapter-pattern)
 - **관련 용어:** [Gateway](#gateway), [Pairing](#pairing)
 
 ### Gateway
@@ -244,7 +244,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 [WebUI](05_channels_gateway_ui.md#webui)를 한 프로세스에서 구동합니다. 상시 대기하는 비서를 만들려면
 이 프로세스가 계속 떠 있어야 합니다.
 
-- **상위 개념(더 특수):** [Gateway Service](05_channels_gateway_ui.md#gateway-service),
+- **상위 개념(이를 기반으로 파생):** [Gateway Service](05_channels_gateway_ui.md#gateway-service),
   [Health Endpoint](05_channels_gateway_ui.md#health-endpoint)
 - **관련 용어:** [Channel](#channel), [Cron](06_scheduling_automation.md#cron)
 
@@ -259,10 +259,10 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 [Anthropic Provider](04_providers_and_llm.md#anthropic-provider) 대신
 [OpenAI-Compatible Provider](04_providers_and_llm.md#openai-compatible-provider)가 선택됩니다.
 
-- **상위 개념(더 특수):** [Provider Base](04_providers_and_llm.md#provider-base),
+- **상위 개념(이를 기반으로 파생):** [Provider Base](04_providers_and_llm.md#provider-base),
   [FallbackProvider](04_providers_and_llm.md#fallbackprovider),
   [Provider Registry](04_providers_and_llm.md#provider-registry)
-- **하위 개념(더 일반):** [Adapter Pattern](#adapter-pattern)
+- **하위 개념(기반·전제):** [Adapter Pattern](#adapter-pattern)
 - **관련 용어:** [Model Preset](#model-preset), [Model Routing](08_ai_llm_concepts.md#model-routing)
 
 ### Tool
@@ -275,7 +275,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 **예시:** 파일을 읽는 `read_file`, 셸을 실행하는 [ExecTool](02_tools_and_skills.md#exectool),
 웹을 검색하는 [Web Tools](02_tools_and_skills.md#web-tools) — 각각이 Tool의 더 특수한 사례입니다.
 
-- **상위 개념(더 특수):** [ExecTool](02_tools_and_skills.md#exectool),
+- **상위 개념(이를 기반으로 파생):** [ExecTool](02_tools_and_skills.md#exectool),
   [Filesystem Tools](02_tools_and_skills.md#filesystem-tools),
   [MCPToolWrapper](02_tools_and_skills.md#mcptoolwrapper), [SpawnTool](02_tools_and_skills.md#spawntool)
 - **관련 용어:** [Tool Calling](08_ai_llm_concepts.md#tool-calling),
@@ -290,9 +290,9 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 **예시:** `github` 스킬은 "PR을 만들 때 이런 순서로 이런 명령을 써라"라는 절차 문서이고,
 실제 명령 실행은 [ExecTool](02_tools_and_skills.md#exectool)이 합니다.
 
-- **상위 개념(더 특수):** [SkillsLoader](02_tools_and_skills.md#skillsloader),
+- **상위 개념(이를 기반으로 파생):** [SkillsLoader](02_tools_and_skills.md#skillsloader),
   [SKILL.md](02_tools_and_skills.md#skillmd), [skill-creator](02_tools_and_skills.md#skill-creator)
-- **하위 개념(더 일반):** [Skill Library](08_ai_llm_concepts.md#skill-library)
+- **하위 개념(기반·전제):** [Skill Library](08_ai_llm_concepts.md#skill-library)
 - **관련 용어:** [Progressive Disclosure](02_tools_and_skills.md#progressive-disclosure)
 
 ### Subagent
@@ -302,7 +302,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 자체 대화와 제한된 [Tool Scope](02_tools_and_skills.md#tool-scope)를 갖고, 완료 결과만 부모에게
 보고합니다. 긴 작업을 메인 대화를 막지 않고 처리하는 수단입니다.
 
-- **하위 개념(더 일반):** [Agent](#agent)
+- **하위 개념(기반·전제):** [Agent](#agent)
 - **관련 용어:** [SpawnTool](02_tools_and_skills.md#spawntool),
   [Least Privilege](07_security_isolation.md#least-privilege)
 
@@ -313,8 +313,8 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 제어 역전(Inversion of Control) 방식으로, [SDK](05_channels_gateway_ui.md#sdk-clients) 사용자가
 코어 수정 없이 커스텀 동작을 주입할 수 있습니다.
 
-- **상위 개념(더 특수):** [Progress Hook](#progress-hook)
-- **하위 개념(더 일반):** [AgentLoop](#agentloop)
+- **상위 개념(이를 기반으로 파생):** [Progress Hook](#progress-hook)
+- **하위 개념(기반·전제):** [AgentLoop](#agentloop)
 
 ### Progress Hook
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 진행 훅 · **코드:** `nanobot/agent/progress_hook.py`
@@ -323,7 +323,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 [WebUI](05_channels_gateway_ui.md#webui)의 [Tool Hint](02_tools_and_skills.md#tool-hint) 표시가
 이를 사용합니다.
 
-- **하위 개념(더 일반):** [Hook](#hook)
+- **하위 개념(기반·전제):** [Hook](#hook)
 
 ### Injection
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 인젝션(메시지 주입) · **코드:** `nanobot/agent/runner.py`
@@ -335,7 +335,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 무한 연장을 방지합니다. (보안 용어 [Prompt Injection](07_security_isolation.md#prompt-injection)과는
 전혀 다른 개념입니다.)
 
-- **하위 개념(더 일반):** [AgentRunner](#agentrunner)
+- **하위 개념(기반·전제):** [AgentRunner](#agentrunner)
 
 ### Turn Continuation
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 턴 이어가기 · **코드:** `nanobot/session/turn_continuation.py`
@@ -343,7 +343,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 반복 상한 등으로 중단된 턴을 다음 요청에서 이어서 진행할 수 있게 하는 메커니즘. 긴 작업이 상한에
 걸려도 "처음부터 다시"가 아니라 "멈춘 곳부터"가 가능해집니다.
 
-- **하위 개념(더 일반):** [Turn](#turn)
+- **하위 개념(기반·전제):** [Turn](#turn)
 - **관련 용어:** [Runtime Checkpoint](#runtime-checkpoint)
 
 ### Runtime Checkpoint
@@ -361,7 +361,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 `/`로 시작하는 [Slash Command](#slash-command)를 LLM에 보내지 않고 직접 처리하는 라우터.
 결정적(deterministic)이어야 하는 조작(세션 초기화 등)을 모델의 변덕에서 분리합니다.
 
-- **상위 개념(더 특수):** [Slash Command](#slash-command)
+- **상위 개념(이를 기반으로 파생):** [Slash Command](#slash-command)
 
 ### Slash Command
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 슬래시 커맨드 · **코드:** `nanobot/command/`
@@ -369,7 +369,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 `/new`, `/help`처럼 채팅에서 바로 실행되는 내장 명령. [LLM](08_ai_llm_concepts.md#llm) 호출 없이
 [Command Router](#command-router)가 처리하므로 빠르고, 항상 같은 결과를 냅니다.
 
-- **하위 개념(더 일반):** [Command Router](#command-router)
+- **하위 개념(기반·전제):** [Command Router](#command-router)
 
 ### Pairing
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 페어링 · **코드:** `nanobot/pairing/`
@@ -386,7 +386,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 위한 [camelCase Alias](09_dev_stack.md#camelcase-alias)를 지원하고, `${VAR}` 패턴은 로드 시
 환경변수로 치환됩니다(없으면 `ValueError` — 조용한 오설정 방지).
 
-- **상위 개념(더 특수):** [Model Preset](#model-preset)
+- **상위 개념(이를 기반으로 파생):** [Model Preset](#model-preset)
 - **관련 용어:** [Pydantic](09_dev_stack.md#pydantic), [Workspace](#workspace)
 
 ### Model Preset
@@ -398,7 +398,7 @@ RESTORE(이전 상태 복원) → BUILD(컨텍스트 구축) → RUN(러너 실�
 **예시:** 대화용에는 큰 모델, [Dream](03_memory_context_session.md#dream) 같은 배경 작업에는 싸고
 빠른 모델을 프리셋으로 지정해 비용을 조절할 수 있습니다.
 
-- **하위 개념(더 일반):** [Config](#config), [Model Routing](08_ai_llm_concepts.md#model-routing)
+- **하위 개념(기반·전제):** [Config](#config), [Model Routing](08_ai_llm_concepts.md#model-routing)
 - **관련 용어:** [Temperature](04_providers_and_llm.md#temperature)
 
 ### Nanobot (SDK Facade)
@@ -413,5 +413,5 @@ result = await bot.run("Summarize this repo")
 print(result.content)
 ```
 
-- **하위 개념(더 일반):** [Agent](#agent), [Facade Pattern](#facade-pattern)
+- **하위 개념(기반·전제):** [Agent](#agent), [Facade Pattern](#facade-pattern)
 - **관련 용어:** [SDK Clients](05_channels_gateway_ui.md#sdk-clients), [AgentLoop](#agentloop)

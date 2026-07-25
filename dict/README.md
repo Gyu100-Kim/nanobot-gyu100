@@ -6,31 +6,56 @@
 
 ## 설계 이념 (지식 그래프 모델)
 
-### 1. 상위/하위 방향 규약
+### 1. 상위/하위 방향 규약 — 기반과 파생
 
 각 용어(개념)는 다른 용어와 상위 또는 하위 엣지로 직접 연결됩니다.
 
-> **상위 개념 = 더 특수한(구체적인) 개념. 하위 개념 = 더 일반적인 개념.**
+> **하위 개념 = 이 개념을 규정하기 위해 필요한 기반·전제 개념(더 일반적).**
+> **상위 개념 = 이 개념을 기반으로 활용해 만들어진 파생 개념(더 특수적).**
 > 하위로 갈수록 일반화되고, 상위로 갈수록 특수화됩니다.
 
+대표 예시 — Attention 계열:
+
 ```text
-(더 특수 = 상위)                       (더 특수 = 상위)
-   System Prompt                          LoRA
-        │                                  │
-        ▼                                  ▼
-     Prompt                              PEFT
-(더 일반 = 하위)                           │
-                                           ▼
-                                       Fine-tuning
-                                    (더 일반 = 하위)
+(가장 특수 = 상위)
+      BERT            ← Transformer의 Encoder를 활용해 만든 모델 (2018)
+       │
+       ▼
+   Transformer        ← Attention을 활용해 만든 구조, "Attention Is All You Need" (2017)
+       │
+       ▼
+    Attention         ← 먼저 등장한 기반 개념 (2014)
+(가장 일반 = 하위)
 ```
 
-- 각 항목의 `**상위 개념(더 특수):**` = 이 개념을 특수화한 것들 (예시·구현·세부 기법).
-- 각 항목의 `**하위 개념(더 일반):**` = 이 개념이 일반화되는 것들.
+같은 원리로: System Prompt → Prompt, LoRA → PEFT → Fine-tuning.
+
+- 각 항목의 `**상위 개념(이를 기반으로 파생):**` = 이 개념을 활용해 만들어진 것들(파생 모델·구현·세부 기법).
+- 각 항목의 `**하위 개념(기반·전제):**` = 이 개념을 이해·규정하는 데 필요한 기반들.
 - 한 용어는 여러 용어와 동시에 연결될 수 있습니다(엣지 여러 개 허용).
-- 설명에 드는 **구체적 예시가 곧 상위 개념**이 되는 경우가 많습니다 — 예시로 든 항목이 사전에
-  있으면 상위 개념으로도 연결합니다.
-- 그래프 데이터에서는 이 관계를 `(특수)-[:SPECIALIZES]->(일반)` 한 방향으로만 저장합니다.
+- 그래프 데이터에서는 이 관계를 `(특수/파생)-[:SPECIALIZES]->(일반/기반)` 한 방향으로만 저장합니다.
+
+#### 시행착오와 교훈: "예시 = 상위"의 올바른 해석
+
+초기 버전은 "설명에 드는 구체적 예시가 곧 상위 개념"이라는 규칙을 **단순 링크 등장 여부**로
+기계적으로 적용해 오류를 만들었습니다. 예컨대 Transformer 설명에 Self-Attention이 등장한다는
+이유로 Self-Attention을 Transformer의 상위로 둔 것이 대표적 오류입니다.
+
+올바른 해석은 의미 분석입니다: "용어 A를 활용한 예시로 용어 B가 있다"(예:
+"Transformer를 활용한 예시는 BERT가 있습니다. BERT는 Transformer의 Encoder를 활용해
+만든 모델입니다.")일 때만 B가 A의 상위(파생)입니다. 반대로 "A는 B를 기반·전제로 한다"면
+B는 A의 하위(기반)입니다. 단순히 본문에 언급만 된 경우는 계층이 아니라 `MENTIONS`로만
+남깁니다.
+
+#### 최초 등장 시기 (`등장:` 필드)
+
+각 Content 항목은 가능한 경우 메타 줄에 `**등장:** YYYY(-MM)` 형식으로 개념이 처음 등장한
+시기를 기록합니다(그래프 노드 속성 `first_appearance`). 연도만 확실하면 연도만, 불확실하면
+"년경"으로 표기하고, 확인할 수 없으면 생략합니다.
+
+주의: 등장 시기는 상·하위 판단의 **참고 정보**일 뿐 절대 기준이 아닙니다. 파생 개념은 보통
+기반 개념보다 늦게 등장하지만, **항상 그렇지는 않습니다** — 계층은 어디까지나 "어느 개념이
+어느 개념을 기반·전제로 규정되는가"라는 의미 분석으로 결정합니다.
 
 ### 2. 노드 정의 (노드 명 / label)
 
@@ -50,7 +75,7 @@ Threat, Research, Technology)과 정의는 [00_content_classes.md](00_content_cl
 
 | 엣지 | 의미 | 방향 |
 |---|---|---|
-| `SPECIALIZES` | 출발 노드가 도착 노드의 더 특수한(상위) 개념 | Content(특수) → Content(일반) |
+| `SPECIALIZES` | 출발 노드가 도착 노드를 기반으로 만들어진 파생(상위) 개념 | Content(특수/파생) → Content(일반/기반) |
 | `BELONGS_TO` | 이 클래스에 속함 | Content → Content Class |
 | `RELATED_TO` | 계층은 아니지만 밀접히 관련 | Content ↔ Content (무방향적) |
 | `MENTIONS` | 설명 본문에서 언급 | Content → Content |
@@ -59,14 +84,14 @@ Threat, Research, Technology)과 정의는 [00_content_classes.md](00_content_cl
 
 ```markdown
 ### 용어명
-**클래스:** [Component](00_content_classes.md#component) · **한글:** 한글명 · **코드:** `소스 경로`
+**클래스:** [Component](00_content_classes.md#component) · **한글:** 한글명 · **등장:** YYYY(-MM) · **코드:** `소스 경로`
 
 쉬운 정의와 이 코드베이스에서의 구체적 의미.
 
-**예시:** 구체적인 사용 예 (예시가 사전 항목이면 상위 개념으로도 연결).
+**예시:** 구체적인 사용 예 ("이 개념을 활용해 만든" 파생 예시면 상위 개념으로도 연결).
 
-- **상위 개념(더 특수):** [...]
-- **하위 개념(더 일반):** [...]
+- **상위 개념(이를 기반으로 파생):** [...]
+- **하위 개념(기반·전제):** [...]
 - **관련 용어:** [...]
 ```
 
@@ -93,7 +118,7 @@ Threat, Research, Technology)과 정의는 [00_content_classes.md](00_content_cl
 가능한 형식(`nodes.csv`, `edges.csv`, `import.cypher`)으로 저장되어 있습니다.
 자세한 사용법은 [graph/README.md](graph/README.md)를 보세요.
 
-## 전체 색인 (알파벳순, 244개)
+## 전체 색인 (알파벳순, 246개)
 
 [_SKIP_MODULES](02_tools_and_skills.md#_skip_modules) ·
 [Adapter Pattern](01_core_architecture.md#adapter-pattern) ·
@@ -110,10 +135,12 @@ Threat, Research, Technology)과 정의는 [00_content_classes.md](00_content_cl
 [asyncio](09_dev_stack.md#asyncio) ·
 [asyncio.Queue](09_dev_stack.md#asyncioqueue) ·
 [Atomic Write](03_memory_context_session.md#atomic-write) ·
+[Attention](08_ai_llm_concepts.md#attention) ·
 [AutoCompact](03_memory_context_session.md#autocompact) ·
 [Automation Turns](06_scheduling_automation.md#automation-turns) ·
 [Azure OpenAI Provider](04_providers_and_llm.md#azure-openai-provider) ·
 [Bedrock Provider](04_providers_and_llm.md#bedrock-provider) ·
+[BERT](08_ai_llm_concepts.md#bert) ·
 [Bootstrap Templates](03_memory_context_session.md#bootstrap-templates) ·
 [Bound Runner](06_scheduling_automation.md#bound-runner) ·
 [BPE](08_ai_llm_concepts.md#bpe) ·

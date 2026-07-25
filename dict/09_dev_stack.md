@@ -3,17 +3,17 @@
 > nanobot이 사용하는 언어 기능, 라이브러리, 개발 도구.
 > 전체 색인은 [README](README.md), 노드 클래스 정의는 [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
 ### Python 3.11+
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2022-10 (Python 자체는 1991)
 
 nanobot의 구현 언어와 최소 버전(`pyproject.toml`의 `requires-python`). 3.11은
 [asyncio](#asyncio) 성능 개선, 더 나은 오류 메시지, `Self` 타입 등을 제공합니다.
 
-- **상위 개념(더 특수):** [asyncio](#asyncio), [Type Hint](#type-hint), [ContextVar](#contextvar)
+- **상위 개념(이를 기반으로 파생):** [asyncio](#asyncio), [Type Hint](#type-hint), [ContextVar](#contextvar)
 
 ### Type Hint
 **클래스:** [Technology](00_content_classes.md#technology) · **한글:** 타입 힌트
@@ -22,41 +22,43 @@ nanobot의 구현 언어와 최소 버전(`pyproject.toml`의 `requires-python`)
 없지만 정적 검사기와 에디터가 오류를 미리 잡게 하고, [Pydantic](#pydantic)은 이를 **런타임 검증**
 에까지 활용합니다 — nanobot 전반의 안전망입니다.
 
-- **하위 개념(더 일반):** [Python 3.11+](#python-311)
+- **하위 개념(기반·전제):** [Python 3.11+](#python-311)
 - **관련 용어:** [Pydantic](#pydantic)
 
 ### asyncio
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2014 (Python 3.4)
 
-파이썬 표준 비동기 프레임워크 — 단일 스레드의 [Event Loop](#event-loop)가 I/O 대기 중인
-[Coroutine](#coroutine)들을 갈아타며 동시성을 냅니다. nanobot의 작업(LLM API 대기, 채널 폴링,
+파이썬 표준 비동기 프레임워크 — 먼저 존재하던 [Event Loop](#event-loop)와
+[Coroutine](#coroutine) 개념을 기반으로 만들어졌습니다. 단일 스레드의 이벤트 루프가 I/O 대기
+중인 코루틴들을 갈아타며 동시성을 냅니다. nanobot의 작업(LLM API 대기, 채널 폴링,
 크론 대기)은 대부분 I/O 대기라 이 모델에 이상적입니다. 저장소 규칙: "asyncio throughout".
 
-- **하위 개념(더 일반):** [Python 3.11+](#python-311)
-- **상위 개념(더 특수):** [Coroutine](#coroutine), [asyncio.Queue](#asyncioqueue),
-  [Event Loop](#event-loop)
+- **상위 개념(이를 기반으로 파생):** [asyncio.Queue](#asyncioqueue)
+- **하위 개념(기반·전제):** [Python 3.11+](#python-311), [Event Loop](#event-loop),
+  [Coroutine](#coroutine)
 
 ### Event Loop
-**클래스:** [Concept](00_content_classes.md#concept) · **한글:** 이벤트 루프
+**클래스:** [Concept](00_content_classes.md#concept) · **한글:** 이벤트 루프 · **등장:** 1980년대 (GUI/네트워크 프로그래밍)
 
-"준비된 작업을 하나 꺼내 실행하고, I/O를 기다리는 작업은 재워 두는" 것을 반복하는 스케줄러 —
-[asyncio](#asyncio) 동시성의 심장입니다. 스레드 없이도 수천 개의 대기 작업을 다룰 수 있는 대신,
-한 작업이 CPU를 오래 붙들면(블로킹) 전체가 멈춥니다.
+"준비된 작업을 하나 꺼내 실행하고, I/O를 기다리는 작업은 재워 두는" 것을 반복하는 스케줄러.
+[asyncio](#asyncio)보다 훨씬 먼저 등장한 일반 개념으로, asyncio는 이를 기반으로 만들어진
+파생입니다. 스레드 없이도 수천 개의 대기 작업을 다룰 수 있는 대신, 한 작업이 CPU를 오래
+붙들면(블로킹) 전체가 멈춥니다.
 
-- **하위 개념(더 일반):** [asyncio](#asyncio)
+- **상위 개념(이를 기반으로 파생):** [asyncio](#asyncio)
 - **관련 용어:** [Coroutine](#coroutine)
 
 ### Coroutine
-**클래스:** [Concept](00_content_classes.md#concept) · **한글:** 코루틴
+**클래스:** [Concept](00_content_classes.md#concept) · **한글:** 코루틴 · **등장:** 1963 (Conway)
 
-`async def`로 정의되어 `await` 지점에서 **스스로 실행을 양보**할 수 있는 함수.
-[Event Loop](#event-loop)는 양보한 코루틴 대신 준비된 다른 코루틴을 실행합니다 — 협력적
-멀티태스킹입니다.
+실행 도중 **스스로 양보하고 나중에 이어서 실행**할 수 있는 함수 — 1963년까지 거슬러 올라가는
+오래된 일반 개념으로, 파이썬에서는 `async def`로 정의하고 `await` 지점에서 양보합니다.
+[asyncio](#asyncio)는 이 개념을 기반으로 만들어진 프레임워크입니다 — 협력적 멀티태스킹.
 
 **예시:** `await provider.chat(...)` — LLM 응답을 기다리는 몇 초 동안 다른 채널의 메시지 처리가
 끼어들 수 있습니다.
 
-- **하위 개념(더 일반):** [asyncio](#asyncio)
+- **상위 개념(이를 기반으로 파생):** [asyncio](#asyncio)
 
 ### asyncio.Queue
 **클래스:** [Technology](00_content_classes.md#technology)
@@ -64,7 +66,7 @@ nanobot의 구현 언어와 최소 버전(`pyproject.toml`의 `requires-python`)
 [Coroutine](#coroutine) 간 안전한 전달 통로가 되는 비동기 큐 — `await get()`은 항목이 올 때까지
 양보하며 기다립니다. [MessageBus](01_core_architecture.md#messagebus)의 구현 재료입니다.
 
-- **하위 개념(더 일반):** [asyncio](#asyncio)
+- **하위 개념(기반·전제):** [asyncio](#asyncio)
 - **관련 용어:** [Producer-Consumer](01_core_architecture.md#producer-consumer)
 
 ### ContextVar
@@ -74,7 +76,7 @@ nanobot의 구현 언어와 최소 버전(`pyproject.toml`의 `requires-python`)
 턴이 서로 덮어쓰지만, ContextVar는 실행 문맥별로 분리됩니다 — 여러 대화를 동시에 처리하는
 nanobot에서 "지금 이 턴"의 상태를 안전하게 유지하는 수단입니다.
 
-- **하위 개념(더 일반):** [Python 3.11+](#python-311)
+- **하위 개념(기반·전제):** [Python 3.11+](#python-311)
 
 ### pkgutil
 **클래스:** [Technology](00_content_classes.md#technology)
@@ -94,7 +96,7 @@ nanobot에서 "지금 이 턴"의 상태를 안전하게 유지하는 수단입�
 **예시:** `[project.scripts] nanobot = "nanobot.cli.commands:app"`(CLI 명령 생성),
 `nanobot.tools` 그룹([Entry-point Plugin](02_tools_and_skills.md#entry-point-plugin)).
 
-- **상위 개념(더 특수):** [Entry-point Plugin](02_tools_and_skills.md#entry-point-plugin)
+- **상위 개념(이를 기반으로 파생):** [Entry-point Plugin](02_tools_and_skills.md#entry-point-plugin)
 - **관련 용어:** [PyPI](#pypi)
 
 ### PyPI
@@ -132,7 +134,7 @@ nanobot에서 "지금 이 턴"의 상태를 안전하게 유지하는 수단입�
 - **관련 용어:** [PyPI](#pypi)
 
 ### Pydantic
-**클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `pydantic`
+**클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `pydantic` · **등장:** 2017
 
 [Type Hint](#type-hint)를 **런타임 데이터 검증**으로 바꿔 주는 라이브러리 — 잘못된 데이터가
 모델 생성 시점에 즉시 오류를 냅니다. nanobot의 [Config](01_core_architecture.md#config),
@@ -141,8 +143,8 @@ nanobot에서 "지금 이 턴"의 상태를 안전하게 유지하는 수단입�
 **예시:** `InboundMessage(chat_id=123)`처럼 문자열 필드에 숫자를 넣으면 저장 훨씬 뒤가 아니라
 그 자리에서 검증 오류가 납니다 — 오류를 발생 지점에 가깝게 만드는 설계.
 
-- **하위 개념(더 일반):** [Type Hint](#type-hint)
-- **상위 개념(더 특수):** [pydantic-settings](#pydantic-settings),
+- **하위 개념(기반·전제):** [Type Hint](#type-hint)
+- **상위 개념(이를 기반으로 파생):** [pydantic-settings](#pydantic-settings),
   [camelCase Alias](#camelcase-alias)
 - **관련 용어:** [JSON Schema](08_ai_llm_concepts.md#json-schema)
 
@@ -152,7 +154,7 @@ nanobot에서 "지금 이 턴"의 상태를 안전하게 유지하는 수단입�
 [Pydantic](#pydantic) 모델로 환경변수/설정 파일을 로드하는 확장 —
 [Config](01_core_architecture.md#config) 로딩에 사용됩니다.
 
-- **하위 개념(더 일반):** [Pydantic](#pydantic)
+- **하위 개념(기반·전제):** [Pydantic](#pydantic)
 
 ### camelCase Alias
 **클래스:** [Mechanism](00_content_classes.md#mechanism)
@@ -160,25 +162,25 @@ nanobot에서 "지금 이 턴"의 상태를 안전하게 유지하는 수단입�
 파이썬 필드는 `snake_case`, JSON 키는 `camelCase`를 쓰는 관행 차이를 [Pydantic](#pydantic)
 alias로 흡수하는 설정. `config.json`에서 `maxTokens`라고 써도 파이썬의 `max_tokens`에 매핑됩니다.
 
-- **하위 개념(더 일반):** [Pydantic](#pydantic), [Config](01_core_architecture.md#config)
+- **하위 개념(기반·전제):** [Pydantic](#pydantic), [Config](01_core_architecture.md#config)
 
 ### Typer
-**클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `typer`
+**클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `typer` · **등장:** 2019
 
 [Type Hint](#type-hint) 기반 CLI 프레임워크 — 함수 시그니처가 곧 명령 인터페이스가 됩니다.
 `nanobot agent`, `nanobot gateway` 등 CLI(`nanobot/cli/commands.py`)의 뼈대입니다.
 
-- **하위 개념(더 일반):** [Type Hint](#type-hint)
+- **하위 개념(기반·전제):** [Type Hint](#type-hint)
 - **관련 용어:** [Rich](#rich)
 
 ### httpx
-**클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `httpx`
+**클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `httpx` · **등장:** 2019
 
 [asyncio](#asyncio) 네이티브 HTTP 클라이언트. 커스텀 전송 계층을 끼울 수 있어
 [PinnedDNSAsyncTransport](07_security_isolation.md#pinneddnsasynctransport) 같은 보안 확장이
 가능합니다 — requests의 비동기 시대 후계자입니다.
 
-- **상위 개념(더 특수):** [PinnedDNSAsyncTransport](07_security_isolation.md#pinneddnsasynctransport)
+- **상위 개념(이를 기반으로 파생):** [PinnedDNSAsyncTransport](07_security_isolation.md#pinneddnsasynctransport)
 - **관련 용어:** [HTTP](05_channels_gateway_ui.md#http)
 
 ### websockets
@@ -236,7 +238,7 @@ DuckDuckGo 검색 라이브러리 — API 키 없이 웹 검색을 제공하므�
 순수 파이썬 [Git](#git) 구현 — git 바이너리 설치 없이 저장소를 다룰 수 있습니다.
 [Dream](03_memory_context_session.md#dream)의 diff 검증 같은 내부 Git 조작에 쓰입니다.
 
-- **하위 개념(더 일반):** [Git](#git)
+- **하위 개념(기반·전제):** [Git](#git)
 
 ### filelock
 **클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `filelock`
@@ -247,12 +249,12 @@ DuckDuckGo 검색 라이브러리 — API 키 없이 웹 검색을 제공하므�
 - **관련 용어:** [Atomic Write](03_memory_context_session.md#atomic-write)
 
 ### Git
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2005 (Linus Torvalds)
 
 분산 버전 관리 시스템. nanobot에서는 코드 관리를 넘어 **메모리 변경의 감사 추적**으로도 쓰입니다 —
 [Dream](03_memory_context_session.md#dream)이 "실제 diff가 있는가"로 작업 진위를 검증합니다.
 
-- **상위 개념(더 특수):** [dulwich](#dulwich)
+- **상위 개념(이를 기반으로 파생):** [dulwich](#dulwich)
 
 ### ruff
 **클래스:** [Technology](00_content_classes.md#technology) · **PyPI:** `ruff`
@@ -270,7 +272,7 @@ Rust로 만든 초고속 파이썬 린터/포매터. 이 저장소의 규칙: `E
 - **관련 용어:** [asyncio](#asyncio)
 
 ### bun
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2022
 
 Node.js 호환의 고속 자바스크립트 런타임 겸 패키지 매니저 —
 [WebUI](05_channels_gateway_ui.md#webui)의 설치/빌드/테스트(`bun run build`)에 사용됩니다.
@@ -278,7 +280,7 @@ Node.js 호환의 고속 자바스크립트 런타임 겸 패키지 매니저 �
 - **관련 용어:** [Vite](#vite)
 
 ### Vite
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2020
 
 프런트엔드 빌드 도구 — 개발 서버(HMR)와 프로덕션 번들링을 담당합니다.
 `webui/vite.config.ts`의 프록시 설정이 개발 중 API/WS 요청을 게이트웨이(:8765)로 넘깁니다.
@@ -286,7 +288,7 @@ Node.js 호환의 고속 자바스크립트 런타임 겸 패키지 매니저 �
 - **관련 용어:** [bun](#bun), [React (JS)](#react-js)
 
 ### React (JS)
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2013 (Meta)
 
 컴포넌트 기반 UI 자바스크립트 라이브러리 — [WebUI](05_channels_gateway_ui.md#webui)의 화면 계층.
 (AI 논문 [ReAct](08_ai_llm_concepts.md#react)와는 무관합니다.)
@@ -294,7 +296,7 @@ Node.js 호환의 고속 자바스크립트 런타임 겸 패키지 매니저 �
 - **관련 용어:** [TypeScript](#typescript), [SPA](05_channels_gateway_ui.md#spa)
 
 ### TypeScript
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2012 (Microsoft)
 
 자바스크립트에 정적 타입을 더한 언어 — 파이썬 쪽 [Type Hint](#type-hint)+[Pydantic](#pydantic)과
 같은 역할을 [WebUI](05_channels_gateway_ui.md#webui)에서 합니다.
