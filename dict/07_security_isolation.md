@@ -3,7 +3,7 @@
 > 에이전트에게 강한 능력(셸, 네트워크, 파일)을 주면서도 피해 범위를 제한하는 장치와 그 배경 개념.
 > 전체 색인은 [README](README.md), 노드 클래스 정의는 [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
@@ -17,9 +17,9 @@
 **예시:** 샌드박스 안에서 `rm -rf /`가 실행되어도 실제 피해는
 [Workspace](01_core_architecture.md#workspace) 범위로 국한됩니다.
 
-- **상위 개념(더 특수):** [Sandbox Backend](#sandbox-backend),
+- **상위 개념(이를 기반으로 파생):** [Sandbox Backend](#sandbox-backend),
   [bubblewrap](#bubblewrap), [Container](#container)
-- **하위 개념(더 일반):** [Least Privilege](#least-privilege)
+- **하위 개념(기반·전제):** [Least Privilege](#least-privilege)
 
 ### Sandbox Backend
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 샌드박스 백엔드 · **코드:** `nanobot/agent/tools/sandbox.py`
@@ -28,30 +28,30 @@
 [Container](#container), 또는 격리 없음(none)을 선택합니다. "격리 방식"을 교체 가능한 전략으로
 분리한 설계입니다.
 
-- **하위 개념(더 일반):** [Sandbox](#sandbox)
-- **상위 개념(더 특수):** [bubblewrap](#bubblewrap), [Container](#container)
+- **하위 개념(기반·전제):** [Sandbox](#sandbox)
+- **상위 개념(이를 기반으로 파생):** [bubblewrap](#bubblewrap), [Container](#container)
 
 ### bubblewrap
-**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 버블랩 (`bwrap`)
+**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 버블랩 (`bwrap`) · **등장:** 2016 (Flatpak 프로젝트)
 
 [Linux Namespaces](#linux-namespaces)를 이용하는 경량 샌드박스 도구(Flatpak 프로젝트 산하).
 루트 권한 없이 파일시스템 뷰·네트워크·프로세스를 격리한 채 명령 하나를 실행할 수 있어,
 컨테이너보다 가볍게 "명령 단위 격리"가 가능합니다. nanobot의 리눅스 기본 백엔드입니다.
 
-- **하위 개념(더 일반):** [Sandbox Backend](#sandbox-backend), [Linux Namespaces](#linux-namespaces)
+- **하위 개념(기반·전제):** [Sandbox Backend](#sandbox-backend), [Linux Namespaces](#linux-namespaces)
 
 ### Linux Namespaces
-**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 리눅스 네임스페이스
+**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 리눅스 네임스페이스 · **등장:** 2002 (mount ns, Linux 2.4.19)
 
 프로세스가 보는 시스템 자원(마운트, PID, 네트워크, 사용자 등)을 **분리된 시야**로 바꾸는 커널
 기능. "같은 컴퓨터인데 다른 세상"을 만드는 원리로, [Container](#container)와
 [bubblewrap](#bubblewrap)의 공통 토대입니다.
 
-- **상위 개념(더 특수):** [bubblewrap](#bubblewrap), [Container](#container)
+- **상위 개념(이를 기반으로 파생):** [bubblewrap](#bubblewrap), [Container](#container)
 - **관련 용어:** [seccomp](#seccomp)
 
 ### seccomp
-**클래스:** [Technology](00_content_classes.md#technology)
+**클래스:** [Technology](00_content_classes.md#technology) · **등장:** 2005 (Linux 2.6.12)
 
 프로세스가 호출할 수 있는 시스템 콜을 화이트리스트로 제한하는 리눅스 커널 기능.
 [Linux Namespaces](#linux-namespaces)가 "보이는 것"을 줄인다면 seccomp은 "할 수 있는 것"을
@@ -60,16 +60,16 @@
 - **관련 용어:** [Sandbox](#sandbox), [Least Privilege](#least-privilege)
 
 ### Container
-**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 컨테이너
+**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 컨테이너 · **등장:** 2013 (Docker; LXC 2008)
 
 [Linux Namespaces](#linux-namespaces) + cgroups(자원 제한) + 이미지 레이어로 프로세스를 패키징·
 격리하는 기술(Docker, Podman). nanobot에서는 샌드박스 백엔드의 한 선택지입니다 —
 [bubblewrap](#bubblewrap)보다 무겁지만 이미지로 실행 환경까지 통제합니다.
 
-- **하위 개념(더 일반):** [Sandbox Backend](#sandbox-backend), [Linux Namespaces](#linux-namespaces)
+- **하위 개념(기반·전제):** [Sandbox Backend](#sandbox-backend), [Linux Namespaces](#linux-namespaces)
 
 ### Least Privilege
-**클래스:** [Principle](00_content_classes.md#principle) · **한글:** 최소 권한 원칙
+**클래스:** [Principle](00_content_classes.md#principle) · **한글:** 최소 권한 원칙 · **등장:** 1975 (Saltzer & Schroeder)
 
 각 주체에게 임무 수행에 **필요한 최소한의 권한만** 부여하는 보안 원칙(Saltzer & Schroeder, 1975).
 권한이 없으면 사고도 없다 — 부여하지 않은 능력은 악용될 수도 없습니다.
@@ -78,7 +78,7 @@
 [Subagent](01_core_architecture.md#subagent)에는 [SpawnTool](02_tools_and_skills.md#spawntool) 없이
 ([Tool Scope](02_tools_and_skills.md#tool-scope)), 파일 도구에는 워크스페이스 경계만.
 
-- **상위 개념(더 특수):** [Sandbox](#sandbox), [Tool Scope](02_tools_and_skills.md#tool-scope),
+- **상위 개념(이를 기반으로 파생):** [Sandbox](#sandbox), [Tool Scope](02_tools_and_skills.md#tool-scope),
   [Workspace Policy](#workspace-policy)
 - **관련 용어:** [Defense in Depth](#defense-in-depth)
 
@@ -120,7 +120,7 @@
 [Web Tools](02_tools_and_skills.md#web-tools)는 사설/루프백 IP 대역을 차단해 방어합니다
 (`nanobot/security/network`).
 
-- **상위 개념(더 특수):** [DNS Rebinding](#dns-rebinding)
+- **상위 개념(이를 기반으로 파생):** [DNS Rebinding](#dns-rebinding)
 - **관련 용어:** [DNS Pinning](#dns-pinning)
 
 ### DNS Rebinding
@@ -130,7 +130,7 @@
 돌려주도록 DNS 응답을 바꿔치기합니다. "검사할 때와 사용할 때가 다르다"는
 [TOCTOU](#toctou) 문제의 네트워크판입니다.
 
-- **하위 개념(더 일반):** [SSRF](#ssrf), [TOCTOU](#toctou)
+- **하위 개념(기반·전제):** [SSRF](#ssrf), [TOCTOU](#toctou)
 - **관련 용어:** [DNS Pinning](#dns-pinning)
 
 ### DNS Pinning
@@ -139,7 +139,7 @@
 [DNS Rebinding](#dns-rebinding) 방어 — 검사 시점에 해석한 IP를 **고정(pin)** 해 실제 연결도 반드시
 그 IP로만 가게 합니다. 검사와 사용 사이의 틈을 없애는 원리입니다.
 
-- **상위 개념(더 특수):** [PinnedDNSAsyncTransport](#pinneddnsasynctransport)
+- **상위 개념(이를 기반으로 파생):** [PinnedDNSAsyncTransport](#pinneddnsasynctransport)
 
 ### PinnedDNSAsyncTransport
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/security/network/`
@@ -148,7 +148,7 @@
 [Web Tools](02_tools_and_skills.md#web-tools)와 원격
 [MCPToolWrapper](02_tools_and_skills.md#mcptoolwrapper) 연결에 쓰입니다.
 
-- **하위 개념(더 일반):** [DNS Pinning](#dns-pinning), [httpx](09_dev_stack.md#httpx)
+- **하위 개념(기반·전제):** [DNS Pinning](#dns-pinning), [httpx](09_dev_stack.md#httpx)
 
 ### TOCTOU
 **클래스:** [Threat](00_content_classes.md#threat) · **한글:** 검사-사용 시점 차 (Time-Of-Check to Time-Of-Use)
@@ -160,7 +160,7 @@
 [DNS Rebinding](#dns-rebinding)(IP 검사 후 DNS가 바뀜). 방어는 "검사한 값을 그대로 사용"
 ([DNS Pinning](#dns-pinning)) 또는 원자적 연산입니다.
 
-- **상위 개념(더 특수):** [DNS Rebinding](#dns-rebinding)
+- **상위 개념(이를 기반으로 파생):** [DNS Rebinding](#dns-rebinding)
 
 ### Workspace Policy
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 워크스페이스 정책 · **코드:** `nanobot/security/workspace_policy.py`
@@ -168,15 +168,15 @@
 파일 접근을 [Workspace](01_core_architecture.md#workspace) 경계 안으로 제한하는 정책 계층.
 `..`나 심볼릭 링크로 경계를 탈출하는 경로 조작을 정규화(resolve) 후 검사로 차단합니다.
 
-- **하위 개념(더 일반):** [Least Privilege](#least-privilege)
-- **상위 개념(더 특수):** [Workspace Access](#workspace-access)
+- **하위 개념(기반·전제):** [Least Privilege](#least-privilege)
+- **상위 개념(이를 기반으로 파생):** [Workspace Access](#workspace-access)
 
 ### Workspace Access
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/security/workspace_access.py`
 
 [Workspace Policy](#workspace-policy)의 접근 검사 구현부(경로 정규화, 경계 판정 함수).
 
-- **하위 개념(더 일반):** [Workspace Policy](#workspace-policy)
+- **하위 개념(기반·전제):** [Workspace Policy](#workspace-policy)
 
 ### Timeout
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 타임아웃

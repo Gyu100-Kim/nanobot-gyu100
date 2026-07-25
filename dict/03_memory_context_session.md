@@ -4,7 +4,7 @@
 > 무엇을 줄이는가(압축). 전체 색인은 [README](README.md), 노드 클래스 정의는
 > [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
@@ -19,9 +19,9 @@
 [Memory](#memory) 파일 내용 + [Skill](01_core_architecture.md#skill) 요약 + 최근 대화 이력 +
 [Runtime Context](#runtime-context)(현재 시각 등) + 현재 사용자 메시지.
 
-- **상위 개념(더 특수):** [System Prompt](#system-prompt), [Runtime Context](#runtime-context),
+- **상위 개념(이를 기반으로 파생):** [System Prompt](#system-prompt), [Runtime Context](#runtime-context),
   [Context Governance](#context-governance)
-- **하위 개념(더 일반):** [Prompt](08_ai_llm_concepts.md#prompt)
+- **하위 개념(기반·전제):** [Prompt](08_ai_llm_concepts.md#prompt)
 - **관련 용어:** [Context Window](08_ai_llm_concepts.md#context-window)
 
 ### System Prompt
@@ -32,8 +32,8 @@
 [Jinja2](09_dev_stack.md#jinja2) 마크다운 템플릿(`identity.md`, `platform_policy.md` 등)에서
 렌더링합니다. `.agent/gotchas.md`의 경고처럼, 템플릿 수정은 코드 수정만큼 에이전트 행동을 바꿉니다.
 
-- **하위 개념(더 일반):** [Prompt](08_ai_llm_concepts.md#prompt), [Context](#context)
-- **상위 개념(더 특수):** [Bootstrap Templates](#bootstrap-templates)
+- **하위 개념(기반·전제):** [Prompt](08_ai_llm_concepts.md#prompt), [Context](#context)
+- **상위 개념(이를 기반으로 파생):** [Bootstrap Templates](#bootstrap-templates)
 - **관련 용어:** [Jinja2](09_dev_stack.md#jinja2)
 
 ### Runtime Context
@@ -43,7 +43,7 @@
 [Prompt Caching](04_providers_and_llm.md#prompt-caching) 적중을 위해 사용자 콘텐츠 **뒤에** 붙여
 앞부분(prefix)을 안정시킵니다. "시계는 맨 뒤에 차고 있어야 캐시가 산다"는 배치의 묘입니다.
 
-- **하위 개념(더 일반):** [Context](#context)
+- **하위 개념(기반·전제):** [Context](#context)
 - **관련 용어:** [Prompt Caching](04_providers_and_llm.md#prompt-caching)
 
 ### Bootstrap Templates
@@ -53,7 +53,7 @@
 ([SOUL.md](#soulmd), [HEARTBEAT.md](06_scheduling_automation.md#heartbeatmd)의 원형).
 `utils/prompt_templates.py`가 로드합니다 — "새 에이전트의 출고 시 성격".
 
-- **하위 개념(더 일반):** [System Prompt](#system-prompt),
+- **하위 개념(기반·전제):** [System Prompt](#system-prompt),
   [Markdown](02_tools_and_skills.md#markdown)
 
 ### Context Governance
@@ -63,9 +63,9 @@
 [Orphan Tool Result](#orphan-tool-result) 제거, `snip_history`로 오래된 이력 절단.
 "보내면 API가 거부할 요청"을 사전에 합법 상태로 고치는 마지막 관문입니다.
 
-- **하위 개념(더 일반):** [Context](#context),
+- **하위 개념(기반·전제):** [Context](#context),
   [Context Compression](08_ai_llm_concepts.md#context-compression)
-- **상위 개념(더 특수):** [Input Budget](#input-budget), [Orphan Tool Result](#orphan-tool-result)
+- **상위 개념(이를 기반으로 파생):** [Input Budget](#input-budget), [Orphan Tool Result](#orphan-tool-result)
 
 ### Input Budget
 **클래스:** [Concept](00_content_classes.md#concept) · **한글:** 입력 예산 · **코드:** `context_governance.py`
@@ -79,7 +79,7 @@ input_budget = context_window − max_output_tokens − 안전 버퍼
 **예시:** 창 200K, 출력 예약 8K, 버퍼 2K라면 입력은 190K까지 — 초과분은 오래된 이력부터 잘립니다.
 출력 몫을 미리 빼 두지 않으면 "입력은 들어갔는데 답변이 잘리는" 사고가 납니다.
 
-- **하위 개념(더 일반):** [Context Governance](#context-governance),
+- **하위 개념(기반·전제):** [Context Governance](#context-governance),
   [Context Window](08_ai_llm_concepts.md#context-window)
 - **관련 용어:** [max_tokens](04_providers_and_llm.md#max_tokens)
 
@@ -91,7 +91,7 @@ tool_call과 짝을 이뤄야 한다는 [Tool Calling](08_ai_llm_concepts.md#too
 고아가 있으면 [Provider](01_core_architecture.md#provider)가 요청 전체를 거부합니다.
 [Context Governance](#context-governance)가 제거하거나 누락된 짝을 백필합니다.
 
-- **하위 개념(더 일반):** [Context Governance](#context-governance),
+- **하위 개념(기반·전제):** [Context Governance](#context-governance),
   [Tool Calling](08_ai_llm_concepts.md#tool-calling)
 
 ### Session Manager
@@ -101,11 +101,11 @@ tool_call과 짝을 이뤄야 한다는 [Tool Calling](08_ai_llm_concepts.md#too
 `get_history(max_tokens=...)`로 토큰 예산 내의 이력을 돌려줍니다.
 저장은 [Atomic Write](#atomic-write)로 해 크래시에도 파일이 반쯤 깨지지 않게 합니다.
 
-- **하위 개념(더 일반):** [Session](01_core_architecture.md#session)
-- **상위 개념(더 특수):** [last_consolidated Cursor](#last_consolidated-cursor)
+- **하위 개념(기반·전제):** [Session](01_core_architecture.md#session)
+- **상위 개념(이를 기반으로 파생):** [last_consolidated Cursor](#last_consolidated-cursor)
 
 ### JSONL
-**클래스:** [Artifact](00_content_classes.md#artifact) · **한글:** JSON Lines
+**클래스:** [Artifact](00_content_classes.md#artifact) · **한글:** JSON Lines · **등장:** 2013년경 (jsonlines 규약화)
 
 한 줄에 JSON 객체 하나씩 쌓는 [Append-only Log](#append-only-log) 파일 형식.
 손상에 강하고(깨져도 마지막 줄만) 추가가 O(1)이라 세션/이력 저장에 적합합니다.
@@ -117,8 +117,8 @@ tool_call과 짝을 이뤄야 한다는 [Tool Calling](08_ai_llm_concepts.md#too
 {"role": "assistant", "content": "안녕하세요!"}
 ```
 
-- **하위 개념(더 일반):** [Append-only Log](#append-only-log)
-- **상위 개념(더 특수):** [history.jsonl](#historyjsonl)
+- **하위 개념(기반·전제):** [Append-only Log](#append-only-log)
+- **상위 개념(이를 기반으로 파생):** [history.jsonl](#historyjsonl)
 - **관련 용어:** [Session Manager](#session-manager)
 
 ### Append-only Log
@@ -130,7 +130,7 @@ tool_call과 짝을 이뤄야 한다는 [Tool Calling](08_ai_llm_concepts.md#too
 
 **예시:** nanobot의 [JSONL](#jsonl) 세션 파일과 [history.jsonl](#historyjsonl).
 
-- **상위 개념(더 특수):** [JSONL](#jsonl)
+- **상위 개념(이를 기반으로 파생):** [JSONL](#jsonl)
 - **관련 용어:** [Atomic Write](#atomic-write)
 
 ### Atomic Write
@@ -140,7 +140,7 @@ tool_call과 짝을 이뤄야 한다는 [Tool Calling](08_ai_llm_concepts.md#too
 [fsync](#fsync) 후 원자적 rename으로 교체하는 것이 정석입니다. 도중에 전원이 나가도 반쯤 쓰인
 파일이 남지 않습니다. nanobot의 메모리 저장이 이 방식을 씁니다(fsync 포함).
 
-- **상위 개념(더 특수):** [fsync](#fsync)
+- **하위 개념(기반·전제):** [fsync](#fsync)
 - **관련 용어:** [Runtime Checkpoint](01_core_architecture.md#runtime-checkpoint),
   [apply_patch](02_tools_and_skills.md#apply_patch)
 
@@ -149,9 +149,10 @@ tool_call과 짝을 이뤄야 한다는 [Tool Calling](08_ai_llm_concepts.md#too
 
 OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리는** 시스템 콜. `write()`만 하면 데이터가
 아직 메모리에만 있을 수 있어, 전원 장애 시 유실됩니다. 내구성(durability)이 필요한 저장(체크포인트,
-메모리 파일)에서 [Atomic Write](#atomic-write)와 함께 쓰입니다.
+메모리 파일)에서 [Atomic Write](#atomic-write)와 함께 쓰입니다 — Atomic Write가 이 시스템 콜을 기반으로 만들어진
+파생 기법입니다.
 
-- **하위 개념(더 일반):** [Atomic Write](#atomic-write)
+- **상위 개념(이를 기반으로 파생):** [Atomic Write](#atomic-write)
 
 ### AutoCompact
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 자동 압축 · **코드:** `nanobot/agent/autocompact.py`
@@ -161,7 +162,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 최근 8개 메시지(`_RECENT_SUFFIX_MESSAGES`)는 원문 유지 —
 [Sliding Window](08_ai_llm_concepts.md#sliding-window)의 앵커입니다.
 
-- **하위 개념(더 일반):** [Session](01_core_architecture.md#session),
+- **하위 개념(기반·전제):** [Session](01_core_architecture.md#session),
   [Context Compression](08_ai_llm_concepts.md#context-compression)
 - **관련 용어:** [Consolidation](#consolidation), [TTL](#ttl)
 
@@ -184,7 +185,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 이후 턴에는 [요약 + 최근 원문]만 모델에 보냅니다. [last_consolidated Cursor](#last_consolidated-cursor)로
 어디까지 접었는지 추적해 중복 요약을 막습니다.
 
-- **하위 개념(더 일반):** [Summarization](08_ai_llm_concepts.md#summarization),
+- **하위 개념(기반·전제):** [Summarization](08_ai_llm_concepts.md#summarization),
   [AutoCompact](#autocompact)
 - **관련 용어:** [Dream](#dream)
 
@@ -193,7 +194,8 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 
 세션 메타데이터에 저장되는 "여기까지 요약 완료" 위치 표시 — [Cursor](#cursor)의 한 사례입니다.
 
-- **하위 개념(더 일반):** [Session Manager](#session-manager), [Consolidation](#consolidation),
+- **하위 개념(기반·전제):** [Session Manager](#session-manager), [Consolidation](#consolidation),
+  [Cursor](#cursor),
   [Cursor](#cursor)
 
 ### Cursor
@@ -205,7 +207,9 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 **예시:** [Dream Cursor](#dream-cursor)(기억 통합 진행 위치),
 [last_consolidated Cursor](#last_consolidated-cursor)(세션 요약 진행 위치).
 
-- **상위 개념(더 특수):** [Dream Cursor](#dream-cursor),
+- **상위 개념(이를 기반으로 파생):** [Dream Cursor](#dream-cursor),
+  [last_consolidated Cursor](#last_consolidated-cursor),
+  [last_consolidated Cursor](#last_consolidated-cursor),
   [last_consolidated Cursor](#last_consolidated-cursor)
 - **관련 용어:** [Append-only Log](#append-only-log)
 
@@ -217,7 +221,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 아니라 사람이 읽을 수 있는 [Markdown](02_tools_and_skills.md#markdown)
 [Durable Files](#durable-files)를 씁니다 — 투명하고 [Git](09_dev_stack.md#git)으로 감사 가능합니다.
 
-- **상위 개념(더 특수):** [Durable Files](#durable-files), [history.jsonl](#historyjsonl),
+- **상위 개념(이를 기반으로 파생):** [Durable Files](#durable-files), [history.jsonl](#historyjsonl),
   [Dream](#dream)
 - **관련 용어:** [Hierarchical Memory](08_ai_llm_concepts.md#hierarchical-memory)
 
@@ -229,8 +233,8 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 **예시:** [MEMORY.md](#memorymd)(사실·선호), [SOUL.md](#soulmd)(성격·정체성),
 [USER.md](#usermd)(사용자 정보).
 
-- **하위 개념(더 일반):** [Memory](#memory), [Markdown](02_tools_and_skills.md#markdown)
-- **상위 개념(더 특수):** [MEMORY.md](#memorymd), [SOUL.md](#soulmd), [USER.md](#usermd)
+- **하위 개념(기반·전제):** [Memory](#memory), [Markdown](02_tools_and_skills.md#markdown)
+- **상위 개념(이를 기반으로 파생):** [MEMORY.md](#memorymd), [SOUL.md](#soulmd), [USER.md](#usermd)
 
 ### MEMORY.md
 **클래스:** [Artifact](00_content_classes.md#artifact) · **코드:** `<workspace>/memory/MEMORY.md`
@@ -240,7 +244,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 
 **예시:** "사용자는 커밋 메시지를 영어로 쓰는 것을 선호한다", "프로젝트 X의 저장소는 ~/repos/x이다".
 
-- **하위 개념(더 일반):** [Durable Files](#durable-files)
+- **하위 개념(기반·전제):** [Durable Files](#durable-files)
 
 ### SOUL.md
 **클래스:** [Artifact](00_content_classes.md#artifact) · **코드:** 워크스페이스 루트
@@ -248,14 +252,14 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 에이전트의 성격/정체성을 정의하는 파일. [System Prompt](#system-prompt)에 주입되며,
 [Dream](#dream)의 갱신 대상이기도 합니다 — 에이전트가 경험을 통해 "성격이 다듬어질" 수 있는 통로.
 
-- **하위 개념(더 일반):** [Durable Files](#durable-files)
+- **하위 개념(기반·전제):** [Durable Files](#durable-files)
 
 ### USER.md
 **클래스:** [Artifact](00_content_classes.md#artifact)
 
 사용자에 대해 알게 된 정보(선호, 습관, 맥락)를 담는 파일.
 
-- **하위 개념(더 일반):** [Durable Files](#durable-files)
+- **하위 개념(기반·전제):** [Durable Files](#durable-files)
 
 ### history.jsonl
 **클래스:** [Artifact](00_content_classes.md#artifact) · **코드:** `<workspace>/memory/history.jsonl`
@@ -263,7 +267,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 모든 대화 경험이 append되는 사건 로그 — 인지과학의 일화 기억(episodic memory)에 해당합니다.
 [Dream](#dream)이 이를 읽어 [Durable Files](#durable-files)(의미 기억)로 증류합니다.
 
-- **하위 개념(더 일반):** [Memory](#memory), [JSONL](#jsonl)
+- **하위 개념(기반·전제):** [Memory](#memory), [JSONL](#jsonl)
 - **관련 용어:** [Dream Cursor](#dream-cursor)
 
 ### Dream
@@ -278,8 +282,8 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 전진시킵니다 — 모델이 "정리했다"고 말만 하는 [Hallucination](08_ai_llm_concepts.md#hallucination)을
 차단하는 검증 게이트([Reflection](08_ai_llm_concepts.md#reflection) 계열의 보수적 구현).
 
-- **하위 개념(더 일반):** [Memory](#memory), [Reflection](08_ai_llm_concepts.md#reflection)
-- **상위 개념(더 특수):** [Dream Cursor](#dream-cursor)
+- **하위 개념(기반·전제):** [Memory](#memory), [Reflection](08_ai_llm_concepts.md#reflection)
+- **상위 개념(이를 기반으로 파생):** [Dream Cursor](#dream-cursor)
 - **관련 용어:** [Least Privilege](07_security_isolation.md#least-privilege),
   [Consolidation](#consolidation)
 
@@ -289,7 +293,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 [Dream](#dream)이 [history.jsonl](#historyjsonl)의 어디까지 처리했는지 기록하는 위치 파일 —
 [Cursor](#cursor)의 한 사례.
 
-- **하위 개념(더 일반):** [Dream](#dream), [Cursor](#cursor)
+- **하위 개념(기반·전제):** [Dream](#dream), [Cursor](#cursor)
 
 ### Sustained Goal
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 지속 목표 · **코드:** `nanobot/session/goal_state.py`
@@ -301,7 +305,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 **예시:** "이번 주 내내 논문 정리를 도와줘"라는 목표를 등록해 두면, 세션 이력이 여러 번 압축되어도
 매 턴 "활성 목표: 논문 정리"가 모델 눈앞에 있습니다.
 
-- **상위 개념(더 특수):** [Goal State](#goal-state)
+- **상위 개념(이를 기반으로 파생):** [Goal State](#goal-state)
 - **관련 용어:** [Heartbeat](06_scheduling_automation.md#heartbeat)
 
 ### Goal State
@@ -309,7 +313,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 
 [Sustained Goal](#sustained-goal)의 등록/완료 상태를 세션 메타데이터로 관리하는 모듈.
 
-- **하위 개념(더 일반):** [Sustained Goal](#sustained-goal)
+- **하위 개념(기반·전제):** [Sustained Goal](#sustained-goal)
 
 ### History Visibility
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 이력 가시성 · **코드:** `nanobot/session/history_visibility.py`
@@ -317,7 +321,7 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 세션 이력 중 어떤 메시지를 모델/UI에 보일지 제어하는 규칙(내부 마커, 시스템 잡 이력 숨김 등).
 "저장은 하되 보여주지는 않는다"의 구분을 담당합니다.
 
-- **하위 개념(더 일반):** [Session](01_core_architecture.md#session)
+- **하위 개념(기반·전제):** [Session](01_core_architecture.md#session)
 
 ### WebUI Turn Coordinator
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/session/webui_turns.py`
@@ -326,5 +330,5 @@ OS 버퍼에 있는 쓰기 내용을 **물리 디스크까지 강제로 내리�
 조율하는 계층. `.agent/design.md`에 따라 UI 와이어 세부사항은 코어([AgentLoop](01_core_architecture.md#agentloop))가
 아닌 이곳에 둡니다 — 관심사 분리의 사례.
 
-- **하위 개념(더 일반):** [Session](01_core_architecture.md#session)
+- **하위 개념(기반·전제):** [Session](01_core_architecture.md#session)
 - **관련 용어:** [WebSocket Channel](05_channels_gateway_ui.md#websocket-channel)

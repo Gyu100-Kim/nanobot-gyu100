@@ -3,7 +3,7 @@
 > [Tool](01_core_architecture.md#tool)/[Skill](01_core_architecture.md#skill) 계층의 세부 용어.
 > 전체 색인은 [README](README.md), 노드 클래스 정의는 [00_content_classes.md](00_content_classes.md)를 보세요.
 >
-> 표기 규약: **상위 개념 = 더 특수한 개념**(예시·구현·특수화), **하위 개념 = 더 일반적인 개념**(일반화).
+> 표기 규약: **상위 개념 = 이 개념을 기반(전제)으로 만들어진 파생 개념**, **하위 개념 = 이 개념을 규정하기 위해 필요한 기반/전제 개념**.
 
 ---
 
@@ -16,8 +16,8 @@
 [MCPToolWrapper](#mcptoolwrapper)처럼 `mcp_` 접두 도구는 내장 도구 뒤로 정렬해 모델이 내장 도구를
 우선 보게 합니다.
 
-- **하위 개념(더 일반):** [Registry Pattern](#registry-pattern), [Tool](01_core_architecture.md#tool)
-- **상위 개념(더 특수):** [Tool Discovery](#tool-discovery), [Tool Scope](#tool-scope)
+- **하위 개념(기반·전제):** [Registry Pattern](#registry-pattern), [Tool](01_core_architecture.md#tool)
+- **상위 개념(이를 기반으로 파생):** [Tool Discovery](#tool-discovery), [Tool Scope](#tool-scope)
 - **관련 용어:** [AgentRunner](01_core_architecture.md#agentrunner)
 
 ### Registry Pattern
@@ -30,7 +30,7 @@
 [Channel Registry](05_channels_gateway_ui.md#channel-registry)(채널),
 [Provider Registry](04_providers_and_llm.md#provider-registry)(프로바이더) — nanobot의 3대 레지스트리.
 
-- **상위 개념(더 특수):** [ToolRegistry](#toolregistry),
+- **상위 개념(이를 기반으로 파생):** [ToolRegistry](#toolregistry),
   [Channel Registry](05_channels_gateway_ui.md#channel-registry),
   [Provider Registry](04_providers_and_llm.md#provider-registry)
 
@@ -43,7 +43,7 @@
 **예시:** [Entry-point Plugin](#entry-point-plugin)으로 별도 pip 패키지가 자기 도구/채널을 nanobot에
 등록하는 것, [MCP](08_ai_llm_concepts.md#mcp) 서버로 외부 도구를 연결하는 것.
 
-- **상위 개념(더 특수):** [Entry-point Plugin](#entry-point-plugin), [Tool Discovery](#tool-discovery)
+- **상위 개념(이를 기반으로 파생):** [Entry-point Plugin](#entry-point-plugin), [Tool Discovery](#tool-discovery)
 - **관련 용어:** [Registry Pattern](#registry-pattern), [Decoupling](01_core_architecture.md#decoupling)
 
 ### Tool Discovery
@@ -54,8 +54,8 @@
 (convention over configuration) 설계입니다. [_SKIP_MODULES](#_skip_modules)에 있는 인프라 모듈은
 제외되고, 외부 패키지는 [Entry-point Plugin](#entry-point-plugin)으로 합류합니다.
 
-- **하위 개념(더 일반):** [ToolRegistry](#toolregistry), [Plugin Architecture](#plugin-architecture)
-- **상위 개념(더 특수):** [_SKIP_MODULES](#_skip_modules), [Entry-point Plugin](#entry-point-plugin)
+- **하위 개념(기반·전제):** [ToolRegistry](#toolregistry), [Plugin Architecture](#plugin-architecture)
+- **상위 개념(이를 기반으로 파생):** [_SKIP_MODULES](#_skip_modules), [Entry-point Plugin](#entry-point-plugin)
 
 ### _SKIP_MODULES
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/agent/tools/loader.py`
@@ -65,7 +65,7 @@
 도구가 아닌 인프라이거나([Sandbox](07_security_isolation.md#sandbox)), 특수 경로로 등록되는
 ([MCPToolWrapper](#mcptoolwrapper)) 모듈들입니다 — 자동 발견의 "예외 명단".
 
-- **하위 개념(더 일반):** [Tool Discovery](#tool-discovery)
+- **하위 개념(기반·전제):** [Tool Discovery](#tool-discovery)
 
 ### Entry-point Plugin
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 엔트리포인트 플러그인
@@ -76,7 +76,7 @@
 **예시:** 누군가 `nanobot-jira`라는 패키지를 만들어 `[project.entry-points."nanobot.tools"]`에
 자기 도구를 선언해 배포하면, 사용자는 `pip install nanobot-jira`만으로 Jira 도구를 얻습니다.
 
-- **하위 개념(더 일반):** [Tool Discovery](#tool-discovery), [Plugin Architecture](#plugin-architecture),
+- **하위 개념(기반·전제):** [Tool Discovery](#tool-discovery), [Plugin Architecture](#plugin-architecture),
   [Entry Points](09_dev_stack.md#entry-points)
 
 ### ToolResult
@@ -89,7 +89,7 @@
 **예시:** `read_file`이 없는 파일을 받으면 예외 대신 `error="File not found: x.txt"`를 돌려주고,
 모델은 이를 보고 `list_dir`로 실제 파일명을 확인한 뒤 다시 시도합니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
 - **관련 용어:** [Tool Calling](08_ai_llm_concepts.md#tool-calling)
 
 ### Tool Schema
@@ -100,7 +100,7 @@
 [Provider](01_core_architecture.md#provider)에 전달됩니다 — 모델이 읽는 "도구의 계약서"를
 파이썬답게 쓰는 도우미입니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool),
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool),
   [JSON Schema](08_ai_llm_concepts.md#json-schema)
 
 ### Tool Scope
@@ -112,7 +112,7 @@
 [SpawnTool](#spawntool)을 주지 않아 무한 증식을 막습니다 —
 [Least Privilege](07_security_isolation.md#least-privilege)의 도구 계층 적용.
 
-- **하위 개념(더 일반):** [ToolRegistry](#toolregistry),
+- **하위 개념(기반·전제):** [ToolRegistry](#toolregistry),
   [Least Privilege](07_security_isolation.md#least-privilege)
 
 ### ExecTool
@@ -123,8 +123,8 @@
 [Timeout](07_security_isolation.md#timeout)(기본 60초)으로 폭주를 차단합니다.
 Windows에서는 PowerShell(`pwsh` 우선)이 기본입니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
-- **상위 개념(더 특수):** [Exec Session](#exec-session)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
+- **상위 개념(이를 기반으로 파생):** [Exec Session](#exec-session)
 - **관련 용어:** [bubblewrap](07_security_isolation.md#bubblewrap)
 
 ### Exec Session
@@ -136,8 +136,8 @@ Windows에서는 PowerShell(`pwsh` 우선)이 기본입니다.
 **예시:** 파이썬 REPL을 열어 두고 여러 턴에 걸쳐 변수를 유지하며 실험하거나, `ssh` 접속 후
 비밀번호 프롬프트에 응답하는 시나리오.
 
-- **하위 개념(더 일반):** [ExecTool](#exectool)
-- **상위 개념(더 특수):** [WriteStdinTool](#writestdintool)
+- **하위 개념(기반·전제):** [ExecTool](#exectool)
+- **상위 개념(이를 기반으로 파생):** [WriteStdinTool](#writestdintool)
 
 ### WriteStdinTool
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/agent/tools/exec_session.py`
@@ -145,7 +145,7 @@ Windows에서는 PowerShell(`pwsh` 우선)이 기본입니다.
 살아 있는 [Exec Session](#exec-session) 프로세스의 표준입력에 텍스트/특수키를 쓰는 도구.
 대화형 프로그램(REPL, 에디터, 프롬프트) 제어에 쓰입니다.
 
-- **하위 개념(더 일반):** [Exec Session](#exec-session)
+- **하위 개념(기반·전제):** [Exec Session](#exec-session)
 
 ### Filesystem Tools
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 파일시스템 도구 · **코드:** `nanobot/agent/tools/filesystem.py`
@@ -155,8 +155,8 @@ Windows에서는 PowerShell(`pwsh` 우선)이 기본입니다.
 [File State](#file-state)로 "읽기 전 편집" 경고와 중복 읽기 감지를 합니다 — 모델이 보지도 않은
 파일을 덮어쓰는 사고를 막는 안전장치입니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
-- **상위 개념(더 특수):** [apply_patch](#apply_patch), [File State](#file-state),
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
+- **상위 개념(이를 기반으로 파생):** [apply_patch](#apply_patch), [File State](#file-state),
   [Path Utils](#path-utils)
 
 ### apply_patch
@@ -166,7 +166,7 @@ Windows에서는 PowerShell(`pwsh` 우선)이 기본입니다.
 "3개 파일을 고치다가 2번째에서 실패"하는 어중간한 상태 대신, 전부 성공 또는 전부 실패를 보장하는
 방향의 설계입니다.
 
-- **하위 개념(더 일반):** [Filesystem Tools](#filesystem-tools)
+- **하위 개념(기반·전제):** [Filesystem Tools](#filesystem-tools)
 - **관련 용어:** [Atomic Write](03_memory_context_session.md#atomic-write)
 
 ### Web Tools
@@ -177,7 +177,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 [DNS Pinning](07_security_isolation.md#dns-pinning)을 거칩니다 — 에이전트가 인터넷을 읽되
 내부망은 못 읽게 하는 경계입니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
 - **관련 용어:** [httpx](09_dev_stack.md#httpx)
 
 ### MessageTool
@@ -187,7 +187,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 [Heartbeat](06_scheduling_automation.md#heartbeat) 실행 중에는 `set_suppress_delivery`로 전송이
 억제됩니다(할 일 점검 때마다 사용자에게 알림이 가는 소음 방지).
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
 
 ### SpawnTool
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 스폰 도구 · **코드:** `nanobot/agent/tools/spawn.py`
@@ -197,7 +197,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 **예시:** "이 저장소 전체를 분석해줘" 같은 오래 걸리는 일을 서브에이전트에 맡기면, 메인 대화는
 계속 응답 가능하고 완료 시 결과만 보고받습니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool),
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool),
   [Subagent](01_core_architecture.md#subagent)
 
 ### Cron Tool
@@ -208,7 +208,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 **예시:** 사용자가 "매일 아침 9시에 일정 알려줘"라고 하면, 에이전트가 이 도구로
 `0 9 * * *` 스케줄의 잡을 등록합니다 — 자연어가 실제 스케줄이 되는 경로입니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool), [Cron](06_scheduling_automation.md#cron)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool), [Cron](06_scheduling_automation.md#cron)
 
 ### MyTool
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 자기 관리 도구 · **코드:** `nanobot/agent/tools/self.py`
@@ -217,8 +217,8 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 [Runtime State Protocol](#runtime-state-protocol)을 통해 [AgentLoop](01_core_architecture.md#agentloop)
 상태에 접근합니다 — 도구가 루프 구현에 직접 의존하지 않게 하는 경계를 사이에 둡니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
-- **상위 개념(더 특수):** [Runtime State Protocol](#runtime-state-protocol)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
+- **상위 개념(이를 기반으로 파생):** [Runtime State Protocol](#runtime-state-protocol)
 
 ### Runtime State Protocol
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/agent/tools/runtime_state.py`
@@ -227,7 +227,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 (구조적 타이핑 인터페이스 — "이 메서드들만 있으면 무엇이든 OK").
 [Decoupling](01_core_architecture.md#decoupling)의 타입 수준 실현입니다.
 
-- **하위 개념(더 일반):** [MyTool](#mytool), [Decoupling](01_core_architecture.md#decoupling)
+- **하위 개념(기반·전제):** [MyTool](#mytool), [Decoupling](01_core_architecture.md#decoupling)
 
 ### MCPToolWrapper
 **클래스:** [Component](00_content_classes.md#component) · **코드:** `nanobot/agent/tools/mcp.py`
@@ -242,7 +242,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 **예시:** GitHub MCP 서버를 설정에 추가하면 `mcp_github_create_issue` 같은 도구가 자동으로
 모델에게 노출됩니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool), [MCP](08_ai_llm_concepts.md#mcp),
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool), [MCP](08_ai_llm_concepts.md#mcp),
   [Adapter Pattern](01_core_architecture.md#adapter-pattern)
 
 ### Long Task Tool
@@ -253,7 +253,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 [Runtime Context](03_memory_context_session.md#runtime-context)에 미러링되어, 이력이 압축되어도
 "지금 무엇을 하던 중인지"가 사라지지 않습니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
 - **관련 용어:** [Goal State](03_memory_context_session.md#goal-state)
 
 ### Image Generation Tool
@@ -262,7 +262,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 텍스트 프롬프트로 이미지를 생성하는 도구.
 [Image Generation Provider](04_providers_and_llm.md#image-generation-provider)에 위임합니다.
 
-- **하위 개념(더 일반):** [Tool](01_core_architecture.md#tool)
+- **하위 개념(기반·전제):** [Tool](01_core_architecture.md#tool)
 
 ### File State
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 파일 상태 추적 · **코드:** `nanobot/agent/tools/file_state.py`
@@ -270,7 +270,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 파일 읽기 이력을 추적해 "읽지 않고 편집" 경고와 중복 읽기 감지를 제공하는 인프라 모듈
 ([_SKIP_MODULES](#_skip_modules) 대상). 모델의 부주의한 파일 조작을 절차적으로 견제합니다.
 
-- **하위 개념(더 일반):** [Filesystem Tools](#filesystem-tools)
+- **하위 개념(기반·전제):** [Filesystem Tools](#filesystem-tools)
 
 ### Path Utils
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 경로 유틸 · **코드:** `nanobot/agent/tools/path_utils.py`
@@ -278,7 +278,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 워크스페이스 스코프 도구들이 공유하는 경로 헬퍼.
 [Workspace Policy](07_security_isolation.md#workspace-policy) 경계 검사와 연동됩니다.
 
-- **하위 개념(더 일반):** [Filesystem Tools](#filesystem-tools)
+- **하위 개념(기반·전제):** [Filesystem Tools](#filesystem-tools)
 
 ### Tool Hint
 **클래스:** [Mechanism](00_content_classes.md#mechanism) · **한글:** 도구 힌트
@@ -288,7 +288,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 [WebUI](05_channels_gateway_ui.md#webui)로 전달됩니다 — 긴 턴에서 사용자가 "멈췄나?" 하고
 불안해하지 않게 하는 UX 장치입니다.
 
-- **하위 개념(더 일반):** [Progress Hook](01_core_architecture.md#progress-hook)
+- **하위 개념(기반·전제):** [Progress Hook](01_core_architecture.md#progress-hook)
 
 ### SkillsLoader
 **클래스:** [Component](00_content_classes.md#component) · **한글:** 스킬 로더 · **코드:** `nanobot/agent/skills.py`
@@ -298,7 +298,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 `build_skills_summary()`로 **요약만** 컨텍스트에 넣습니다 —
 [Progressive Disclosure](#progressive-disclosure)의 구현.
 
-- **하위 개념(더 일반):** [Skill](01_core_architecture.md#skill)
+- **하위 개념(기반·전제):** [Skill](01_core_architecture.md#skill)
 
 ### SKILL.md
 **클래스:** [Artifact](00_content_classes.md#artifact) · **코드:** `nanobot/skills/*/SKILL.md`
@@ -306,7 +306,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 스킬 하나를 기술하는 마크다운 파일 형식 — [Frontmatter](#frontmatter) 메타데이터(이름, 한 줄 설명)
 + 본문 절차. Anthropic [Agent Skills](08_ai_llm_concepts.md#agent-skills) 규격과 같은 계열입니다.
 
-- **하위 개념(더 일반):** [Skill](01_core_architecture.md#skill), [Markdown](#markdown)
+- **하위 개념(기반·전제):** [Skill](01_core_architecture.md#skill), [Markdown](#markdown)
 - **관련 용어:** [Frontmatter](#frontmatter)
 
 ### skill-creator
@@ -316,7 +316,7 @@ fetch는 [SSRF](07_security_isolation.md#ssrf) 방어와
 자기개선 장치. "스킬을 만드는 스킬"이라는 메타 구조가 핵심입니다
 ([Reflection](08_ai_llm_concepts.md#reflection), [Voyager](08_ai_llm_concepts.md#voyager) 계열).
 
-- **하위 개념(더 일반):** [Skill](01_core_architecture.md#skill),
+- **하위 개념(기반·전제):** [Skill](01_core_architecture.md#skill),
   [Skill Library](08_ai_llm_concepts.md#skill-library)
 
 ### Progressive Disclosure
@@ -348,16 +348,16 @@ description: GitHub PR/이슈 작업 절차
 ...
 ```
 
-- **상위 개념(더 특수):** [SKILL.md](#skillmd)
-- **하위 개념(더 일반):** [Markdown](#markdown)
+- **상위 개념(이를 기반으로 파생):** [SKILL.md](#skillmd)
+- **하위 개념(기반·전제):** [Markdown](#markdown)
 
 ### Markdown
-**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 마크다운
+**클래스:** [Technology](00_content_classes.md#technology) · **한글:** 마크다운 · **등장:** 2004 (Gruber & Swartz)
 
 `#`, `-`, `**` 같은 간단한 기호로 서식을 표현하는 경량 마크업 언어. 사람이 읽고 쓰기 쉽고 LLM도 잘
 다루기 때문에, nanobot은 기억([MEMORY.md](03_memory_context_session.md#memorymd)),
 스킬([SKILL.md](#skillmd)), 프롬프트 템플릿을 모두 마크다운으로 저장합니다 —
 "에이전트의 지식은 사람이 열어 볼 수 있는 텍스트"라는 설계 철학의 토대입니다.
 
-- **상위 개념(더 특수):** [SKILL.md](#skillmd), [Frontmatter](#frontmatter),
+- **상위 개념(이를 기반으로 파생):** [SKILL.md](#skillmd), [Frontmatter](#frontmatter),
   [Durable Files](03_memory_context_session.md#durable-files)
