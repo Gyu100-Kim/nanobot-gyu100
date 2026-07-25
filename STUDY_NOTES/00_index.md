@@ -33,7 +33,7 @@
 | --- | --- |
 | [01_source_overview.md](01_source_overview.md) | 전체 소스코드 구조 지도: `nanobot/` 이하 디렉토리 역할, 최상위 모듈, 진입점, 사용 언어 |
 | [02_modules_and_stack.md](02_modules_and_stack.md) | 기술 스택/의존성: `pyproject.toml`의 필수/선택 의존성 분류, lazy deps, 버전 고정 전략 |
-| [03_entrypoints.md](03_entrypoints.md) | 진입점: `__main__.py` → `cli/commands.py`의 Typer 앱과 하위 명령들 |
+| [03_entrypoints.md](03_entrypoints.md) | 진입점: `__main__.py` → `cli/commands.py`의 Typer[(용어사전)](../dict/09_dev_stack.md#typer) 앱과 하위 명령들 |
 
 ### B. 에이전트 핵심 (Core engine)
 
@@ -41,28 +41,28 @@
 | --- | --- |
 | [04_agent_loop.md](04_agent_loop.md) | 두뇌: `agent/loop.py`의 `AgentLoop` 상태머신과 `agent/runner.py`의 `AgentRunner`, `bus/`의 메시지 흐름 |
 | [05_tools.md](05_tools.md) | 도구 계층: `agent/tools/`의 자기등록·디스패치·자동 발견과 대표 도구 |
-| [06_state_and_persistence.md](06_state_and_persistence.md) | 상태/영속성: JSONL 세션과 워크스페이스 메모리, 세션 키/압축 |
+| [06_state_and_persistence.md](06_state_and_persistence.md) | 상태/영속성: JSONL[(용어사전)](../dict/03_memory_context_session.md#jsonl) 세션과 워크스페이스 메모리, 세션 키/압축 |
 | [07_prompt_and_context.md](07_prompt_and_context.md) | 프롬프트/컨텍스트: `agent/context.py`, `context_governance.py`, `autocompact.py`, `templates/` |
-| [08_memory_and_dream.md](08_memory_and_dream.md) | 장기 메모리와 Dream(자기개선), Skills 주입 |
+| [08_memory_and_dream.md](08_memory_and_dream.md) | 장기 메모리와 Dream[(용어사전)](../dict/03_memory_context_session.md#dream)(자기개선), Skills 주입 |
 
 ### C. 주변 시스템 (Surrounding systems)
 
 | 문서 | 내용 |
 | --- | --- |
-| [09_providers.md](09_providers.md) | LLM 프로바이더: `providers/`의 base/registry/factory/fallback과 구현체 |
+| [09_providers.md](09_providers.md) | LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 프로바이더: `providers/`의 base/registry/factory/fallback과 구현체 |
 | [10_gateway_and_channels.md](10_gateway_and_channels.md) | 게이트웨이/채널: `gateway/`, `channels/`와 새 채널 추가 절차 |
-| [11_cron_and_triggers.md](11_cron_and_triggers.md) | 스케줄링/트리거: `cron/`, `triggers/`, croniter 기반 실행 흐름 |
+| [11_cron_and_triggers.md](11_cron_and_triggers.md) | 스케줄링/트리거: `cron/`, `triggers/`, croniter[(용어사전)](../dict/06_scheduling_automation.md#croniter) 기반 실행 흐름 |
 | [12_security_and_sandbox.md](12_security_and_sandbox.md) | 보안/격리: `security/`, 셸 샌드박싱, 워크스페이스 스코프 |
-| [13_api_sdk_webui.md](13_api_sdk_webui.md) | API 서버/SDK/WebUI: OpenAI 호환 서버, Python SDK, 번들 WebUI |
+| [13_api_sdk_webui.md](13_api_sdk_webui.md) | API 서버/SDK/WebUI: OpenAI 호환 서버, Python SDK, 번들 WebUI[(용어사전)](../dict/05_channels_gateway_ui.md#webui) |
 
 ### D. 배경 기술 (Technology background)
 
 | 문서 | 내용 |
 | --- | --- |
 | [tech_background/01_tool_calling_agents.md](tech_background/01_tool_calling_agents.md) | Tool-calling / function-calling 에이전트 |
-| [tech_background/02_context_compression.md](tech_background/02_context_compression.md) | 컨텍스트 압축 (AutoCompact, tiktoken) |
+| [tech_background/02_context_compression.md](tech_background/02_context_compression.md) | 컨텍스트 압축 (AutoCompact[(용어사전)](../dict/03_memory_context_session.md#autocompact), tiktoken[(용어사전)](../dict/08_ai_llm_concepts.md#tiktoken)) |
 | [tech_background/03_self_improving_agents.md](tech_background/03_self_improving_agents.md) | 자기개선 에이전트: Dream + Skills |
-| [tech_background/04_mcp.md](tech_background/04_mcp.md) | Model Context Protocol (MCP) |
+| [tech_background/04_mcp.md](tech_background/04_mcp.md) | Model Context Protocol (MCP[(용어사전)](../dict/08_ai_llm_concepts.md#mcp)) |
 | [tech_background/05_model_routing_fallback.md](tech_background/05_model_routing_fallback.md) | 모델 라우팅 / 폴백 |
 | [tech_background/06_execution_isolation.md](tech_background/06_execution_isolation.md) | 실행 격리 / 샌드박싱 |
 
@@ -131,10 +131,10 @@ flowchart TD
 문장으로 다시 정리하면 다음과 같습니다 (근거: <a href="../AGENTS.md">AGENTS.md</a> "Core Data Flow",
 `nanobot/agent/loop.py` L182-L192의 상태 전이표):
 
-1. **Channel**이 외부 플랫폼 메시지를 받아 `InboundMessage`로 만들어 **MessageBus**의 inbound 큐에 넣는다.
-2. **AgentLoop**이 inbound 큐에서 메시지를 꺼내(`consume_inbound`), 세션/워크스페이스를 결정하고 컨텍스트를 만든다.
-3. **AgentRunner**가 **Provider**(LLM)를 호출하고, LLM이 요청한 **Tool**을 실행하며, 스트리밍 델타를 흘려보낸다.
-4. 결과는 세션(**Session JSONL**)과 **Memory**에 저장되고, `OutboundMessage`로 만들어져 outbound 큐를 거쳐 다시 **Channel**로 나간다.
+1. **Channel[(용어사전)](../dict/01_core_architecture.md#channel)**이 외부 플랫폼 메시지를 받아 `InboundMessage`로 만들어 **MessageBus[(용어사전)](../dict/01_core_architecture.md#messagebus)**의 inbound 큐에 넣는다.
+2. **AgentLoop[(용어사전)](../dict/01_core_architecture.md#agentloop)**이 inbound 큐에서 메시지를 꺼내(`consume_inbound`), 세션/워크스페이스를 결정하고 컨텍스트를 만든다.
+3. **AgentRunner[(용어사전)](../dict/01_core_architecture.md#agentrunner)**가 **Provider[(용어사전)](../dict/01_core_architecture.md#provider)**(LLM)를 호출하고, LLM이 요청한 **Tool[(용어사전)](../dict/01_core_architecture.md#tool)**을 실행하며, 스트리밍 델타를 흘려보낸다.
+4. 결과는 세션(**Session[(용어사전)](../dict/01_core_architecture.md#session) JSONL**)과 **Memory[(용어사전)](../dict/03_memory_context_session.md#memory)**에 저장되고, `OutboundMessage`로 만들어져 outbound 큐를 거쳐 다시 **Channel**로 나간다.
 
 즉 `Channel -> MessageBus -> AgentLoop -> AgentRunner -> Provider/Tools -> Outbound` 흐름입니다.
 
@@ -145,7 +145,7 @@ flowchart TD
 아래 용어는 이 학습 노트 전반에서 반복적으로 등장합니다. 각 용어는 (1) 일반적 정의와
 (2) 이 코드베이스에서의 구체적 의미를 함께 적었습니다.
 
-- **Agent loop (에이전트 루프)** — 일반적으로 "관찰 → 판단(LLM) → 행동(도구 실행) → 다시 관찰"을
+- **Agent[(용어사전)](../dict/01_core_architecture.md#agent) loop (에이전트 루프)** — 일반적으로 "관찰 → 판단(LLM) → 행동(도구 실행) → 다시 관찰"을
   반복하는 순환. 이 반복이 있어야 LLM이 한 번의 답변에 그치지 않고 도구를 여러 번 써가며 목표를 달성한다.
   nanobot에서는 두 개의 루프가 구분된다: **바깥 루프**는 `AgentLoop`(메시지 단위, `agent/loop.py`),
   **안쪽 루프**는 `AgentRunner`(한 메시지 처리 중 LLM↔도구 반복, `agent/runner.py` L377 `for iteration in range(...)`).
@@ -173,11 +173,11 @@ flowchart TD
   파일시스템/셸/웹검색/MCP/cron/서브에이전트 등이 있다. `loader.py`가 `pkgutil`로 자동 발견하고
   `registry.py`가 등록·디스패치한다.
 
-- **Skill (스킬)** — 특정 작업 수행법을 가르치는 마크다운 문서(`SKILL.md`). 코드가 아니라 "지식"이다.
+- **Skill[(용어사전)](../dict/01_core_architecture.md#skill) (스킬)** — 특정 작업 수행법을 가르치는 마크다운 문서(`SKILL.md`). 코드가 아니라 "지식"이다.
   `nanobot/agent/skills.py`의 `SkillsLoader`가 로드하고, 필요 시 시스템 프롬프트에 주입한다
   (`always` 스킬은 항상, 나머지는 요약만 넣고 필요 시 파일로 읽음).
 
-- **Gateway (게이트웨이)** — 여러 채널·서비스를 한 프로세스에서 장기 실행시키는 오케스트레이터.
+- **Gateway[(용어사전)](../dict/01_core_architecture.md#gateway) (게이트웨이)** — 여러 채널·서비스를 한 프로세스에서 장기 실행시키는 오케스트레이터.
   `nanobot gateway` 명령으로 뜨며 `nanobot/gateway/runtime.py`, `service.py`가 담당한다.
   WebUI/HTTP API/WebSocket 엔드포인트를 함께 서빙한다.
 
@@ -190,9 +190,9 @@ flowchart TD
   (`nanobot/agent/memory.py`). Dream은 durable 파일(SOUL.md/USER.md/MEMORY.md)을 실제로 편집한다.
 
 - **AutoCompact** — 오래 놀고 있는(idle) 세션의 이력을 미리 압축(compaction)해 토큰 비용과 지연을 줄이는 장치.
-  `nanobot/agent/autocompact.py`의 `AutoCompact`가 TTL 기반으로 유휴 세션을 골라 요약으로 대체한다.
+  `nanobot/agent/autocompact.py`의 `AutoCompact`가 TTL[(용어사전)](../dict/03_memory_context_session.md#ttl) 기반으로 유휴 세션을 골라 요약으로 대체한다.
 
-- **Subagent (서브에이전트)** — 메인 에이전트가 하위 작업을 위임하기 위해 생성하는 별도 에이전트.
+- **Subagent[(용어사전)](../dict/01_core_architecture.md#subagent) (서브에이전트)** — 메인 에이전트가 하위 작업을 위임하기 위해 생성하는 별도 에이전트.
   `spawn` 도구(`nanobot/agent/tools/spawn.py`)와 `nanobot/agent/subagent.py`의 `SubagentManager`가 담당한다.
 
 - **MCP (Model Context Protocol)** — 외부 도구/데이터 소스를 표준 프로토콜로 LLM에 연결하는 규격.
@@ -207,10 +207,10 @@ flowchart TD
   예: `"anthropic>=0.45.0,<1.0.0"`(`pyproject.toml` L27). 재현성과 호환성 사이의 트레이드오프를 관리한다
   (자세한 논의는 [02_modules_and_stack.md](02_modules_and_stack.md)).
 
-- **Sandbox (샌드박스)** — 셸/코드 실행을 격리해 시스템을 보호하는 장치. `nanobot/agent/tools/sandbox.py`,
+- **Sandbox[(용어사전)](../dict/07_security_isolation.md#sandbox) (샌드박스)** — 셸/코드 실행을 격리해 시스템을 보호하는 장치. `nanobot/agent/tools/sandbox.py`,
   `exec_session.py`, `shell.py`와 `nanobot/security/`가 워크스페이스 스코프·네트워크 체크를 수행한다.
 
-- **Heartbeat (하트비트)** — 워크스페이스의 `HEARTBEAT.md`에 적힌 주기적 작업 목록을 cron 작업으로
+- **Heartbeat[(용어사전)](../dict/06_scheduling_automation.md#heartbeat) (하트비트)** — 워크스페이스의 `HEARTBEAT.md`에 적힌 주기적 작업 목록을 cron 작업으로
   점검하는 시스템 잡. 활성 작업이 있을 때만 LLM 턴을 돌린다(`cli/commands.py`의 heartbeat 분기;
   [11_cron_and_triggers.md](11_cron_and_triggers.md)).
 

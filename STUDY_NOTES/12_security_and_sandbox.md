@@ -4,8 +4,8 @@
 >
 > 에이전트는 셸을 실행하고 파일을 읽고 웹을 가져옵니다 — 강력하지만 위험합니다. nanobot은 세 겹으로 방어합니다:
 > (1) **워크스페이스 스코프** — 파일 접근을 정해진 폴더 안으로 제한(`security/workspace_policy.py`,
-> `workspace_access.py`), (2) **네트워크 SSRF 방어** — 내부/사설 주소로의 요청 차단(`security/network.py`),
-> (3) **셸 샌드박싱** — bubblewrap 등으로 명령 실행을 격리(`agent/tools/sandbox.py`, `shell.py`, `exec_session.py`).
+> `workspace_access.py`), (2) **네트워크 SSRF[(용어사전)](../dict/07_security_isolation.md#ssrf) 방어** — 내부/사설 주소로의 요청 차단(`security/network.py`),
+> (3) **셸 샌드박싱** — bubblewrap[(용어사전)](../dict/07_security_isolation.md#bubblewrap) 등으로 명령 실행을 격리(`agent/tools/sandbox.py`, `shell.py`, `exec_session.py`).
 > 단, 애플리케이션 수준 가드는 OS 샌드박스를 대체하지 않는다는 점을 코드가 명시합니다(`workspace_policy.py` docstring).
 
 ## 이 문서의 소목차
@@ -27,7 +27,7 @@
 
 `workspace_policy.py`의 모듈 docstring이 철학을 요약합니다: "These helpers are application-level guards. … they are
 **not a replacement for an OS sandbox**." 즉 이 가드들은 실수/우발적 접근을 막는 1차 방어이고, 진짜 격리는
-OS 샌드박스(bubblewrap/macOS App Sandbox)가 맡습니다.
+OS 샌드박스(bubblewrap/macOS App Sandbox[(용어사전)](../dict/07_security_isolation.md#sandbox))가 맡습니다.
 
 ---
 

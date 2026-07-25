@@ -3,9 +3,9 @@
 > **이 문서에서 다루는 큰 맥락**
 >
 > "자기개선 에이전트"는 경험을 통해 스스로 지식/능력을 갱신하는 에이전트입니다. nanobot에서는 두 축으로
-> 나타납니다: (1) **Dream** — 대화 기록을 주기적으로 요약해 장기 메모리를 스스로 갱신, (2) **Skills** —
+> 나타납니다: (1) **Dream[(용어사전)](../../dict/03_memory_context_session.md#dream)** — 대화 기록을 주기적으로 요약해 장기 메모리를 스스로 갱신, (2) **Skills** —
 > 새 절차/능력을 마크다운으로 추가(자기 확장). 이 문서는 그 배경이 되는 하위 개념들(무상태성, 장기 기억,
-> 반성 루프, 스킬 라이브러리, 검증 게이트)과 근간 논문(Generative Agents, Reflexion, Voyager 등),
+> 반성 루프, 스킬 라이브러리, 검증 게이트)과 근간 논문(Generative Agents, Reflexion, Voyager[(용어사전)](../../dict/08_ai_llm_concepts.md#voyager) 등),
 > 그리고 `agent/memory.py`, `agent/skills.py`, `nanobot/skills/`로의 연결을 다룹니다.
 
 ## 소목차
@@ -59,7 +59,7 @@
 스킬 표현 방식은 두 갈래입니다:
 - **코드 스킬**(Voyager): 실행 가능하지만 작성/검증 비용이 높음.
 - **문서 스킬**(절차서/프롬프트): LLM이 읽고 따라 하는 자연어 절차. 작성이 쉽고 비개발자도 만들 수 있음.
-  Anthropic의 **Agent Skills**(2025, `SKILL.md` + frontmatter 규격)가 이 방식을 표준화했습니다.
+  Anthropic의 **Agent Skills[(용어사전)](../../dict/08_ai_llm_concepts.md#agent-skills)**(2025, `SKILL.md` + frontmatter 규격)가 이 방식을 표준화했습니다.
 
 ### (d) 점진적 로딩(progressive disclosure)
 스킬이 많아지면 전부 컨텍스트에 넣을 수 없습니다. 해법은 "목록(이름+한 줄 설명)만 상시 주입하고,
@@ -113,7 +113,7 @@ LLM에게 "메모리를 갱신했니?"라고 물으면 안 했어도 했다고 �
 | 2023.04 | **Generative Agents** (Park et al., arXiv:2304.03442) | 메모리 스트림 + reflection + 중요도 기반 검색 — 장기 기억 에이전트의 청사진. |
 | 2023.05 | **Voyager** (Wang et al., arXiv:2305.16291) | 스킬 라이브러리에 성공 절차를 축적하는 평생 학습 에이전트. |
 | 2023.10 | **MemGPT** (Packer et al., arXiv:2310.08560) | 계층적 메모리 관리의 정식화 (→ [02](02_context_compression.md)). |
-| 2025 | **Anthropic Agent Skills** (`SKILL.md` 규격) | 문서 기반 스킬의 산업 표준화 — frontmatter 메타데이터 + 점진적 로딩. |
+| 2025 | **Anthropic Agent[(용어사전)](../../dict/01_core_architecture.md#agent) Skills** (`SKILL.md` 규격) | 문서 기반 스킬의 산업 표준화 — frontmatter 메타데이터 + 점진적 로딩. |
 
 읽어볼 1차 자료:
 - Generative Agents: https://arxiv.org/abs/2304.03442

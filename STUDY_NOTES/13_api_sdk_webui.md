@@ -3,9 +3,9 @@
 > **이 문서에서 다루는 큰 맥락**
 >
 > 지금까지는 nanobot 내부였습니다. 이 문서는 **외부에서 접근하는 3가지 통로**를 다룹니다:
-> (1) `nanobot/api/` — **OpenAI 호환 HTTP 서버**(다른 앱이 nanobot을 "OpenAI처럼" 호출), (2) `nanobot/sdk/` —
-> **Python SDK**(코드에서 세션/메모리/런타임 제어), (3) `nanobot/web/` + `webui/` — **번들 WebUI**(브라우저 UI,
-> WebSocket 프로토콜로 게이트웨이와 통신). `nanobot/apps/`(앱 매니페스트)도 함께 봅니다.
+> (1) `nanobot/api/` — **OpenAI 호환 HTTP[(용어사전)](../dict/05_channels_gateway_ui.md#http) 서버**(다른 앱이 nanobot을 "OpenAI처럼" 호출), (2) `nanobot/sdk/` —
+> **Python SDK**(코드에서 세션/메모리/런타임 제어), (3) `nanobot/web/` + `webui/` — **번들 WebUI[(용어사전)](../dict/05_channels_gateway_ui.md#webui)**(브라우저 UI,
+> WebSocket[(용어사전)](../dict/05_channels_gateway_ui.md#websocket) 프로토콜로 게이트웨이와 통신). `nanobot/apps/`(앱 매니페스트)도 함께 봅니다.
 
 ## 이 문서의 소목차
 
@@ -37,7 +37,7 @@
 
 엔드포인트(`create_app` L431-433에서 등록):
 - **`POST /v1/chat/completions`** → `handle_chat_completions`(L206-). JSON과 `multipart/form-data`(이미지 첨부) 모두 지원(L207).
-  - 스트리밍이면 SSE(`_sse_chunk` L99)로 토큰을 흘려보냄(`_on_stream` L261, `_on_stream_end` L267).
+  - 스트리밍이면 SSE[(용어사전)](../dict/08_ai_llm_concepts.md#sse)(`_sse_chunk` L99)로 토큰을 흘려보냄(`_on_stream` L261, `_on_stream_end` L267).
   - 비스트리밍이면 `_chat_completion_response`(L58)로 OpenAI 형식 JSON 반환.
 - **`GET /v1/models`** → `handle_models`(L367-). 사용 가능한 모델 목록.
 - **`GET /health`** → `handle_health`(L385-). 인증 없이 접근 가능(헬스체크).
@@ -114,7 +114,7 @@ print(result.content)
 
 ## WebUI와 WebSocket 프로토콜
 
-- **소스**: `webui/` — Vite 기반 React/TypeScript SPA(`package.json`, `bun.lock`, `src/`, `index.html` 확인).
+- **소스**: `webui/` — Vite[(용어사전)](../dict/09_dev_stack.md#vite) 기반 React/TypeScript SPA[(용어사전)](../dict/05_channels_gateway_ui.md#spa)(`package.json`, `bun.lock`, `src/`, `index.html` 확인).
 - **번들**: 빌드하면 `nanobot/web/dist/`로 출력되어 파이썬 wheel에 포함됩니다(AGENTS.md: "Build outputs to
   ../nanobot/web/dist"). 빌드/개발/테스트 명령:
   ```bash

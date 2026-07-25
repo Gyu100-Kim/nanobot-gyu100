@@ -2,7 +2,7 @@
 
 > **이 문서에서 다루는 큰 맥락**
 >
-> nanobot은 특정 LLM 회사에 묶이지 않습니다. **프로바이더(Provider)** 는 "LLM에게 대화를 보내고 응답을 받는"
+> nanobot은 특정 LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 회사에 묶이지 않습니다. **프로바이더(Provider[(용어사전)](../dict/01_core_architecture.md#provider))** 는 "LLM에게 대화를 보내고 응답을 받는"
 > 공통 인터페이스이고, Anthropic·OpenAI·Azure·Bedrock·GitHub Copilot 등 여러 구현체가 그 인터페이스를 따릅니다.
 > 이 문서는 공통 기반 `base.py`의 `LLMProvider`, 프로바이더 메타데이터의 단일 진실 공급원 `registry.py`,
 > 설정으로부터 실제 인스턴스를 만드는 `factory.py`, 그리고 실패 시 다른 모델로 넘어가는 `fallback_provider.py`를
@@ -64,7 +64,7 @@ base에 두면 구현체는 "API 한 번 호출"만 신경 쓰면 되고, 재시
   thinking/reasoning 스타일, 전사(transcription) 전용 여부 등.
 
 파일 상단 주석이 **새 프로바이더 추가 절차**를 명시합니다:
-> "1. Add a ProviderSpec to PROVIDERS below. 2. Add a field to ProvidersConfig in config/schema.py. Done."
+> "1. Add a ProviderSpec[(용어사전)](../dict/04_providers_and_llm.md#providerspec) to PROVIDERS below. 2. Add a field to ProvidersConfig in config/schema.py. Done."
 
 **왜 단일 레지스트리인가(설계 의도):** 프로바이더별 특성이 코드 곳곳에 흩어지면 새 프로바이더 추가가 어렵습니다.
 `ProviderSpec` 하나에 모아두면 "선언"만으로 대부분의 동작이 결정됩니다(데이터 주도 설계). `find_by_name`,

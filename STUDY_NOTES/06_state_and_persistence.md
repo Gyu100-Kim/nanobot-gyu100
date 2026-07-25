@@ -3,7 +3,7 @@
 > **이 문서에서 다루는 큰 맥락**
 >
 > nanobot은 대화 기록을 **데이터베이스가 아니라 파일**로 저장합니다. 정확히는 세션마다 하나의
-> **JSONL 파일**(줄 하나가 JSON 하나)입니다. (SQLite/FTS5 전문 검색 같은 것은 사용하지 않습니다.)
+> **JSONL[(용어사전)](../dict/03_memory_context_session.md#jsonl) 파일**(줄 하나가 JSON 하나)입니다. (SQLite/FTS5 전문 검색 같은 것은 사용하지 않습니다.)
 > 이 문서는 세션 자료구조 `Session`, 저장/로딩을 담당하는 `SessionManager`(`nanobot/session/manager.py`),
 > 세션 키 규칙(`keys.py`), 그리고 이력 조립·압축·가시성을 돕는 보조 모듈들을 라인 근거로 설명합니다.
 >
@@ -68,7 +68,7 @@ class Session:
     last_consolidated: int = 0  # 이미 파일로 통합된 메시지 수
 ```
 - `last_consolidated`(L128): "여기까지의 메시지는 이미 요약/통합됐다"는 커서. `get_history`는 이 인덱스 **이후**만
-  LLM 입력으로 씁니다. **왜?** 오래된 대화는 요약본으로 대체하고, 최근 대화만 원문으로 보내 컨텍스트를 아낍니다([07](07_prompt_and_context.md)).
+  LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 입력으로 씁니다. **왜?** 오래된 대화는 요약본으로 대체하고, 최근 대화만 원문으로 보내 컨텍스트를 아낍니다([07](07_prompt_and_context.md)).
 - `__post_init__`(L130-137): 손상된 메타데이터로 `last_consolidated`가 범위를 벗어나면 0으로 리셋(방어).
 - `add_message`(L139-148): 메시지에 role/content/timestamp + 추가 kwargs를 붙여 append하고 `updated_at` 갱신.
 
@@ -89,7 +89,7 @@ class Session:
   - CLI 앱/MCP 프리셋 첨부도 유사하게 브레드크럼으로 요약(L205-243).
   - `tool_calls`, `tool_call_id`, `reasoning_content` 등 필요한 키만 보존(L248-250).
 - **L253-283** — `max_tokens`가 주어지면 **뒤에서부터 토큰 예산**만큼만 유지(L256-262)하고, 다시 첫 user 턴/합법적
-  경계에 맞춰 정렬. 토큰 계수는 `estimate_message_tokens`(tiktoken 기반; [02](02_modules_and_stack.md)).
+  경계에 맞춰 정렬. 토큰 계수는 `estimate_message_tokens`(tiktoken[(용어사전)](../dict/08_ai_llm_concepts.md#tiktoken) 기반; [02](02_modules_and_stack.md)).
 
 **설계 요지:** 저장된 원문은 손대지 않고, **모델에 보낼 사본만** 개수·토큰·경계 규칙에 맞춰 잘라 만듭니다.
 
@@ -143,7 +143,7 @@ class Session:
 
 | 파일 | 역할 |
 | --- | --- |
-| `webui_turns.py` | "Session turn helpers for WebUI-capable WebSocket sessions"(L1). WebUI(WebSocket) 세션의 턴 진행/진행상황 스트리밍 보조. |
+| `webui_turns.py` | "Session[(용어사전)](../dict/01_core_architecture.md#session) turn helpers for WebUI-capable WebSocket[(용어사전)](../dict/05_channels_gateway_ui.md#websocket) sessions"(L1). WebUI[(용어사전)](../dict/05_channels_gateway_ui.md#webui)(WebSocket) 세션의 턴 진행/진행상황 스트리밍 보조. |
 | `automation_turns.py` | "Shared handling for session-bound automation turns"(L1). cron/트리거로 생성되는 자동화 턴을 이력에 표시(`_automation_turn` 메타, L10). |
 | `turn_continuation.py` | "Internal turn continuation helpers"(L1). 예산 경계(budget-boundary)에서 턴을 이어갈지 결정하는 정책을 `AgentLoop` 밖으로 분리(L3-5). [04](04_agent_loop.md)의 `_state_run` L1590에서 사용. |
 | `goal_state.py` | 지속 목표(`long_task`/`complete_goal`)의 세션 메타데이터 헬퍼(L1). `metadata[GOAL_STATE_KEY]`를 읽고 런타임 라인/타임아웃을 계산. |

@@ -3,8 +3,8 @@
 > **이 문서에서 다루는 큰 맥락**
 >
 > 지금까지는 "사용자가 말을 걸면 응답"하는 흐름이었습니다. 하지만 nanobot은 **정해진 시간/주기**에 스스로
-> 일을 하기도 합니다 — 매일 아침 요약, 주기적 Dream([08](08_memory_and_dream.md)) 등. 이를 담당하는 것이
-> `nanobot/cron/`(스케줄러)와 `nanobot/triggers/`(외부 트리거)입니다. 이 문서는 croniter 기반 스케줄 계산,
+> 일을 하기도 합니다 — 매일 아침 요약, 주기적 Dream[(용어사전)](../dict/03_memory_context_session.md#dream)([08](08_memory_and_dream.md)) 등. 이를 담당하는 것이
+> `nanobot/cron/`(스케줄러)와 `nanobot/triggers/`(외부 트리거)입니다. 이 문서는 croniter[(용어사전)](../dict/06_scheduling_automation.md#croniter) 기반 스케줄 계산,
 > 타이머 루프, 작업 실행 흐름, 그리고 세션에 결과를 배달하는 방식을 라인 근거로 설명합니다.
 
 ## 이 문서의 소목차
@@ -71,7 +71,7 @@ croniter가 이를 정확히 계산해 줍니다.
 
 ## 타이머 루프: `start` → `_arm_timer` → `_on_timer`
 
-`CronService`(L142-)는 asyncio 타이머로 동작합니다.
+`CronService`(L142-)는 asyncio[(용어사전)](../dict/09_dev_stack.md#asyncio) 타이머로 동작합니다.
 
 - **`start()`**(L489-507): 저장소를 로드(L492). 손상됐으면(`None`) 빈 목록으로 덮어써 데이터를 잃지 않도록
   **시작을 거부**하고 예외(L493-503) — 방어적 설계. 정상이면 `_recompute_next_runs()`(L504)로 모든 작업의 다음
@@ -108,7 +108,7 @@ AGENTS.md가 말하듯 Heartbeat는 "cron 작업으로 점검되는 주기적 �
 
 - **L1502-1507** — 작업 이름이 `"heartbeat"`면 워크스페이스의 `HEARTBEAT.md`를 읽음. 파일이 없으면 조용히 종료.
 - **L1509-1511** — `_heartbeat_has_active_tasks(content)`(L216-): 헤더/빈 줄/주석을 제외하고 실제 작업 줄이
-  있는지 검사. 없으면 LLM을 부르지 않고 종료. **왜?** 할 일이 없는데 매번 LLM 턴을 돌리면 토큰 낭비입니다.
+  있는지 검사. 없으면 LLM을 부르지 않고 종료. **왜?** 할 일이 없는데 매번 LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 턴을 돌리면 토큰 낭비입니다.
 - **L1513-1515** — `_pick_heartbeat_target()`으로 결과를 보낼 채널/chat을 고르되, `cli`뿐이면 보내지 않음.
 - **L1517-1537** — `_HEARTBEAT_PREAMBLE`(L207-) + `HEARTBEAT.md` 내용을 프롬프트로 만들어 전용 세션
   `"heartbeat"`에서 `process_direct`로 실행. 실행 중에는 `message_tool.set_suppress_delivery(True)`로

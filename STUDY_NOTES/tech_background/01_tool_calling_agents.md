@@ -4,7 +4,7 @@
 >
 > "에이전트"라는 말의 핵심은 LLM이 **텍스트만 뱉는 게 아니라 도구를 호출해 실제 행동**한다는 것입니다.
 > 이 문서는 (1) tool-calling의 정의와 핵심 아이디어, (2) 이를 이해하기 위한 하위 개념들
-> (JSON Schema, 에이전트 루프, ReAct, 병렬 호출, 도구 결과 피드백 등), (3) 개념들 사이의 관계,
+> (JSON Schema[(용어사전)](../../dict/08_ai_llm_concepts.md#json-schema), 에이전트 루프, ReAct[(용어사전)](../../dict/08_ai_llm_concepts.md#react), 병렬 호출, 도구 결과 피드백 등), (3) 개념들 사이의 관계,
 > (4) 근간이 되는 논문/기술 문서와 역사, (5) nanobot이 이를 어떻게 구현하는지를
 > `nanobot/agent/runner.py`와 `agent/tools/schema.py` 근거로 연결합니다.
 
@@ -20,7 +20,7 @@
 
 ## 정의와 핵심 아이디어
 
-**Tool calling(=function calling)**: LLM에게 "사용 가능한 함수(도구) 목록과 각 함수의 인자 스키마(JSON Schema)"를
+**Tool[(용어사전)](../../dict/01_core_architecture.md#tool) calling(=function calling)**: LLM에게 "사용 가능한 함수(도구) 목록과 각 함수의 인자 스키마(JSON Schema)"를
 알려주면, 모델이 필요할 때 "이 함수를 이런 인자로 불러 달라"는 **구조화된 호출 요청**을 생성하는 기능입니다.
 런타임(에이전트)이 그 함수를 실제로 실행하고 결과를 모델에게 돌려주면, 모델이 이어서 추론을 계속합니다.
 
@@ -131,7 +131,7 @@ Agent loop (호출 → 실행 → 결과 피드백 → 재호출)   ←— ReAct
 | 2023.05 | **Gorilla** (Patil et al., arXiv:2305.15334) | 대규모 API 호출 정확도를 위한 파인튜닝, 이후 **Berkeley Function Calling Leaderboard(BFCL)** 벤치마크로 발전. |
 | 2023.06 | **OpenAI Function Calling API** | gpt-4-0613/gpt-3.5-turbo-0613에서 JSON Schema 기반 함수 호출 정식 출시 — 업계 표준의 기점. |
 | 2023.11 | OpenAI **parallel tool calls** / Assistants API | 병렬 호출, 도구 상태 관리의 플랫폼화. |
-| 2024 | Anthropic **tool use** GA, **MCP** 공개 | 프로바이더 간 수렴 + 도구의 프로토콜 표준화(→ [04_mcp.md](04_mcp.md)). |
+| 2024 | Anthropic **tool use** GA, **MCP[(용어사전)](../../dict/08_ai_llm_concepts.md#mcp)** 공개 | 프로바이더 간 수렴 + 도구의 프로토콜 표준화(→ [04_mcp.md](04_mcp.md)). |
 
 읽어볼 1차 자료:
 - ReAct: *ReAct: Synergizing Reasoning and Acting in Language Models* — https://arxiv.org/abs/2210.03629

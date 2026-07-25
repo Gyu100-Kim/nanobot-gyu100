@@ -2,7 +2,7 @@
 
 > **이 문서에서 다루는 큰 맥락**
 >
-> LLM은 텍스트만 생성할 뿐, 스스로 파일을 읽거나 셸을 실행할 수 없습니다. **도구(Tool)** 는 LLM이
+> LLM은 텍스트만 생성할 뿐, 스스로 파일을 읽거나 셸을 실행할 수 없습니다. **도구(Tool[(용어사전)](../dict/01_core_architecture.md#tool))** 는 LLM이
 > "이 함수를 이런 인자로 호출해줘"라고 요청하면 실제로 코드를 실행해 결과를 돌려주는 다리입니다.
 > 이 문서는 도구의 추상 기반(`base.py`), 파라미터 스키마(`schema.py`), 등록/실행소(`registry.py`),
 > 그리고 `pkgutil` 기반 **자동 발견**과 플러그인 엔트리포인트(`loader.py`)를 살펴보고, 대표 도구
@@ -64,7 +64,7 @@
 
 ## 파라미터 스키마: `schema.py`
 
-`base.py`의 `Schema`(L28-128)는 JSON Schema 조각을 검증하는 공용 로직입니다.
+`base.py`의 `Schema`(L28-128)는 JSON Schema[(용어사전)](../dict/08_ai_llm_concepts.md#json-schema) 조각을 검증하는 공용 로직입니다.
 
 - `validate_json_schema_value(val, schema, path)`(L47-108): 타입/enum/min·max/길이/필수 필드/추가 속성/배열
   항목을 재귀 검증하고 사람이 읽을 오류 메시지를 모읍니다. 예: `"parameter should be integer"`.
@@ -84,7 +84,7 @@
 
 - **저장소**: `self._tools: dict[str, Tool]`(L21) — 이름→도구 인스턴스. `register`/`unregister`(L24-32)로 관리하며
   변경 시 캐시된 정의(`_cached_definitions`)를 무효화합니다.
-- **`get_definitions()`**(L71-94): LLM에 줄 스키마 목록을 만듭니다. 내장 도구를 먼저, `mcp_`로 시작하는 MCP 도구를
+- **`get_definitions()`**(L71-94): LLM에 줄 스키마 목록을 만듭니다. 내장 도구를 먼저, `mcp_`로 시작하는 MCP[(용어사전)](../dict/08_ai_llm_concepts.md#mcp) 도구를
   뒤에 두고 각각 이름순 정렬 후 **캐싱**합니다. **왜 안정적 정렬인가:** 프롬프트가 매번 동일해야 프로바이더의
   프롬프트 캐시(prompt caching)가 적중하기 때문입니다([09](09_providers.md)).
 - **`prepare_call(name, params)`**(L96-128): 한 도구 호출을 (1) 이름으로 찾고(없으면 유사 이름 제안, L104-105),
@@ -104,7 +104,7 @@
 - **`discover()`**(L30-60): `pkgutil.iter_modules(...)`로 `tools/` 패키지의 모든 모듈을 순회(L37)하며,
   `_SKIP_MODULES`(L14-17: base/schema/registry/context/loader/config/sandbox/mcp 등 인프라 모듈)는 건너뜁니다.
   각 모듈에서 `Tool`의 구체(추상 아님) 하위 클래스만 골라(L47-55) 모읍니다.
-  **왜 pkgutil 스캔인가(설계 의도):** 새 도구 파일을 추가하기만 하면 자동 등록됩니다. 중앙 목록을
+  **왜 pkgutil[(용어사전)](../dict/09_dev_stack.md#pkgutil) 스캔인가(설계 의도):** 새 도구 파일을 추가하기만 하면 자동 등록됩니다. 중앙 목록을
   수동으로 갱신할 필요가 없어 확장이 쉽습니다(자기 등록 패턴).
 - **`_discover_plugins()`**(L62-84): `entry_points(group="nanobot.tools")`(L68)로 **외부 패키지가 제공하는
   도구**를 발견합니다. 즉 서드파티가 자기 패키지에 `nanobot.tools` 엔트리포인트를 선언하면 nanobot이 그 도구를 로드합니다.
@@ -126,9 +126,9 @@
 | `shell.py` | 셸 명령 실행(샌드박스 백엔드 연동; [12](12_security_and_sandbox.md)). |
 | `apply_patch.py` | 통합 패치(diff) 적용. |
 | `web.py` | 웹 페이지 가져오기/본문 추출. |
-| `search.py` | 웹 검색(ddgs 기반). |
+| `search.py` | 웹 검색(ddgs[(용어사전)](../dict/09_dev_stack.md#ddgs) 기반). |
 | `mcp.py` | MCP 서버의 도구를 `mcp_*` 이름으로 노출([tech_background/04](tech_background/04_mcp.md)). |
-| `spawn.py` | 서브에이전트 생성/위임(Subagent). |
+| `spawn.py` | 서브에이전트 생성/위임(Subagent[(용어사전)](../dict/01_core_architecture.md#subagent)). |
 | `image_generation.py` | 이미지 생성. |
 | `cron.py` | 예약 작업 등록/관리([11](11_cron_and_triggers.md)). |
 | `self.py` | 자기 수정(self-modification) 관련 기능. |
@@ -145,7 +145,7 @@
 | `context.py` | "Runtime context for tool construction"(L1) — 도구 생성 시 넘겨줄 실행 컨텍스트. `_SKIP_MODULES` 대상. |
 | `file_state.py` | "Track file-read state for read-before-edit warnings and read deduplication"(L1) — `read_file`의 중복 읽기 감지와 "읽기 전 편집" 경고에 사용. `_SKIP_MODULES` 대상. |
 | `path_utils.py` | "Shared path helpers for workspace-scoped tools"(L1) — 워크스페이스 경계 검사와 연동([12](12_security_and_sandbox.md)). |
-| `runtime_state.py` | "RuntimeState protocol: agent loop state exposed to MyTool"(L1) — 에이전트 루프 상태를 `self.py`의 MyTool에 노출하는 Protocol. `_SKIP_MODULES` 대상. |
+| `runtime_state.py` | "RuntimeState protocol: agent loop state exposed to MyTool"(L1) — 에이전트 루프 상태를 `self.py`의 MyTool[(용어사전)](../dict/02_tools_and_skills.md#mytool)에 노출하는 Protocol. `_SKIP_MODULES` 대상. |
 
 > `sandbox.py`, `mcp.py`는 `_SKIP_MODULES`(loader.py L14-17)에 있어 자동 발견에서 제외됩니다. 이들은 다른
 > 도구가 사용하는 **인프라**이거나 별도 경로로 등록됩니다.

@@ -4,8 +4,8 @@
 >
 > [06](06_state_and_persistence.md)의 세션이 "대화 하나하나"의 기록이라면, 여기서 다루는 **메모리**는
 > 세션을 넘나드는 **오래 남는 지식**입니다. nanobot은 durable memory 파일(`MEMORY.md`, `SOUL.md`, `USER.md`)과
-> append-only `history.jsonl`을 두고, 주기적으로 **Dream**(꿈)이라는 배경 작업이 그 기록을 정리해
-> 메모리 파일을 스스로 갱신합니다 — 이것이 nanobot의 "자기개선" 메커니즘입니다. 함께, **Skill**은
+> append-only `history.jsonl`을 두고, 주기적으로 **Dream[(용어사전)](../dict/03_memory_context_session.md#dream)**(꿈)이라는 배경 작업이 그 기록을 정리해
+> 메모리 파일을 스스로 갱신합니다 — 이것이 nanobot의 "자기개선" 메커니즘입니다. 함께, **Skill[(용어사전)](../dict/01_core_architecture.md#skill)**은
 > `SKILL.md` 마크다운으로 에이전트에게 절차/지식을 가르치는 방식입니다. 근거는 `agent/memory.py`,
 > `agent/skills.py`, `nanobot/skills/`, 그리고 Dream을 스케줄하는 `cli/commands.py`입니다.
 
@@ -23,7 +23,7 @@
 ## 메모리 파일들: `MemoryStore`
 
 `nanobot/agent/memory.py`의 `MemoryStore`(L40-41) docstring:
-"Pure file I/O for memory files: MEMORY.md, history.jsonl, SOUL.md, USER.md."
+"Pure file I/O for memory files: MEMORY.md[(용어사전)](../dict/03_memory_context_session.md#memorymd), history.jsonl[(용어사전)](../dict/03_memory_context_session.md#historyjsonl), SOUL.md[(용어사전)](../dict/03_memory_context_session.md#soulmd), USER.md."
 즉 순수 파일 입출력 계층입니다(요약/LLM 호출은 별도의 `Consolidator`, L735). 관리 대상(L64-77):
 
 - `memory/MEMORY.md`(L64) — 장기 사실(long-term facts). 에이전트가 기억해야 할 요점.
@@ -47,9 +47,9 @@
 
 - `strip_think`로 템플릿/사고 누출을 제거한 뒤 기록.
 - 항목 수 hard cap을 적용.
-- **락(filelock)** 으로 "커서 할당 + append"를 원자화. **왜?** 여러 곳(여러 세션/백그라운드 작업)이 동시에
+- **락(filelock[(용어사전)](../dict/09_dev_stack.md#filelock))** 으로 "커서 할당 + append"를 원자화. **왜?** 여러 곳(여러 세션/백그라운드 작업)이 동시에
   같은 파일에 쓰면 커서가 꼬이거나 줄이 섞일 수 있습니다.
-- JSONL 한 줄로 기록하고 `.cursor`/커서 상태를 갱신.
+- JSONL[(용어사전)](../dict/03_memory_context_session.md#jsonl) 한 줄로 기록하고 `.cursor`/커서 상태를 갱신.
 
 **커서의 의미:** Dream은 "지난번에 커서 N까지 처리했다"를 `.dream_cursor`로 기억하고, 그 이후의 새 항목만
 다음에 처리합니다. 이 append-only + 커서 조합이 "무엇을 아직 정리 안 했는가"를 추적하는 핵심입니다.
@@ -130,4 +130,4 @@ skill-creator  summarize  tmux  update-setup  weather  README.md
 - `long-goal` — 장기 목표 수행 절차([11](11_cron_and_triggers.md)의 sustained goal와 연결).
 - 그 외 실제 존재: `cron`, `github`, `image-generation`, `tmux`, `weather`, `clawhub`, `update-setup`, `my`.
 
-다음 문서에서는 이 모든 것을 실행하는 LLM 프로바이더 계층을 봅니다 → [09_providers.md](09_providers.md).
+다음 문서에서는 이 모든 것을 실행하는 LLM[(용어사전)](../dict/08_ai_llm_concepts.md#llm) 프로바이더 계층을 봅니다 → [09_providers.md](09_providers.md).

@@ -2,7 +2,7 @@
 
 > **이 문서에서 다루는 큰 맥락**
 >
-> 프로덕션 LLM 앱은 하나의 모델만 믿을 수 없습니다 — 특정 모델이 다운되거나 레이트리밋에 걸리면 서비스가 멈추기
+> 프로덕션 LLM[(용어사전)](../../dict/08_ai_llm_concepts.md#llm) 앱은 하나의 모델만 믿을 수 없습니다 — 특정 모델이 다운되거나 레이트리밋에 걸리면 서비스가 멈추기
 > 때문입니다. **라우팅**은 상황에 맞는 모델을 고르는 것, **폴백**은 실패 시 다른 모델로 넘기는 것입니다.
 > 이 문서는 하위 개념들(오류 분류, 재시도와 지수 백오프, 서킷 브레이커, 라우터/게이트웨이, 스트리밍 페일오버)과
 > 그 근간(분산 시스템의 신뢰성 패턴, FrugalGPT/RouteLLM 등), 그리고 `nanobot/providers/registry.py`와
@@ -35,7 +35,7 @@ LLM API라는 새 대상에 적용한 것입니다. 다만 LLM 특유의 변수(
 ## 하위 개념 상세
 
 ### (a) 오류 분류(error taxonomy) — 폴백의 전제 조건
-모든 실패가 폴백 대상은 아닙니다. HTTP 오류를 두 부류로 나누는 것이 출발점입니다:
+모든 실패가 폴백 대상은 아닙니다. HTTP[(용어사전)](../../dict/05_channels_gateway_ui.md#http) 오류를 두 부류로 나누는 것이 출발점입니다:
 - **일시적(transient) 오류** — 429(레이트리밋), 500/502/503(서버 문제), 529(overloaded), 타임아웃, 연결 오류.
   다른 백엔드로 넘기면 성공할 가능성이 높습니다. → **폴백/재시도 대상.**
 - **결정적(deterministic) 오류** — 401/403(인증/권한: 어디로 넘겨도 같은 키 문제), 400(잘못된 요청: 요청 자체가 문제),
@@ -107,7 +107,7 @@ RouteLLM(2024)은 선호 데이터를 학습한 라우터로 GPT-4 수준 품질
 | 시기 | 이정표 | 내용 |
 | --- | --- | --- |
 | 2007 | **Release It!** (Michael Nygard) | 서킷 브레이커/격벽(bulkhead) 등 안정성 패턴의 정식화. |
-| 2015 | AWS Architecture Blog **Exponential Backoff and Jitter** | 재시도 폭풍과 jitter의 고전적 분석. |
+| 2015 | AWS Architecture Blog **Exponential Backoff[(용어사전)](../../dict/04_providers_and_llm.md#exponential-backoff) and Jitter** | 재시도 폭풍과 jitter의 고전적 분석. |
 | 2011- | Netflix **Hystrix** | 서킷 브레이커의 대규모 실전 구현 — 마이크로서비스 시대의 표준 교보재. |
 | 2023.05 | **FrugalGPT** (Chen et al., arXiv:2305.05176) | LLM 캐스케이드(싼 모델→비싼 모델)로 비용 최적화. |
 | 2023- | **LiteLLM / OpenRouter** | 다중 프로바이더 게이트웨이의 보편화 — 라우팅/폴백의 인프라화. |
@@ -117,7 +117,7 @@ RouteLLM(2024)은 선호 데이터를 학습한 라우터로 GPT-4 수준 품질
 - FrugalGPT: https://arxiv.org/abs/2305.05176
 - RouteLLM: https://arxiv.org/abs/2406.18665
 - Exponential Backoff and Jitter (AWS): https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
-- Circuit Breaker (Martin Fowler 정리): https://martinfowler.com/bliki/CircuitBreaker.html
+- Circuit Breaker[(용어사전)](../../dict/04_providers_and_llm.md#circuit-breaker) (Martin Fowler 정리): https://martinfowler.com/bliki/CircuitBreaker.html
 
 ---
 

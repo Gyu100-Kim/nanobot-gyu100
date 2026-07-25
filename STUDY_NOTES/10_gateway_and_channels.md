@@ -2,8 +2,8 @@
 
 > **이 문서에서 다루는 큰 맥락**
 >
-> **채널(Channel)** 은 텔레그램/디스코드/슬랙/WebUI 같은 "바깥 세계"와 nanobot을 잇는 어댑터입니다. 들어온
-> 메시지를 MessageBus의 inbound로 넣고, 나가는 메시지를 각 플랫폼 형식으로 보냅니다. **게이트웨이(Gateway)** 는
+> **채널(Channel[(용어사전)](../dict/01_core_architecture.md#channel))** 은 텔레그램/디스코드/슬랙/WebUI 같은 "바깥 세계"와 nanobot을 잇는 어댑터입니다. 들어온
+> 메시지를 MessageBus의 inbound로 넣고, 나가는 메시지를 각 플랫폼 형식으로 보냅니다. **게이트웨이(Gateway[(용어사전)](../dict/01_core_architecture.md#gateway))** 는
 > 이 채널들과 에이전트 루프·cron을 한 프로세스에서 **오래 실행**하는 오케스트레이터입니다. 이 문서는
 > 채널 공통 인터페이스(`channels/base.py`), 발견/디스패치(`manager.py`, `registry.py`), 게이트웨이 실행
 > (`_run_gateway`, `gateway/runtime.py`, `gateway/service.py`)을 라인 근거로 설명합니다.
@@ -50,7 +50,7 @@
 - `send_tool_hints`(L32) — 도구 사용 힌트 표시 여부.
 - `show_reasoning`(L33) — reasoning 표시 여부.
 
-생성자(L35-46): `config`, `bus`(MessageBus), `_running` 플래그를 보관.
+생성자(L35-46): `config`, `bus`(MessageBus[(용어사전)](../dict/01_core_architecture.md#messagebus)), `_running` 플래그를 보관.
 
 추상 메서드(각 채널이 반드시 구현):
 - `start()`(L74-84): 플랫폼에 연결하고 **장기 실행**하며 수신 메시지를 `_handle_message()`로 전달(docstring L79-83).
@@ -138,7 +138,7 @@ dingtalk  discord  email  feishu  matrix  mattermost  mochat  msteams
 napcat  qq  signal  slack  telegram  websocket  wecom  weixin  whatsapp
 ```
 
-(`websocket.py`는 WebUI가 붙는 WebSocket 채널 — [13](13_api_sdk_webui.md)의 WebUI 프로토콜과 연결.)
+(`websocket.py`는 WebUI가 붙는 WebSocket[(용어사전)](../dict/05_channels_gateway_ui.md#websocket) 채널 — [13](13_api_sdk_webui.md)의 WebUI[(용어사전)](../dict/05_channels_gateway_ui.md#webui) 프로토콜과 연결.)
 
 **새 채널 추가 절차(구조에서 도출):**
 1. `channels/`에 새 모듈을 만들어 `BaseChannel`을 상속하고 `name`/`start`/`stop`/`send`를 구현.
@@ -147,7 +147,7 @@ napcat  qq  signal  slack  telegram  websocket  wecom  weixin  whatsapp
 4. 외부 배포 플러그인이라면 `entry_points`의 `nanobot.channels` 그룹에 등록(코어 수정 불필요).
 
 **채널 생명주기:** `manager._init_channels()` 발견 → `start_all()`이 각 채널 `start()`를 장기 태스크로 실행 →
-채널이 메시지 수신 시 `_handle_message` → `publish_inbound` → AgentLoop 처리 → outbound → `_dispatch_outbound`가
+채널이 메시지 수신 시 `_handle_message` → `publish_inbound` → AgentLoop[(용어사전)](../dict/01_core_architecture.md#agentloop) 처리 → outbound → `_dispatch_outbound`가
 `send()` 호출 → 종료 시 `stop_all()`.
 
 다음 문서에서는 게이트웨이 안에서 도는 스케줄러/트리거를 봅니다 → [11_cron_and_triggers.md](11_cron_and_triggers.md).

@@ -37,9 +37,9 @@
 
 ### (a) 토큰(token)과 토크나이저 — 압축의 측정 단위
 **토큰**은 모델이 텍스트를 처리하는 최소 단위입니다(대략 영어 4글자 ≈ 1토큰, 한글은 글자당 1~3토큰으로 더 비쌈).
-현대 LLM은 대부분 **BPE(Byte Pair Encoding)** 계열 토크나이저를 씁니다 — 자주 나오는 바이트 쌍을 반복적으로
+현대 LLM은 대부분 **BPE[(용어사전)](../../dict/08_ai_llm_concepts.md#bpe)(Byte Pair Encoding)** 계열 토크나이저를 씁니다 — 자주 나오는 바이트 쌍을 반복적으로
 병합해 어휘를 만드는 알고리즘(Sennrich et al., 2016이 기계번역에 도입, GPT-2가 byte-level BPE로 정착).
-OpenAI의 **tiktoken** 라이브러리는 이 BPE 토크나이저(예: `cl100k_base`)의 고속 구현으로,
+OpenAI의 **tiktoken[(용어사전)](../../dict/08_ai_llm_concepts.md#tiktoken)** 라이브러리는 이 BPE 토크나이저(예: `cl100k_base`)의 고속 구현으로,
 "이 텍스트가 몇 토큰인가"를 API 호출 없이 로컬에서 정확히 셀 수 있게 해 줍니다.
 **왜 세는 것이 중요한가:** 무엇을 얼마나 자를지는 토큰 수를 알아야 계산할 수 있습니다. 문자 수 근사는
 언어/이모지/코드에 따라 크게 어긋납니다.
@@ -112,11 +112,11 @@ MemGPT(2023)가 정식화한 관점: 컨텍스트 창을 **RAM**, 외부 저장�
 | 시기 | 이정표 | 내용 |
 | --- | --- | --- |
 | 2016 | **BPE 서브워드 분절** (Sennrich et al., arXiv:1508.07909) | 기계번역에 BPE 도입 — 현대 토크나이저의 뿌리. |
-| 2017 | **Transformer** (Vaswani et al., arXiv:1706.03762) | self-attention의 계산량이 시퀀스 길이의 제곱(O(n²)) — 컨텍스트 창이 유한한 근본 이유. |
+| 2017 | **Transformer[(용어사전)](../../dict/08_ai_llm_concepts.md#transformer)** (Vaswani et al., arXiv:1706.03762) | self-attention의 계산량이 시퀀스 길이의 제곱(O(n²)) — 컨텍스트 창이 유한한 근본 이유. |
 | 2019 | **GPT-2 byte-level BPE** | 바이트 수준 BPE로 어떤 유니코드 텍스트도 처리 — tiktoken 계열의 직계 조상. |
-| 2023.07 | **Lost in the Middle** (Liu et al., arXiv:2307.03172) | 긴 컨텍스트 중간 정보의 활용 저하를 실증. |
+| 2023.07 | **Lost in the Middle[(용어사전)](../../dict/08_ai_llm_concepts.md#lost-in-the-middle)** (Liu et al., arXiv:2307.03172) | 긴 컨텍스트 중간 정보의 활용 저하를 실증. |
 | 2023.09 | **StreamingLLM** (Xiao et al., arXiv:2309.17453) | attention sink — 초기 토큰 유지가 무한 스트리밍의 열쇠. |
-| 2023.10 | **MemGPT** (Packer et al., arXiv:2310.08560) | "LLM as OS" — 컨텍스트를 RAM처럼 관리하는 계층적 메모리 정식화. |
+| 2023.10 | **MemGPT** (Packer et al., arXiv:2310.08560) | "LLM[(용어사전)](../../dict/08_ai_llm_concepts.md#llm) as OS" — 컨텍스트를 RAM처럼 관리하는 계층적 메모리 정식화. |
 | 2023.10 | **LLMLingua** (Jiang et al., arXiv:2310.05736) | 작은 모델로 프롬프트 자체를 압축(토큰 삭제)하는 계열의 대표. |
 | 2024 | **프롬프트 캐시 상용화** (Anthropic/OpenAI/DeepSeek) | prefix 재사용으로 비용·지연 절감 — 압축과의 상호작용이 실무 이슈로. |
 
