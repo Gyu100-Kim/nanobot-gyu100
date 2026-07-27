@@ -157,6 +157,32 @@ extras로 분리하면 **핵심은 가볍게 유지**하고 **사용자가 쓰�
 
 ---
 
+## 실전 예제로 차근차근 따라가기 — "텔레그램 켜 줘" 한 마디의 뒷면
+
+사용자가 WebUI에서 Telegram 채널을 켜는 버튼을 눌렀다고 합시다. 그런데 이 컴퓨터에는
+`python-telegram-bot` 패키지가 설치되어 있지 않습니다.
+
+**1단계 — 목록 확인.** `optional_features_payload()`가 WebUI에 보여 줄 기능 목록을
+만들 때, `extra_installed("telegram")`이 각 요구 패키지를 `importlib.metadata`로
+조회합니다. `python-telegram-bot`이 없으므로 이 기능은 `missing_dependency` 상태로
+표시됩니다.
+
+**2단계 — 설치.** 사용자가 켜기를 요청하면 `enable_optional_feature("telegram")`이
+호출됩니다. 미설치이므로 먼저 `install_extra("telegram")`이
+`python -m pip install ...`을 서브프로세스로 실행합니다. pip 자체가 없으면
+`ensurepip`로 pip부터 만들고 한 번 재시도합니다. (단, 원격 WebUI에서의 설치 요청은
+보안상 기본 거부됩니다 — 403.)
+
+**3단계 — 설정 기록.** 설치가 끝나면 `enable_channel_config()`가 `config.json`에
+`channels.telegram.enabled = true`를 적습니다. 다음에 게이트웨이가 (재)시작될 때
+[10](10_gateway_and_channels.md)의 `ChannelManager`가 이 설정을 보고 Telegram 채널을
+import·기동합니다.
+
+이 흐름이 lazy deps 설계의 완성형입니다: **기본 설치는 가볍게, 필요한 순간에
+감지 → 설치 → 활성화**를 코드가 대신해 줍니다.
+
+---
+
 ## 버전 상·하한 고정 전략과 트레이드오프
 
 `dependencies` 대부분은 `>=X,<Y` 형태로 **하한과 상한을 함께** 둡니다. 예:

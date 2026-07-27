@@ -155,6 +155,32 @@ print(result.content)
 
 ---
 
+## 실전 예제로 차근차근 따라가기 — 세 창구로 같은 질문을 던져 보면
+
+같은 질문 "오늘 할 일 알려줘"를 세 창구로 각각 보내면 무슨 일이 일어날까요?
+
+**창구 1 — HTTP API.** 기존 OpenAI 클라이언트로 base URL만 바꿔
+`POST /v1/chat/completions`에 요청을 보냅니다. `auth_middleware`가 Bearer 토큰을
+상수 시간 비교(`hmac.compare_digest`)로 확인하고, `handle_chat_completions`가
+요청을 에이전트 턴으로 변환합니다. `stream: true`였다면 답변 토큰이 SSE로
+흘러나옵니다. 같은 세션 키의 동시 요청은 세션 락으로 줄을 세웁니다.
+
+**창구 2 — Python SDK.** 코드에서 `bot = Nanobot.from_config()` 후
+`await bot.run("오늘 할 일 알려줘")`를 부릅니다. `from_config`가 설정을 읽어
+`AgentLoop`를 조립하고, `run`이 `sdk:default` 세션에서 한 턴을 돌려 `RunResult`를
+돌려줍니다. 서버도 채널도 없이, 프로그램 안에 에이전트가 통째로 내장된 형태입니다.
+
+**창구 3 — WebUI.** 브라우저의 React 앱이 WebSocket으로 게이트웨이에 상시 연결돼
+있습니다. 입력창에 친 문장은 JSON 메시지가 되어 `WebSocketChannel`에 도착하고,
+다른 채널과 똑같이 `_handle_message` → `publish_inbound`로 버스에 들어갑니다.
+답변이 만들어지는 동안 스트리밍 델타와 진행 상황이 같은 WebSocket으로 밀려와
+화면에 실시간으로 나타납니다.
+
+세 경우 모두, 접수 형식만 다를 뿐 [04](04_agent_loop.md)의 동일한 `AgentLoop`가
+동일한 상태머신으로 턴을 처리합니다. **주방은 하나, 창구만 셋** — 이 문서의 결론입니다.
+
+---
+
 ## `apps/` — 앱 매니페스트
 
 `nanobot/apps/`(파일: `protocol.py`, `cli/`). `protocol.py`(L1 docstring)는 "설정으로 관리되는 agent app"의

@@ -182,6 +182,41 @@ AI(LLM)는 원래 **말만 할 수 있는 두뇌**입니다. 파일을 열지도
 
 ---
 
+## 실전 예제로 차근차근 따라가기 — 도구 호출 한 건의 일생
+
+[04](04_agent_loop.md)의 예제에서 LLM이 `read_file(path="메모.txt")`를 요청했을 때,
+그 요청 한 건이 도구 계층 안에서 어떻게 처리되는지 따라가 봅니다.
+
+**1단계 — 카탈로그는 언제 만들어졌나.** 게이트웨이가 켜질 때 `ToolLoader.discover()`가
+`tools/` 폴더의 모듈을 전부 스캔해 `Tool` 하위 클래스를 찾아냈고, `load(...)`가 스코프와
+`enabled` 검사를 통과한 도구들을 `ToolRegistry`에 등록해 두었습니다. 대화가 시작되면
+`registry.get_definitions()`가 각 도구의 `to_schema()` 결과(이름·설명·파라미터 스키마)를
+정렬된 목록으로 만들어 LLM에게 전달합니다. 즉 LLM은 이미 "read_file이라는 도구가 있고,
+path라는 문자열 인자를 받는다"는 것을 알고 있는 상태입니다.
+
+**2단계 — 주문서 접수와 검사.** LLM의 응답에 도구 호출이 들어 있으면 runner가
+`registry.execute("read_file", {"path": "메모.txt"})`를 부릅니다. `prepare_call`이
+차례로 검사합니다:
+- 이름 확인 — `_tools` 사전에 "read_file"이 있나? (오타라면 `_suggest_name`이
+  "혹시 read_file?"을 제안하는 오류를 돌려줍니다.)
+- 타입 교정 — LLM이 `"limit": "50"`처럼 숫자를 문자열로 보냈어도 `cast_params`가
+  정수 50으로 바꿔 줍니다.
+- 스키마 검증 — 필수 인자가 빠졌거나 타입이 안 맞으면, 실행하지 않고 무엇이 잘못됐는지
+  적은 `ToolResult.error(...)`를 돌려줍니다.
+
+**3단계 — 실행과 결과.** 검사를 통과하면 `tool.execute(path="메모.txt")`가 실행됩니다.
+`ReadFileTool`은 경로를 워크스페이스 규칙에 맞게 해석하고(밖으로 나가려는 경로는
+[12](12_security_and_sandbox.md)의 정책이 차단), 파일을 읽어 `줄번호|내용` 형식의 문자열을
+돌려줍니다. 이 문자열이 `{"role": "tool", "tool_call_id": ...}` 메시지가 되어 대화에
+붙고, 다음 LLM 호출에서 "읽은 내용"으로 보이게 됩니다.
+
+**실패해도 대화는 계속됩니다.** 파일이 없으면 `ToolResult.error("File not found: ...")`에
+"Analyze the error above and try a different approach."라는 힌트가 붙어 LLM에게
+전달됩니다. LLM은 이 오류를 읽고 "아, 파일 이름이 다른가 보다. list_dir로 확인해 보자"처럼
+스스로 경로를 수정합니다 — 오류조차 대화의 일부로 취급하는 것이 이 설계의 핵심입니다.
+
+---
+
 ## 라인바이라인: `read_file`(`ReadFileTool`)
 
 `nanobot/agent/tools/filesystem.py` L246-. 가장 자주 쓰이는 읽기 도구를 통해 도구 한 개의 실제 모습을 봅니다.

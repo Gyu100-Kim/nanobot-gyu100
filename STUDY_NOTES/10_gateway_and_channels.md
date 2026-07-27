@@ -156,6 +156,35 @@
 
 ---
 
+## 실전 예제로 차근차근 따라가기 — 가게 문 여는 아침부터 배달까지
+
+`nanobot gateway`를 실행한 순간부터 답장 배달까지를 따라가 봅니다.
+
+**1단계 — 개점 준비.** `_run_gateway`가 한 이벤트 루프 안에 부품을 차례로 조립합니다:
+`MessageBus`(접수함) → 프로바이더 스냅샷(두뇌 연결) → `SessionManager`(공책 서랍) →
+`ChannelManager`(문 관리인) → `CronService`(알람 시계). 필요하면 헬스 엔드포인트도 켜서
+외부에서 "가게 살아 있나요?"를 확인할 수 있게 합니다.
+
+**2단계 — 문 열기.** `ChannelManager._init_channels()`가 `channels/` 폴더를 스캔해
+설정에서 `enabled: true`인 채널만 골라 import하고(꺼진 채널의 무거운 SDK는 아예
+불러오지 않음 — 지연 import), `start_all()`이 각 채널의 `start()`를 백그라운드
+태스크로 띄웁니다. 이제 Telegram 문, WebSocket 문이 각자 플랫폼에 접속해 대기합니다.
+
+**3단계 — 손님 입장 검사.** Telegram으로 낯선 사람이 DM을 보내면, 채널의
+`_handle_message`가 `is_allowed(sender_id)`로 확인합니다. 허용 목록에 없으면
+페어링 코드를 발급해 돌려보내고, 허용된 사용자면 메시지를 `InboundMessage`로 바꿔
+`publish_inbound`로 접수함에 넣습니다. 여기서부터는 [04](04_agent_loop.md)의 세계입니다.
+
+**4단계 — 배달.** 에이전트가 답을 만들어 outbound 큐에 넣으면, manager의
+`_dispatch_outbound` 루프가 그것을 꺼내 "channel 필드가 telegram이네" 하고
+해당 채널의 `send()`를 부릅니다. 전송 실패 시 재시도, 같은 내용 중복 억제,
+스트리밍 조각 합치기 같은 배달 정책은 채널이 아니라 manager가 한 곳에서 처리합니다.
+
+**5단계 — 폐점.** 종료 신호가 오면 `stop_all()`이 모든 채널을 정리하고,
+세션 캐시를 fsync로 눌러 담은 뒤 프로세스가 내려갑니다.
+
+---
+
 ## 실제 채널 목록과 새 채널 추가
 
 `nanobot/channels/`에 실제 존재하는 채널 구현(확인됨):
