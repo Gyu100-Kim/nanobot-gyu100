@@ -169,6 +169,33 @@ OAuth 기반 프로바이더(OpenAI Codex, GitHub Copilot; L2304-2307)의 로그
 
 ---
 
+## 실전 예제로 차근차근 따라가기 — `nanobot agent -m "안녕"`을 쳤을 때
+
+터미널에 `nanobot agent -m "안녕"`을 입력한 순간부터를 따라가 봅니다.
+
+**1단계 — 전원 버튼.** 셸이 `nanobot` 실행 파일을 찾습니다. 이것은 설치 시
+`[project.scripts]`가 만들어 둔 단축 버튼으로, `nanobot.cli.commands`의 `app`을
+호출합니다. (`python -m nanobot agent -m "안녕"`이었다면 `__main__.py`를 거쳐
+같은 `app()`에 도달합니다.)
+
+**2단계 — 리모컨이 버튼을 해석.** Typer `app`이 인자를 파싱합니다: 첫 단어 `agent`는
+하위 명령이므로 `@app.command()`로 등록된 `agent` 함수(L1829~)가 선택되고,
+`-m "안녕"`은 그 함수의 `message` 매개변수로 들어갑니다.
+
+**3단계 — 최소 실행 환경 조립.** `agent` 명령은 설정(`config.json`)을 읽고
+`MessageBus`, `AgentLoop`, 프로바이더를 조립합니다. 게이트웨이 없이, CLI 자신이
+임시 채널이 되는 1인용 환경입니다.
+
+**4단계 — 한 턴 실행.** "안녕"이 `cli:direct` 세션의 InboundMessage로 흘러 들어가
+[04](04_agent_loop.md)의 턴 파이프라인을 한 바퀴 돌고, 답변이 터미널에 출력됩니다
+(스트리밍 출력은 `cli/stream.py`의 `StreamRenderer`가 담당). `-m`을 줬으므로 답변
+후 프로세스가 종료됩니다 — `-m` 없이 실행했다면 대화형 REPL이 계속 열려 있습니다.
+
+`nanobot gateway`였다면 3단계에서 조립하는 부품이 훨씬 많고(모든 채널 + cron + WebUI)
+프로세스가 종료되지 않고 상시 대기한다는 점만 다릅니다.
+
+---
+
 ## `cli/` 보조 모듈들의 역할
 
 `cli/` 디렉토리의 나머지 파일들은 `commands.py`가 쓰는 부품입니다.

@@ -158,6 +158,33 @@ AGENTS.md가 말하듯 Heartbeat는 "cron 작업으로 점검되는 주기적 �
 
 ---
 
+## 실전 예제로 차근차근 따라가기 — "매일 아침 9시 뉴스 요약" 알람의 하루
+
+사용자가 대화 중 "매일 아침 9시에 뉴스 요약해 줘"라고 부탁했다고 합시다.
+
+**1단계 — 알람 등록.** 에이전트가 cron 도구([05](05_tools.md)의 `cron.py`)로
+`CronJob(schedule=CronSchedule(kind="cron", expr="0 9 * * *"), payload=...)`을 만들어
+`cron/jobs.json`에 저장합니다. `_compute_next_run`이 croniter로 "다음 9시"를 계산해
+`next_run_at_ms`에 적어 둡니다.
+
+**2단계 — 시계는 하나.** `CronService`는 등록된 모든 작업 중 **가장 이른** 다음 실행
+시각(`_get_next_wake_ms`)까지만 `asyncio.sleep`으로 잠듭니다. 알람이 100개여도
+타이머는 하나입니다.
+
+**3단계 — 아침 9시.** `_on_timer`가 깨어나 store를 다시 읽고(그 사이 추가된 작업 반영),
+기한이 된 작업을 골라 `_execute_job`으로 실행합니다. 실제 동작은 주입된 `on_job`
+콜백이 맡는데, 이 작업은 dream도 heartbeat도 아니므로 **평범한 에이전트 턴 하나**로
+실행됩니다: 페이로드의 프롬프트("뉴스 요약해 줘")로 컨텍스트를 짓고, LLM이 웹 검색
+도구를 쓰고, 결과가 만들어집니다.
+
+**4단계 — 배달과 재장전.** `session_delivery.py`가 결과를 원래 채널(예: Telegram 방)로
+`OutboundMessage`로 배달하고, 이 턴은 `_automation_turn` 메타가 붙어 이력에서
+"자동 실행"으로 구분됩니다. 실행 상태(성공/실패)는 `job.state.last_status`에 남고,
+서비스는 다시 `_arm_timer`로 내일 9시를 향해 잠듭니다. 작업 하나가 실패해도
+상태에만 기록될 뿐 스케줄러 전체는 멈추지 않습니다.
+
+---
+
 ## `triggers/` — 외부 트리거
 
 `nanobot/triggers/`는 시간 기반이 아닌 **외부 이벤트** 기반 실행을 담당합니다(파일: `local_runner.py`,
