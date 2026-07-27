@@ -10,6 +10,30 @@
 > 근거 문서: <a href="../AGENTS.md">AGENTS.md</a>(High-Level Architecture),
 > <a href="../docs/architecture.md">docs/architecture.md</a>, <a href="../pyproject.toml">pyproject.toml</a>.
 
+## 비유로 먼저 이해하기 — 큰 건물의 층별 안내도
+
+처음 보는 큰 건물에 들어가면 먼저 **층별 안내도**를 봅니다. 이 문서가 바로 nanobot이라는
+건물의 층별 안내도입니다. 수백 개의 파일을 하나하나 보기 전에, "몇 층에 어떤 부서가 있는지"만
+먼저 파악하는 것입니다.
+
+- `nanobot/` 폴더가 건물 본관입니다. 그 안의 폴더 하나하나가 "부서 사무실"입니다.
+  예: `agent/`는 두뇌 부서, `channels/`는 안내 데스크 부서, `providers/`는 외부 AI 연결 부서.
+- `webui/`는 별관(웹 화면을 만드는 곳), `docs/`는 안내 책자, `tests/`는 품질 검사실입니다.
+- "진입점(entry point)"이란 **건물의 정문**입니다. 어떤 문으로 들어와도
+  결국 `nanobot/cli/commands.py`라는 로비로 모이게 되어 있습니다.
+
+읽는 요령: 아래 디렉토리 지도 표에서 각 폴더의 "한 줄 책임"만 눈에 익혀 두세요.
+지금 다 외울 필요는 전혀 없습니다. 뒤의 문서를 읽다가 "이 파일이 어디 소속이지?" 싶을 때
+다시 돌아와 지도를 보면 됩니다.
+
+**꼭 가져가야 할 것 3가지**
+
+1. 코드 본체는 `nanobot/` 패키지이고, 폴더 이름이 곧 역할이다.
+2. 정문(진입점)은 두 개(`nanobot` 명령, `python -m nanobot`)지만 모두 `cli/commands.py`로 모인다.
+3. 본체는 Python(3.11+), 웹 화면은 TypeScript/React(bun으로 빌드)라는 두 언어로 되어 있다.
+
+---
+
 ## 이 문서의 소목차
 
 1. [저장소 최상위 레이아웃](#저장소-최상위-레이아웃)
